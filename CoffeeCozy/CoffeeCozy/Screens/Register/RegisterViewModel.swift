@@ -5,9 +5,12 @@
 //  Created by Zdeněk Svoboda on 27.05.2025.
 //
 import Foundation
+import Firebase
 import FirebaseAuth
+import FirebaseFirestore
 
 class RegisterViewModel: ObservableObject {
+    @Published var username = ""
     @Published var firstName = ""
     @Published var lastName = ""
     @Published var email = ""
@@ -17,13 +20,39 @@ class RegisterViewModel: ObservableObject {
     @Published var errorMessage = ""
     @Published var showingLogin = false
     
+    private let db = Firestore.firestore()
+    
     func register() {
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
             DispatchQueue.main.async {
                 if let error = error {
-                    self.errorMessage = "Chyba při registraci: \(error.localizedDescription)"
+                    self.errorMessage = "Registration error: \(error.localizedDescription)"
+                } else if let user = result?.user {
+                    self.saveUserToFirestore(uid: user.uid)
                 } else {
-                    // Save firstName, lastName, phone to Firestore (if needed)
+                    self.errorMessage = "Failed to retrieve user information"
+                }
+            }
+        }
+    }
+    
+    private func saveUserToFirestore(uid: String){
+        let userData: [String: Any] = [
+            "username": username,
+            "firstName": firstName,
+            "lastName": lastName,
+            "email": email,
+            "phoneNumber": phone,
+            "role": "user",
+            "avatar": "default",
+            "createdAt": FieldValue.serverTimestamp()
+        ]
+        
+        db.collection("users").document(uid).setData(userData){
+            error in DispatchQueue.main.async {
+                if let error = error {
+                    self.errorMessage = "Error saving to Firestore: \(error.localizedDescription)"
+                } else {
                     self.isRegistered = true
                 }
             }
