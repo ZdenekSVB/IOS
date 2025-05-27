@@ -12,20 +12,21 @@ struct RegisterView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    Text("Registrace")
+                    Text("Registration")
                         .font(.largeTitle)
                         .bold()
                         .padding(.bottom, 20)
                     
                     Group {
-                        TextField("Jméno", text: $viewModel.firstName)
-                        TextField("Příjmení", text: $viewModel.lastName)
-                        TextField("Email", text: $viewModel.email)
+                        TextField("Username", text: $viewModel.username)
+                        TextField("Firstname", text: $viewModel.firstName)
+                        TextField("Lastname", text: $viewModel.lastName)
+                        TextField("E-mail", text: $viewModel.email)
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
-                        TextField("Telefon", text: $viewModel.phone)
+                        TextField("Phone Number", text: $viewModel.phone)
                             .keyboardType(.phonePad)
-                        SecureField("Heslo", text: $viewModel.password)
+                        SecureField("Password", text: $viewModel.password)
                     }
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
@@ -36,7 +37,7 @@ struct RegisterView: View {
                             .padding()
                     }
                     
-                    Button("Registrovat") {
+                    Button("Sign up") {
                         viewModel.register()
                     }
                     .padding()
@@ -47,8 +48,8 @@ struct RegisterView: View {
                     .padding(.horizontal)
                     
                     HStack {
-                        Text("Již máte účet?")
-                        Button("Přihlásit se") {
+                        Text("Already have an account")
+                        Button("Sign in") {
                             viewModel.showingLogin = true
                         }
                         .foregroundColor(.blue)
