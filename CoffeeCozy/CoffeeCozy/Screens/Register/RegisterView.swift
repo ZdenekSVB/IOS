@@ -3,19 +3,10 @@
 //
 //  Created by Zdeněk Svoboda on 23.05.2025.
 //
-
 import SwiftUI
-import FirebaseAuth
 
-struct RegistrationView: View {
-    @State private var firstName = ""
-    @State private var lastName = ""
-    @State private var email = ""
-    @State private var phone = ""
-    @State private var password = ""
-    @State private var isRegistered = false
-    @State private var errorMessage = ""
-    @State private var showingLogin = false
+struct RegisterView: View {
+    @StateObject private var viewModel = RegisterViewModel()
     
     var body: some View {
         NavigationView {
@@ -27,26 +18,26 @@ struct RegistrationView: View {
                         .padding(.bottom, 20)
                     
                     Group {
-                        TextField("Jméno", text: $firstName)
-                        TextField("Příjmení", text: $lastName)
-                        TextField("Email", text: $email)
+                        TextField("Jméno", text: $viewModel.firstName)
+                        TextField("Příjmení", text: $viewModel.lastName)
+                        TextField("Email", text: $viewModel.email)
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
-                        TextField("Telefon", text: $phone)
+                        TextField("Telefon", text: $viewModel.phone)
                             .keyboardType(.phonePad)
-                        SecureField("Heslo", text: $password)
+                        SecureField("Heslo", text: $viewModel.password)
                     }
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
                     
-                    if !errorMessage.isEmpty {
-                        Text(errorMessage)
+                    if !viewModel.errorMessage.isEmpty {
+                        Text(viewModel.errorMessage)
                             .foregroundColor(.red)
                             .padding()
                     }
                     
                     Button("Registrovat") {
-                        register()
+                        viewModel.register()
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
@@ -58,35 +49,23 @@ struct RegistrationView: View {
                     HStack {
                         Text("Již máte účet?")
                         Button("Přihlásit se") {
-                            showingLogin = true
+                            viewModel.showingLogin = true
                         }
                         .foregroundColor(.blue)
                     }
                     .padding(.top)
                     
-                    NavigationLink(destination: ContentView(), isActive: $isRegistered) {
+                    NavigationLink(destination: ContentView(), isActive: $viewModel.isRegistered) {
                         EmptyView()
                     }
                     
-                    NavigationLink(destination: LoginView(), isActive: $showingLogin) {
+                    NavigationLink(destination: LoginView(), isActive: $viewModel.showingLogin) {
                         EmptyView()
                     }
                 }
                 .padding()
             }
             .navigationBarHidden(true)
-        }
-    }
-    
-    func register() {
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                errorMessage = "Chyba při registraci: \(error.localizedDescription)"
-            } else {
-                // Here you would typically also save the additional user data (firstName, lastName, phone)
-                // to Firestore or Realtime Database
-                isRegistered = true
-            }
         }
     }
 }

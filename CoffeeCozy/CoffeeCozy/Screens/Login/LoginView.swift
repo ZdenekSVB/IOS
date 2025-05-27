@@ -3,21 +3,14 @@
 //
 //  Created by Zdeněk Svoboda on 23.05.2025.
 //
-
 import SwiftUI
-import FirebaseAuth
 
 struct LoginView: View {
-    @State private var email = ""
-    @State private var password = ""
-    @State private var isLoggedIn = false
-    @State private var errorMessage = ""
-    @State private var showingRegistration = false
+    @StateObject private var viewModel = LoginViewModel()
     
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                // App icon
                 Image(systemName: "cup.and.saucer.fill")
                     .resizable()
                     .scaledToFit()
@@ -29,24 +22,24 @@ struct LoginView: View {
                     .font(.largeTitle)
                     .bold()
                 
-                TextField("Email", text: $email)
+                TextField("Email", text: $viewModel.email)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                     .padding(.horizontal)
                 
-                SecureField("Heslo", text: $password)
+                SecureField("Heslo", text: $viewModel.password)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
                 
-                if !errorMessage.isEmpty {
-                    Text(errorMessage)
+                if !viewModel.errorMessage.isEmpty {
+                    Text(viewModel.errorMessage)
                         .foregroundColor(.red)
                         .padding()
                 }
                 
                 Button("Přihlásit se") {
-                    login()
+                    viewModel.login()
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
@@ -58,32 +51,22 @@ struct LoginView: View {
                 HStack {
                     Text("Nemáte účet?")
                     Button("Vytvořit nový účet") {
-                        showingRegistration = true
+                        viewModel.showingRegistration = true
                     }
                     .foregroundColor(.blue)
                 }
                 .padding(.top)
                 
-                NavigationLink(destination: ContentView(), isActive: $isLoggedIn) {
+                NavigationLink(destination: ContentView(), isActive: $viewModel.isLoggedIn) {
                     EmptyView()
                 }
                 
-                NavigationLink(destination: RegistrationView(), isActive: $showingRegistration) {
+                NavigationLink(destination: RegisterView(), isActive: $viewModel.showingRegistration) {
                     EmptyView()
                 }
             }
             .padding()
             .navigationBarHidden(true)
-        }
-    }
-    
-    func login() {
-        Auth.auth().signIn(withEmail: email, password: password) { result, error in
-            if let error = error {
-                errorMessage = "Chyba při přihlášení: \(error.localizedDescription)"
-            } else {
-                isLoggedIn = true
-            }
         }
     }
 }
