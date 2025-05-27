@@ -45,7 +45,8 @@ class RegisterViewModel: ObservableObject {
             "phoneNumber": phone,
             "role": "user",
             "avatar": "default",
-            "createdAt": FieldValue.serverTimestamp()
+            "createdAt": FieldValue.serverTimestamp(),
+            "lastLoggedIn": FieldValue.serverTimestamp()
         ]
         
         db.collection("users").document(uid).setData(userData){
