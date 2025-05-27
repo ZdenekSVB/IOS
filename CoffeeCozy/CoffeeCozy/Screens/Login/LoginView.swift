@@ -1,4 +1,3 @@
-//
 //  LoginView.swift
 //  CoffeeCozy
 //
@@ -13,63 +12,71 @@ struct LoginView: View {
     @State private var password = ""
     @State private var isLoggedIn = false
     @State private var errorMessage = ""
-
+    @State private var showingRegistration = false
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                Text("Přihlášení / Registrace")
+                // App icon
+                Image(systemName: "cup.and.saucer.fill")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+                    .foregroundColor(.brown)
+                    .padding(.bottom, 30)
+                
+                Text("Přihlášení")
                     .font(.largeTitle)
-
+                    .bold()
+                
                 TextField("Email", text: $email)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.emailAddress)
                     .autocapitalization(.none)
                     .padding(.horizontal)
-
+                
                 SecureField("Heslo", text: $password)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding(.horizontal)
-
+                
                 if !errorMessage.isEmpty {
                     Text(errorMessage)
                         .foregroundColor(.red)
                         .padding()
                 }
-
-                Button("Registrovat") {
-                    register()
-                }
-                .padding()
-                .background(Color.green)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-
+                
                 Button("Přihlásit se") {
                     login()
                 }
                 .padding()
+                .frame(maxWidth: .infinity)
                 .background(Color.blue)
                 .foregroundColor(.white)
                 .cornerRadius(10)
-
+                .padding(.horizontal)
+                
+                HStack {
+                    Text("Nemáte účet?")
+                    Button("Vytvořit nový účet") {
+                        showingRegistration = true
+                    }
+                    .foregroundColor(.blue)
+                }
+                .padding(.top)
+                
                 NavigationLink(destination: ContentView(), isActive: $isLoggedIn) {
+                    EmptyView()
+                }
+                
+                NavigationLink(destination: RegistrationView(), isActive: $showingRegistration) {
                     EmptyView()
                 }
             }
             .padding()
+            .navigationBarHidden(true)
         }
     }
-
-    func register() {
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                errorMessage = "Chyba při registraci: \(error.localizedDescription)"
-            } else {
-                isLoggedIn = true
-            }
-        }
-    }
-
+    
     func login() {
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             if let error = error {
