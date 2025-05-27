@@ -1,4 +1,4 @@
-/Users/xsvobo12/Desktop/project/CoffeeCozy/CoffeeCozy/Screens/Admin/Orders/OrdersView.swift//
+//
 //  OrdersView.swift
 //  CoffeeCozy
 //
