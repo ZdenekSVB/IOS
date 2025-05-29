@@ -9,10 +9,11 @@ struct LoginView: View {
                 Color("Paleta1").ignoresSafeArea()
                 
                 VStack(spacing: 20) {
-                    Image(systemName: "cup.and.saucer.fill")
+                    
+                    Image("Logo")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 100, height: 100)
+                        .frame(width: 300, height: 300)
                         .foregroundColor(.brown)
                         .padding(.bottom, 30)
                     
@@ -20,7 +21,7 @@ struct LoginView: View {
                         .font(.largeTitle)
                         .bold()
                     
-                    clearableTextField("Username", text: $viewModel.username)
+                    clearableTextField("Email", text: $viewModel.email)
                         .keyboardType(.default)
                         .autocapitalization(.none)
                     
@@ -40,7 +41,7 @@ struct LoginView: View {
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color("Paleta2"))
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                     .cornerRadius(10)
                     .padding(.horizontal)
                     
