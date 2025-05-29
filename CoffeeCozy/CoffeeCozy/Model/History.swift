@@ -6,7 +6,7 @@
 //
 import Foundation
 import UIKit
-
+/*
 struct OrderHistory: Identifiable {
     var id: UUID
     var date: Date
@@ -29,3 +29,4 @@ struct OrderHistory: Identifiable {
 
     static let samples = [sample1, sample2]
 }
+*/

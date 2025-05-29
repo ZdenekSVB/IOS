@@ -6,7 +6,7 @@
 //
 import Foundation
 import UIKit
-
+/*
 struct Report: Identifiable {
     var id: UUID
     var message: String
@@ -23,3 +23,4 @@ struct Report: Identifiable {
 
     static let samples = [sample1, sample2]
 }
+*/
