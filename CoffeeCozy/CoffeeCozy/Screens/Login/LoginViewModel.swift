@@ -11,12 +11,11 @@ import FirebaseAuth
 import FirebaseFirestore
 
 class LoginViewModel: ObservableObject {
-    @Published var username = ""
     @Published var email = ""
     @Published var password = ""
     @Published var isLoggedIn = false
     @Published var errorMessage = ""
-    @Published var showingRegistration = false
+    @Published var isAdmin = false
     
     private let db = Firestore.firestore()
     
@@ -36,5 +35,22 @@ class LoginViewModel: ObservableObject {
         
         db.collection("users").document(uid).updateData(["lastLoggedIn": FieldValue.serverTimestamp()])
         self.isLoggedIn = true
+        self.fetchUserData(uid: uid)
+    }
+    
+    private func fetchUserData(uid: String){
+        
+        db.collection("users").document(uid).getDocument{ document, error in
+            DispatchQueue.main.async{
+                if let document = document, document.exists {
+                    let data = document.data()
+                    if let role = data?["role"] as? String{
+                        self.isAdmin = (role == "admin")
+                    } else{
+                        self.isAdmin = false
+                    }
+                }
+            }
+        }
     }
 }

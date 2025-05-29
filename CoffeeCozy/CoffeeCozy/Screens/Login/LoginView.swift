@@ -4,7 +4,7 @@ struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color("Paleta1").ignoresSafeArea()
                 
@@ -53,12 +53,14 @@ struct LoginView: View {
                         }
                     }
                     .padding(.top)
-                    
-                    NavigationLink(destination: ContentView(), isActive: $viewModel.isLoggedIn) {
-                        EmptyView()
-                    }
                 }
                 .padding()
+            }
+            .navigationDestination(isPresented: Binding<Bool>(get: {viewModel.isLoggedIn && viewModel.isAdmin}, set: { _ in })){
+                ASortimentView()
+            }
+            .navigationDestination(isPresented:  Binding<Bool>(get: {viewModel.isLoggedIn && !viewModel.isAdmin}, set: { _ in })){
+                HomeView()
             }
             .navigationBarHidden(true)
         }
