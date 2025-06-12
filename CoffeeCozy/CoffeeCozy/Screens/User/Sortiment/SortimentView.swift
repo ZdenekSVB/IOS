@@ -6,11 +6,28 @@
 //
 
 import SwiftUI
+import ImageIO
 
-struct SortimentView: View{
-    var body: some View{
-        VStack{
-            Text("Toto je SortimentView")
-        }
-    }
+struct SortimentView: View {
+    @StateObject private var viewModel = SortimentViewModel()
+    
+    let columns = [
+           GridItem(.flexible()),
+           GridItem(.flexible())
+       ]
+
+       var body: some View {
+           NavigationView {
+               ScrollView {
+                   LazyVGrid(columns: columns, spacing: 20) {
+                       ForEach(viewModel.items) { item in
+                           SortimentTile(item: item)
+                       }
+                   }
+                   .padding()
+               }
+               .navigationTitle("Sortiment")
+               .background(Color("paleta1").ignoresSafeArea()) // pokud máš světlé pozadí
+           }
+       }
 }

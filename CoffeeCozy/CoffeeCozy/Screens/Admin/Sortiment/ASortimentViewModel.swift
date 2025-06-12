@@ -13,7 +13,7 @@ class ASortimentViewModel: ObservableObject {
             : items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
 
-    func loadItems() {
+    /*func loadItems() {
         items = [
             .init(id: "1",
                   name: "Coffee",
@@ -26,5 +26,5 @@ class ASortimentViewModel: ObservableObject {
                   price: 49,
                   imageURL: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Zeleny-caj.jpg")
         ]
-    }
+    }*/
 }

@@ -1,11 +1,24 @@
 // SortimentItem.swift
 
 import Foundation
+import FirebaseFirestore
 
-struct SortimentItem: Identifiable {
-    let id: String
-    let name: String
-    let description: String
-    let price: Double
-    let imageURL: String
+struct SortimentItem: Identifiable, Codable {
+    @DocumentID var id: String?
+    var name: String
+    var desc: String
+    var image: String
+    var price: Double
+    var numOfOrders: Int
+    var category: String
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case desc = "description"
+        case image
+        case price
+        case numOfOrders
+        case category
+    }
 }

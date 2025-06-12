@@ -19,10 +19,10 @@ class AEditSortimentViewModel: ObservableObject {
     init(item: SortimentItem? = nil) {
         if let item = item {
             self.name = item.name
-            self.description = item.description
+            self.description = item.desc
             self.price = item.price
             self.isEditing = true
-            self.originalURL = URL(string: item.imageURL)
+            self.originalURL = URL(string: item.image)
         } else {
             self.name = ""
             self.description = ""
