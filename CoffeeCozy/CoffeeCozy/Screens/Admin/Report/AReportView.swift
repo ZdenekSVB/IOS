@@ -41,14 +41,6 @@ struct AReportView: View {
                 .listStyle(.plain)
                 .background(Color.white)
 
-                Spacer()
-
-                // Navbar placeholder at bottom
-                Button("Navbar Placeholder") {
-                    // placeholder action
-                }
-                .foregroundColor(.black)
-                .padding()
             }
             .background(Color("Paleta1").ignoresSafeArea())
             .onAppear {

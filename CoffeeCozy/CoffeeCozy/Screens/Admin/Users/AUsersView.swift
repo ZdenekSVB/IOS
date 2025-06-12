@@ -58,13 +58,6 @@ struct AUsersView: View {
                 }
                 .listStyle(.plain)
 
-                Spacer()
-
-                // Navbar placeholder at bottom
-                Button("Navbar Placeholder") {
-                    // placeholder action
-                }
-                .padding()
             }
             .background(Color("Paleta1").ignoresSafeArea())
             .navigationTitle("Users")

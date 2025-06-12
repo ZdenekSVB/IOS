@@ -56,12 +56,17 @@ struct LoginView: View {
                 }
                 .padding()
             }
+            .navigationDestination(isPresented: $viewModel.isLoggedIn) {
+                RootTabView(isAdmin: viewModel.isAdmin)
+            }
+
+            /*
             .navigationDestination(isPresented: Binding<Bool>(get: {viewModel.isLoggedIn && viewModel.isAdmin}, set: { _ in })){
                 ASortimentView()
             }
             .navigationDestination(isPresented:  Binding<Bool>(get: {viewModel.isLoggedIn && !viewModel.isAdmin}, set: { _ in })){
                 HomeView()
-            }
+            }*/
             .navigationBarHidden(true)
         }
     }

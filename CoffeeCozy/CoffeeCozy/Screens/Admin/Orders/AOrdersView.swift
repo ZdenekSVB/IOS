@@ -55,12 +55,7 @@ struct AOrdersView: View {
                 }
                 .listStyle(.plain)
 
-                Spacer()
-
-                // Navbar placeholder
-                Button("Navbar Placeholder") { }
-                    .foregroundColor(.black)
-                    .padding()
+                
             }
             .background(Color("Paleta1").ignoresSafeArea())
             .navigationTitle("Orders")

@@ -33,10 +33,6 @@ struct ASortimentView: View {
                     }
                     .padding()
                 }
-
-                Spacer()
-                Button("Navbar Placeholder") { }
-                    .padding()
             }
             .background(Color("Paleta1").ignoresSafeArea())
             .navigationTitle("Sortiment")
