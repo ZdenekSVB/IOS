@@ -6,7 +6,9 @@ import SwiftUI
 
 struct SortimentTile: View {
     let item: SortimentItem
+    let isAdmin: Bool
     var onEdit: () -> Void
+    var onAddToCart: () -> Void
     var onTap: () -> Void
 
     var body: some View {
@@ -36,12 +38,22 @@ struct SortimentTile: View {
 
                 Spacer()
 
-                Button(action: onEdit) {
-                    Image(systemName: "pencil.circle")
-                        .resizable()
-                        .frame(width: 24, height: 24)
+                if isAdmin {
+                    Button(action: onEdit) {
+                        Image(systemName: "pencil.circle")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Button(action: onAddToCart) {
+                        Image(systemName: "plus.circle.fill")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundColor(.green)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
         }
         .padding()

@@ -10,30 +10,55 @@ import ImageIO
 
 struct SortimentView: View {
     @StateObject private var viewModel = SortimentViewModel()
-    
-    let columns = [
-           GridItem(.flexible()),
-           GridItem(.flexible())
-       ]
+    @StateObject private var cartViewModel = CartViewModel()
 
-       var body: some View {
-           NavigationView {
-               ScrollView {
-                   LazyVGrid(columns: columns, spacing: 20) {
-                       ForEach(viewModel.items) { item in
-                           /*
-                           SortimentTile(
-                               item: item,
-                               onEdit: {}, // prázdné, nebo vynecháš tlačítko v komponentě
-                               onTap: { selectedItem = item }
-                           )
-                           */
-                       }
-                   }
-                   .padding()
-               }
-               .navigationTitle("Sortiment")
-               .background(Color("paleta1").ignoresSafeArea()) // pokud máš světlé pozadí
-           }
-       }
+    @State private var showCart = false
+
+    let columns = [GridItem(.flexible()), GridItem(.flexible())]
+
+    var body: some View {
+        NavigationView {
+            VStack {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 20) {
+                        ForEach(viewModel.items) { item in
+                            SortimentTile(
+                                item: item,
+                                isAdmin: false,
+                                onEdit: {},
+                                onAddToCart: {
+                                    cartViewModel.add(item: item)
+                                },
+                                onTap: {}
+                            )
+                        }
+                    }
+                    .padding()
+                }
+
+                Button(action: {
+                    showCart = true
+                }) {
+                    HStack {
+                        Image(systemName: "cart.fill")
+                        Text("Košík")
+                        Spacer()
+                        Text("\(cartViewModel.totalPrice, specifier: "%.0f") Kč")
+                    }
+                    .padding()
+                    .background(Color.yellow)
+                    .cornerRadius(12)
+                    .foregroundColor(.black)
+                    .bold()
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 12)
+            }
+            .navigationTitle("Sortiment")
+            .background(Color("paleta1").ignoresSafeArea())
+            .sheet(isPresented: $showCart) {
+                CartView(viewModel: cartViewModel)
+            }
+        }
+    }
 }

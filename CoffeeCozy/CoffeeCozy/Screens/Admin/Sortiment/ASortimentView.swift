@@ -25,7 +25,9 @@ struct ASortimentView: View {
                         ForEach(items) { item in
                             SortimentTile(
                                 item: item,
+                                isAdmin: true,
                                 onEdit: { editItem = item },
+                                onAddToCart: {},
                                 onTap: { selectedItem = item }
                             )
                         }
