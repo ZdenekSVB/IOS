@@ -28,6 +28,11 @@ struct LoginView: View {
                     SecureField("Password", text: $viewModel.password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.horizontal)
+                        .submitLabel(.go) // volitelné – změní text klávesy
+                        .onSubmit {
+                            viewModel.login()
+                        }
+
                     
                     if !viewModel.errorMessage.isEmpty {
                         Text(viewModel.errorMessage)

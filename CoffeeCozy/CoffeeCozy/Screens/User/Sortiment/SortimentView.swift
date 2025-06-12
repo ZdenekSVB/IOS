@@ -21,7 +21,13 @@ struct SortimentView: View {
                ScrollView {
                    LazyVGrid(columns: columns, spacing: 20) {
                        ForEach(viewModel.items) { item in
-                           SortimentTile(item: item)
+                           /*
+                           SortimentTile(
+                               item: item,
+                               onEdit: {}, // prázdné, nebo vynecháš tlačítko v komponentě
+                               onTap: { selectedItem = item }
+                           )
+                           */
                        }
                    }
                    .padding()
