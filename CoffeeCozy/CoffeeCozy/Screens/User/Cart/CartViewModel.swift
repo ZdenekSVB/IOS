@@ -7,6 +7,8 @@
 
 import SwiftUI
 import Foundation
+import FirebaseFirestore
+import FirebaseAuth
 
 class CartViewModel: ObservableObject {
     
@@ -42,5 +44,45 @@ class CartViewModel: ObservableObject {
             items.remove(at: index)
         }
     }
+    
+    func submitOrder(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            completion(.failure(NSError(domain: "No user logged in", code: 401)))
+            return
+        }
+
+        let createdAt = Timestamp(date: Date())
+        let finishedAt = Timestamp(date: Date())
+
+        let orderItems = items.map { cartItem in
+            return [
+                "itemId": cartItem.item.id,
+                "name": cartItem.item.name,
+                "price": String(format: "%.0f", cartItem.item.price),
+                "quantity": String(cartItem.quantity),
+            ]
+        }
+
+        let orderData: [String: Any] = [
+            "userId": userId,
+            "createdAt": createdAt,
+            "finishedAt": finishedAt,
+            "totalPrice": totalPrice,
+            "items": orderItems,
+            "status": "pending"
+        ]
+
+        Firestore.firestore().collection("orders").addDocument(data: orderData) { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                DispatchQueue.main.async {
+                    self.items.removeAll()
+                }
+                completion(.success(()))
+            }
+        }
+    }
+
 }
 

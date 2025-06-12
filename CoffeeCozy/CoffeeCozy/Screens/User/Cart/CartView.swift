@@ -103,7 +103,14 @@ struct CartView: View {
 
             
             Button(action: {
-                
+                viewModel.submitOrder { result in
+                       switch result {
+                       case .success:
+                           print("Objednávka úspěšně odeslána.")
+                       case .failure(let error):
+                           print("Chyba při odesílání objednávky: \(error.localizedDescription)")
+                       }
+                   }
             }) {
                 Text("Buy for \(viewModel.totalPrice, specifier: "%.0f") $")
                     .frame(maxWidth: .infinity)
