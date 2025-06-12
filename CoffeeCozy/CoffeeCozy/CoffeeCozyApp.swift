@@ -9,15 +9,23 @@ import SwiftUI
 import FirebaseCore
 @main
 struct CoffeeCozyApp: App {
+    @StateObject var loginViewModel = LoginViewModel()
     let persistenceController = PersistenceController.shared
-    init() {FirebaseApp.configure()}
-    
-    
-    var body: some Scene {
 
+    init() {
+        FirebaseApp.configure()
+    }
+
+    var body: some Scene {
         WindowGroup {
-            LoginView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            if loginViewModel.isLoggedIn {
+                RootTabView(isAdmin: loginViewModel.isAdmin)
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            } else {
+                LoginView()
+                    .environmentObject(loginViewModel)
+                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            }
         }
     }
 }

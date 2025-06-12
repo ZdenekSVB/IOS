@@ -1,3 +1,8 @@
+//
+//  ASortimentView.swift
+//  CoffeeCozy
+//
+
 import SwiftUI
 
 struct ASortimentView: View {
@@ -29,22 +34,25 @@ struct ASortimentView: View {
                 }
             }
             .background(Color("Paleta1").ignoresSafeArea())
-            .navigationTitle("Sortiment")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: {
                         editNew = true
-                    } label: {
-                        Image(systemName: "plus")
+                    }) {
+                        Label("plus",systemImage: "plus")
+                            .labelStyle(.iconOnly)
                     }
                 }
             }
+            // DETAIL
             .sheet(item: $selectedItem) { item in
                 SortimentDetail(item: item)
             }
+            // NOVÝ
             .sheet(isPresented: $editNew) {
                 AEditSortimentView(viewModel: AEditSortimentViewModel())
             }
+            // EDITACE
             .sheet(item: $editItem) { item in
                 AEditSortimentView(viewModel: AEditSortimentViewModel(item: item))
             }

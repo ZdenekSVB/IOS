@@ -1,12 +1,11 @@
 import SwiftUI
 
 struct LoginView: View {
-    @StateObject private var viewModel = LoginViewModel()
+    @EnvironmentObject var viewModel: LoginViewModel
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color("Paleta1").ignoresSafeArea()
+        ZStack {
+            Color("Paleta1").ignoresSafeArea()
                 
                 VStack(spacing: 20) {
                     
@@ -92,4 +91,4 @@ struct LoginView: View {
             }
         }
     }
-}
+
