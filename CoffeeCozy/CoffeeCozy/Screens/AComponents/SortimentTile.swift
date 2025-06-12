@@ -1,7 +1,3 @@
-
-//  SortimentTile.swift
-//  CoffeeCozy
-
 import SwiftUI
 
 struct SortimentTile: View {
@@ -20,16 +16,22 @@ struct SortimentTile: View {
             } placeholder: {
                 Color.gray.opacity(0.2)
             }
-            .frame(height: 120)
+            .frame(width: 150, height: 120)
+            .frame(maxWidth: .infinity)
+            .background(Color.gray.opacity(0.1))
             .clipped()
-            .cornerRadius(12)
+            .cornerRadius(8)
 
             Text(item.name)
                 .font(.headline)
+                .lineLimit(1)
 
             Text(item.category)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .lineLimit(1)
+
+            Spacer() // ← zafixuje cenu dolů
 
             HStack {
                 Text("\(item.price, specifier: "%.0f") Kč")
@@ -57,6 +59,8 @@ struct SortimentTile: View {
             }
         }
         .padding()
+        .frame(width: 180, height: 220)
+        .frame(maxWidth: .infinity) // 💡 adaptivní šířka v gridu
         .background(Color.white)
         .cornerRadius(20)
         .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 4)

@@ -9,14 +9,9 @@ class AEditSortimentViewModel: ObservableObject {
     @Published var name: String
     @Published var description: String
     @Published var price: Double
-    @Published var image: UIImage?
-    @Published var selectedImageItem: PhotosPickerItem? {
-        didSet { loadImage() }
-    }
+    @Published var imageURL: String
 
     let isEditing: Bool
-    let originalURL: URL?
-
     private var db = Firestore.firestore()
     private var existingItemID: String?
 
@@ -25,15 +20,15 @@ class AEditSortimentViewModel: ObservableObject {
             self.name = item.name
             self.description = item.desc
             self.price = item.price
+            self.imageURL = item.image
             self.isEditing = true
-            self.originalURL = URL(string: item.image)
             self.existingItemID = item.id
         } else {
             self.name = ""
             self.description = ""
             self.price = 0
+            self.imageURL = ""
             self.isEditing = false
-            self.originalURL = nil
             self.existingItemID = nil
         }
     }
@@ -43,15 +38,13 @@ class AEditSortimentViewModel: ObservableObject {
     }
 
     func save() {
-        let imageURL = originalURL?.absoluteString ?? "" // později nahradit skutečnou URL obrázku
-
         let data: [String: Any] = [
             "name": name,
             "description": description,
             "price": price,
             "image": imageURL,
             "numOfOrders": 0,
-            "category": "Coffee" // nebo předat jinak
+            "category": "Coffee"
         ]
 
         if let id = existingItemID {
@@ -68,17 +61,6 @@ class AEditSortimentViewModel: ObservableObject {
                     print("Chyba při vytvoření: \(error.localizedDescription)")
                 } else {
                     print("Položka přidána")
-                }
-            }
-        }
-    }
-
-    private func loadImage() {
-        Task {
-            if let data = try? await selectedImageItem?.loadTransferable(type: Data.self),
-               let uiImage = UIImage(data: data) {
-                await MainActor.run {
-                    self.image = uiImage
                 }
             }
         }

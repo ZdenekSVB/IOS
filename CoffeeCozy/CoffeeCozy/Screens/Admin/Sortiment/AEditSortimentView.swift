@@ -8,14 +8,12 @@ struct AEditSortimentView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Image") {
-                    if let uiImage = viewModel.image {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 150)
-                            .cornerRadius(8)
-                    } else if let url = viewModel.originalURL {
+                Section("Image URL") {
+                    TextField("https://...", text: $viewModel.imageURL)
+                        .keyboardType(.URL)
+                        .autocapitalization(.none)
+
+                    if let url = URL(string: viewModel.imageURL), !viewModel.imageURL.isEmpty {
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .empty:
@@ -24,8 +22,9 @@ struct AEditSortimentView: View {
                             case .success(let image):
                                 image
                                     .resizable()
-                                    .scaledToFit()
+                                    .scaledToFill()
                                     .frame(height: 150)
+                                    .clipped()
                                     .cornerRadius(8)
                             case .failure:
                                 Color.gray
@@ -36,9 +35,7 @@ struct AEditSortimentView: View {
                             }
                         }
                     }
-                    PhotosPicker(selection: $viewModel.selectedImageItem, matching: .images) {
-                        Text(viewModel.image == nil ? "Select Image" : "Change Image")
-                    }
+
                 }
 
                 Section("Basic Info") {

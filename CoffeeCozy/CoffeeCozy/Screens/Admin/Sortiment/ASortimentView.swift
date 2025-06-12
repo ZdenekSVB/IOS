@@ -11,7 +11,11 @@ struct ASortimentView: View {
     @State private var editNew = false
     @State private var editItem: SortimentItem?
 
-    let columns = [GridItem(.flexible()), GridItem(.flexible())]
+    let columns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
+    ]
+
 
     var body: some View {
         NavigationStack {
