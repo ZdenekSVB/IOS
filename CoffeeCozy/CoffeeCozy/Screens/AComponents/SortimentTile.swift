@@ -8,7 +8,8 @@ struct SortimentTile: View {
     var onTap: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(spacing: 8) {
+            // Obrázek
             AsyncImage(url: URL(string: item.image)) { image in
                 image
                     .resizable()
@@ -16,54 +17,61 @@ struct SortimentTile: View {
             } placeholder: {
                 Color.gray.opacity(0.2)
             }
-            .frame(width: 150, height: 120)
-            .frame(maxWidth: .infinity)
-            .background(Color.gray.opacity(0.1))
+            .frame(height: 120)
             .clipped()
-            .cornerRadius(8)
+            .cornerRadius(16)
+            .padding(.top, 8)
 
-            Text(item.name)
-                .font(.headline)
-                .lineLimit(1)
+            // Texty
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.name)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
 
-            Text(item.category)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .lineLimit(1)
+                Text(item.category)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal)
 
-            Spacer() // ← zafixuje cenu dolů
+            Spacer()
 
+            // Cena a tlačítko
             HStack {
-                Text("\(item.price, specifier: "%.0f") Kč")
+                Text("\(item.price)$")
                     .font(.title3)
-                    .bold()
+                    .fontWeight(.bold)
 
                 Spacer()
 
                 if isAdmin {
                     Button(action: onEdit) {
-                        Image(systemName: "pencil.circle")
-                            .resizable()
-                            .frame(width: 24, height: 24)
+                        Image(systemName: "pencil")
+                            .padding()
+                            .background(Color.orange)
+                            .foregroundColor(.white)
+                            .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
                 } else {
                     Button(action: onAddToCart) {
-                        Image(systemName: "plus.circle.fill")
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .foregroundColor(.green)
+                        Image(systemName: "plus")
+                            .padding()
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
                 }
             }
+            .padding([.horizontal, .bottom])
         }
-        .padding()
-        .frame(width: 180, height: 220)
-        .frame(maxWidth: .infinity) // 💡 adaptivní šířka v gridu
+        .frame(width: 180, height: 250)
         .background(Color.white)
-        .cornerRadius(20)
-        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 4)
+        .cornerRadius(24)
+        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         .onTapGesture {
             onTap()
         }
