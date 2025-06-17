@@ -13,3 +13,8 @@ struct User: Identifiable, Codable {
     var createdAt: Date?
     var updatedAt: Date?
 }
+struct UserStat: Identifiable {
+    let id = UUID()
+    let date: Date
+    let count: Int
+}

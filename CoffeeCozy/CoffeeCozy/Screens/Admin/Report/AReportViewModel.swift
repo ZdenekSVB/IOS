@@ -1,14 +1,5 @@
-//
-//  AReportViewModel.swift
-//  CoffeeCozy
-//
-//  Created by Zdeněk Svoboda on 29.05.2025.
-//
-
-
-// AReportViewModel.swift
-
-import SwiftUI
+import Foundation
+import FirebaseFirestore
 
 class AReportViewModel: ObservableObject {
     @Published var entries: [ReportEntry] = []
@@ -19,12 +10,25 @@ class AReportViewModel: ObservableObject {
     }
 
     func loadEntries() {
-        entries = [
-            ReportEntry(category: .login,        message: "User John logged in",                    date: Date().addingTimeInterval(-3600)),
-            ReportEntry(category: .registration, message: "User Mary registered",                     date: Date().addingTimeInterval(-7200)),
-            ReportEntry(category: .deletion,     message: "User Mike deleted account",               date: Date().addingTimeInterval(-10800)),
-            ReportEntry(category: .nameChange,   message: "User Adam changed name to AAdam",         date: Date().addingTimeInterval(-14400)),
-            // ...další testovací záznamy
-        ]
+        let db = Firestore.firestore()
+
+        db.collection("reports")
+            .order(by: "date", descending: true)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("Error loading reports: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let documents = snapshot?.documents else { return }
+
+                do {
+                    self.entries = try documents.compactMap { doc in
+                        try doc.data(as: ReportEntry.self)
+                    }
+                } catch {
+                    print("Error decoding report: \(error)")
+                }
+            }
     }
 }
