@@ -19,10 +19,15 @@ class RegisterViewModel: ObservableObject {
     @Published var isRegistered = false
     @Published var errorMessage = ""
     @Published var showingLogin = false
-    
+
     private let db = Firestore.firestore()
-    
+
     func register() {
+        guard !username.isEmpty, !firstName.isEmpty, !lastName.isEmpty, !email.isEmpty, !phone.isEmpty, !password.isEmpty else {
+            self.errorMessage = "Please fill in all fields"
+            return
+        }
+
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -35,8 +40,8 @@ class RegisterViewModel: ObservableObject {
             }
         }
     }
-    
-    private func saveUserToFirestore(uid: String){
+
+    private func saveUserToFirestore(uid: String) {
         let userData: [String: Any] = [
             "username": username,
             "firstName": firstName,
@@ -48,9 +53,9 @@ class RegisterViewModel: ObservableObject {
             "createdAt": FieldValue.serverTimestamp(),
             "lastLoggedIn": FieldValue.serverTimestamp()
         ]
-        
-        db.collection("users").document(uid).setData(userData){
-            error in DispatchQueue.main.async {
+
+        db.collection("users").document(uid).setData(userData) { error in
+            DispatchQueue.main.async {
                 if let error = error {
                     self.errorMessage = "Error saving to Firestore: \(error.localizedDescription)"
                 } else {

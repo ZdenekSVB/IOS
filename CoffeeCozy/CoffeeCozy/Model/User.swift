@@ -1,14 +1,15 @@
-// User.swift
+import Foundation
+import FirebaseFirestore
 
-import SwiftUI
-
-struct User: Identifiable {
-    var id: UUID
+struct User: Identifiable, Codable {
+    @DocumentID var id: String?
     var username: String
-    var lastname: String
     var firstname: String
+    var lastname: String
     var phoneNumber: String
     var email: String
-    var password: String
-    var image: UIImage
+    var imageUrl: String?
+    var role: String // "user" or "admin"
+    var createdAt: Date?
+    var updatedAt: Date?
 }

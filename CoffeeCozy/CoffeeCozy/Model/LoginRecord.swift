@@ -9,8 +9,9 @@
 
 import Foundation
 
+
 struct LoginRecord: Identifiable {
-    let id = UUID()
-    let date: Date
-    let count: Int
+    var id = UUID()
+    var date: Date
+    var count: Int
 }

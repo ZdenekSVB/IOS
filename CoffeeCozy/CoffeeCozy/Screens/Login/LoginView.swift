@@ -2,13 +2,13 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var viewModel: LoginViewModel
-
+    
     var body: some View {
-        ZStack {
-            Color("Paleta1").ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                Color("Paleta1").ignoresSafeArea()
                 
                 VStack(spacing: 20) {
-                    
                     Image("Logo")
                         .resizable()
                         .scaledToFit()
@@ -27,11 +27,10 @@ struct LoginView: View {
                     SecureField("Password", text: $viewModel.password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.horizontal)
-                        .submitLabel(.go) // volitelné – změní text klávesy
+                        .submitLabel(.go)
                         .onSubmit {
                             viewModel.login()
                         }
-
                     
                     if !viewModel.errorMessage.isEmpty {
                         Text(viewModel.errorMessage)
@@ -63,17 +62,10 @@ struct LoginView: View {
             .navigationDestination(isPresented: $viewModel.isLoggedIn) {
                 RootTabView(isAdmin: viewModel.isAdmin)
             }
-
-            /*
-            .navigationDestination(isPresented: Binding<Bool>(get: {viewModel.isLoggedIn && viewModel.isAdmin}, set: { _ in })){
-                ASortimentView()
-            }
-            .navigationDestination(isPresented:  Binding<Bool>(get: {viewModel.isLoggedIn && !viewModel.isAdmin}, set: { _ in })){
-                HomeView()
-            }*/
             .navigationBarHidden(true)
         }
     }
+    
     
     @ViewBuilder
     private func clearableTextField(_ placeholder: String, text: Binding<String>) -> some View {
@@ -91,4 +83,5 @@ struct LoginView: View {
             }
         }
     }
-
+    
+}

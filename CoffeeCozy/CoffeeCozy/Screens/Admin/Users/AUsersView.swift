@@ -1,71 +1,26 @@
-// UsersView.swift
-// CoffeeCozy
-
 import SwiftUI
-import Charts
 
 struct AUsersView: View {
     @StateObject private var viewModel = AUsersViewModel()
 
     var body: some View {
         NavigationStack {
-            VStack {
-                // Search bar
+            VStack(spacing: 0) {
                 SearchBar(text: $viewModel.searchText)
-                    .padding(.bottom, 8)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
 
-                // Login chart
-                Chart(viewModel.loginData) { record in
-                    LineMark(
-                        x: .value("Date", record.date, unit: .day),
-                        y: .value("Logins", record.count)
-                    )
-                    PointMark(
-                        x: .value("Date", record.date, unit: .day),
-                        y: .value("Logins", record.count)
-                    )
-                }
-                .frame(height: 200)
-                .padding(.horizontal)
+                UserStatsChartView(viewModel: viewModel)
+                    .padding(.horizontal)
 
-                // User list with NavigationLink for edit
-                List(viewModel.filteredUsers) { user in
-                    NavigationLink {
-                        EditUserView(viewModel: AEditUserViewModel(user: user))
-                    } label: {
-                        HStack {
-                            Image(uiImage: user.image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 40, height: 40)
-                                .clipShape(Circle())
-                            VStack(alignment: .leading) {
-                                Text(user.username)
-                                    .font(.headline)
-                                Text("\(user.firstname) \(user.lastname)")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                            }
-                            Spacer()
-                            Button(role: .destructive) {
-                                viewModel.delete(user)
-                            } label: {
-                                Image(systemName: "trash")
-                            }
-                        }
-                        .contentShape(Rectangle())
-                    }
-                }
-                .listStyle(.plain)
-
+                UserListView(users: viewModel.filteredUsers, deleteAction: viewModel.delete)
             }
             .background(Color("Paleta1").ignoresSafeArea())
             .navigationTitle("Users")
             .toolbar {
-                // "+" button to create a new user
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
-                        EditUserView(viewModel: AEditUserViewModel())
+                        AEditUserView(viewModel: AEditUserViewModel())
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -73,7 +28,84 @@ struct AUsersView: View {
             }
             .onAppear {
                 viewModel.loadUsers()
-                viewModel.loadLoginData()
+            }
+        }
+    }
+}
+
+struct UserListView: View {
+    let users: [User]
+    let deleteAction: (User) -> Void
+
+    var body: some View {
+        List {
+            ForEach(users) { user in
+                HStack {
+                    NavigationLink {
+                        AEditUserView(viewModel: AEditUserViewModel(user: user))
+                    } label: {
+                        UserRow(user: user)
+                    }
+
+                    Spacer()
+
+                    Button(role: .destructive) {
+                        deleteAction(user)
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                    .buttonStyle(BorderlessButtonStyle())
+                }
+                .padding(.vertical, 4)
+            }
+        }
+        .listStyle(.plain)
+    }
+}
+
+struct UserRow: View {
+    let user: User
+
+    var body: some View {
+        HStack {
+            if let imageUrl = user.imageUrl, let url = URL(string: imageUrl) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .frame(width: 40, height: 40)
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    case .failure:
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                            .foregroundStyle(.gray)
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            } else {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+                    .foregroundStyle(.gray)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(user.username)
+                    .font(.headline)
+                Text("\(user.firstname) \(user.lastname)")
+                    .font(.subheadline)
+                    .foregroundStyle(.gray)
             }
         }
     }
