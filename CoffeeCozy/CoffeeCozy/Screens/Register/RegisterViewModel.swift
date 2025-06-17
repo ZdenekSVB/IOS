@@ -44,14 +44,14 @@ class RegisterViewModel: ObservableObject {
     private func saveUserToFirestore(uid: String) {
         let userData: [String: Any] = [
             "username": username,
-            "firstName": firstName,
-            "lastName": lastName,
-            "email": email,
+            "firstname": firstName, 
+            "lastname": lastName,
             "phoneNumber": phone,
+            "email": email,
+            "imageUrl": "",
             "role": "user",
-            "avatar": "default",
             "createdAt": FieldValue.serverTimestamp(),
-            "lastLoggedIn": FieldValue.serverTimestamp()
+            "updatedAt": FieldValue.serverTimestamp()
         ]
 
         db.collection("users").document(uid).setData(userData) { error in
@@ -64,4 +64,5 @@ class RegisterViewModel: ObservableObject {
             }
         }
     }
+
 }

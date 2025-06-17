@@ -52,9 +52,6 @@ struct AEditUserView: View {
             }
             .navigationTitle(viewModel.isEditing ? "Edit User" : "New User")
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         viewModel.save()

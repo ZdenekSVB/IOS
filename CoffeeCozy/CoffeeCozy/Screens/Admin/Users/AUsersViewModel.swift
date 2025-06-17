@@ -2,7 +2,6 @@ import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
 
-
 class AUsersViewModel: ObservableObject {
     @Published var users: [User] = []
     @Published var searchText: String = ""
@@ -64,7 +63,7 @@ class AUsersViewModel: ObservableObject {
                 print("User deleted successfully from Firestore")
                 
                 if !user.email.isEmpty {
-                    // Pozor: správné mazání uživatele v Auth může vyžadovat jiný přístup (admin SDK)
+                    // Pozor: správné mazání uživatele v Auth může vyžadovat admin SDK
                     if let currentUser = self.auth.currentUser, currentUser.email == user.email {
                         currentUser.delete { error in
                             if let error = error {
@@ -81,7 +80,6 @@ class AUsersViewModel: ObservableObject {
         }
     }
     
-    // Funkce pro změnu role uživatele a uložení updatedAt
     func updateUserRole(user: User, newRole: String) {
         guard let id = user.id else { return }
         

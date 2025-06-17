@@ -57,7 +57,7 @@ class AEditUserViewModel: ObservableObject {
         ]
 
         if let id = existingUserId {
-            // ✅ Update existujícího uživatele v databázi
+            // Update existujícího uživatele v databázi
             db.collection("users").document(id).setData(userData, merge: true) { error in
                 if let error = error {
                     print("Chyba při aktualizaci uživatele: \(error.localizedDescription)")
@@ -66,7 +66,7 @@ class AEditUserViewModel: ObservableObject {
                 }
             }
         } else {
-            // ✅ Vytvoření nového uživatele – pouze Auth obsahuje heslo
+            // Vytvoření nového uživatele – pouze Auth obsahuje heslo
             Auth.auth().createUser(withEmail: email, password: password) { result, error in
                 if let error = error {
                     print("Chyba při registraci uživatele v Auth: \(error.localizedDescription)")
@@ -75,7 +75,7 @@ class AEditUserViewModel: ObservableObject {
 
                 guard let uid = result?.user.uid else { return }
 
-                // ✅ Firestore – bez hesla
+                // Firestore – bez hesla
                 self.db.collection("users").document(uid).setData(userData) { error in
                     if let error = error {
                         print("Chyba při ukládání do Firestore: \(error.localizedDescription)")
