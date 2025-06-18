@@ -1,6 +1,3 @@
-// AOrdersView.swift
-// CoffeeCozy
-
 import SwiftUI
 import Charts
 
@@ -11,57 +8,50 @@ struct AOrdersView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                // Search bar
-                SearchBar(text: $viewModel.searchText)
-                    .padding(.bottom, 8)
-
-                // Orders over time chart
-                Chart(viewModel.orderCounts) { oc in
-                    LineMark(
-                        x: .value("Date", oc.date, unit: .day),
-                        y: .value("Orders", oc.count)
-                    )
-                    PointMark(
-                        x: .value("Date", oc.date, unit: .day),
-                        y: .value("Orders", oc.count)
-                    )
-                }
-                .frame(height: 200)
-                .padding(.horizontal)
-
-                // List of orders
-                List(viewModel.filteredOrders) { order in
-                    NavigationLink {
-                        AOrderDetailView(order: order)
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(order.userName)
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                Text(order.date, style: .date)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+                if viewModel.isLoading {
+                    ProgressView()
+                } else if viewModel.orders.isEmpty {
+                    if !viewModel.errorMessage.isEmpty {
+                        VStack {
+                            Text(viewModel.errorMessage)
+                                .font(.headline)
+                            Button("Try Again") {
+                                viewModel.loadOrders()
                             }
-
-                            Spacer()
-
-                            Text(String(format: "%.2f Kč", order.total))
-                                .font(.subheadline).bold()
-                                .foregroundColor(.black)
+                            .padding()
                         }
-                        .padding(.vertical, 4)
-                        .listRowBackground(Color.white)
+                    } else {
+                        Text("No orders found")
                     }
+                } else {
+                    List(viewModel.filteredOrders) { order in
+                        NavigationLink {
+                            AOrderDetailView(order: order)
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(order.displayUserName)
+                                        .font(.headline)
+                                    Text(order.createdAt, style: .date)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                                Spacer()
+                                // Zobraz calculatedTotal místo order.total
+                                Text(String(format: "%.2f Kč", order.calculatedTotal))
+                                    .font(.subheadline).bold()
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                    .listStyle(.plain)
                 }
-                .listStyle(.plain)
-
-                
             }
             .toolbar {
                 AdminToolbar()
             }
             .background(Color("Paleta1").ignoresSafeArea())
+            .navigationTitle("Orders")
             .onAppear {
                 viewModel.loadOrders()
             }

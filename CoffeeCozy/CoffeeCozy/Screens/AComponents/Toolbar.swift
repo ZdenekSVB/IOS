@@ -20,7 +20,6 @@ struct UserToolbar: ToolbarContent {
                 Button(action: authViewModel.logout) {
                     HStack {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
-                        Text("Odhlásit")
                     }
                     .foregroundColor(.red)
                 }
@@ -52,7 +51,6 @@ struct AdminToolbar: ToolbarContent {
                 Button(action: authViewModel.logout) {
                     HStack {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
-                        Text("Odhlásit")
                     }
                     .foregroundColor(.red)
                 }
