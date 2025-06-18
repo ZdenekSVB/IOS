@@ -1,8 +1,13 @@
+// AUsersView.swift
+
 import SwiftUI
+
+
 
 struct AUsersView: View {
     @StateObject private var viewModel = AUsersViewModel()
-
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -15,9 +20,9 @@ struct AUsersView: View {
 
                 UserListView(users: viewModel.filteredUsers, deleteAction: viewModel.delete)
             }
-            .background(Color("Paleta1").ignoresSafeArea())
-            .navigationTitle("Users")
             .toolbar {
+                AdminToolbar()
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
                         AEditUserView(viewModel: AEditUserViewModel())
@@ -26,12 +31,14 @@ struct AUsersView: View {
                     }
                 }
             }
+            .background(Color("Paleta1").ignoresSafeArea())
             .onAppear {
                 viewModel.loadUsers()
             }
         }
     }
 }
+
 
 struct UserListView: View {
     let users: [User]

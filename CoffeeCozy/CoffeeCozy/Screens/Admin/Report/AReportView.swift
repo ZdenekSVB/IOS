@@ -42,6 +42,9 @@ struct AReportView: View {
                 .background(Color.white)
 
             }
+            .toolbar {
+                AdminToolbar()
+            }
             .background(Color("Paleta1").ignoresSafeArea())
             .onAppear {
                 viewModel.loadEntries()

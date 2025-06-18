@@ -1,79 +1,9 @@
-//
-//  RootTabView.swift
-//  CoffeeCozy
-//
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//  Created by Vít Čevelík on 12.06.2025.
-//
-
+// RootTabView.swift
 import SwiftUI
-import Foundation
 
 struct RootTabView: View {
-    var isAdmin: Bool
-
+    let isAdmin: Bool
+    
     var body: some View {
         if isAdmin {
             AdminTabView()

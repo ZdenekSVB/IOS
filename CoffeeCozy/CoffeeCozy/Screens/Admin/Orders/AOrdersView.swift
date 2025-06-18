@@ -6,6 +6,7 @@ import Charts
 
 struct AOrdersView: View {
     @StateObject private var viewModel = AOrdersViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
 
     var body: some View {
         NavigationStack {
@@ -57,8 +58,10 @@ struct AOrdersView: View {
 
                 
             }
+            .toolbar {
+                AdminToolbar()
+            }
             .background(Color("Paleta1").ignoresSafeArea())
-            .navigationTitle("Orders")
             .onAppear {
                 viewModel.loadOrders()
             }

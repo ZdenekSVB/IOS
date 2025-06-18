@@ -9,7 +9,7 @@ import SwiftUI
 import FirebaseCore
 @main
 struct CoffeeCozyApp: App {
-    @StateObject var loginViewModel = LoginViewModel()
+    @StateObject private var authViewModel = AuthViewModel.shared
     let persistenceController = PersistenceController.shared
 
     init() {
@@ -18,14 +18,15 @@ struct CoffeeCozyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if loginViewModel.isLoggedIn {
-                RootTabView(isAdmin: loginViewModel.isAdmin)
-                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
-            } else {
-                LoginView()
-                    .environmentObject(loginViewModel)
-                    .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            Group {
+                if authViewModel.isLoggedIn {
+                    RootTabView(isAdmin: authViewModel.isAdmin)
+                } else {
+                    LoginView()
+                }
             }
+            .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            .environmentObject(authViewModel)
         }
     }
 }

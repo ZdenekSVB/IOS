@@ -7,10 +7,23 @@
 
 import SwiftUI
 
-struct HomeView: View{
-    var body: some View{
-        VStack{
-            Text("Toto je HomeView")
+struct HomeView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
+    var body: some View {
+        NavigationStack {
+            VStack {
+                Text("Welcome to CoffeeCozy")
+                    .font(.title)
+                    .padding()
+                
+                Spacer()
+            }
+            .toolbar {
+                UserToolbar()
+            }
+            .navigationTitle("Home")
+            .background(Color("paleta1").ignoresSafeArea())
         }
     }
 }

@@ -74,7 +74,7 @@ struct RegisterView: View {
                     LoginView().navigationBarBackButtonHidden(true)
                 }
             }
-            .navigationBarHidden(true)
+            .navigationTitle("Registration")
         }
     }
 

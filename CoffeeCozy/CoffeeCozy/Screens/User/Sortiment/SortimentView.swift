@@ -11,13 +11,13 @@ import ImageIO
 struct SortimentView: View {
     @StateObject private var viewModel = SortimentViewModel()
     @StateObject private var cartViewModel = CartViewModel()
-
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
     @State private var showCart = false
-
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 20) {
@@ -36,9 +36,7 @@ struct SortimentView: View {
                     .padding()
                 }
 
-                Button(action: {
-                    showCart = true
-                }) {
+                Button(action: { showCart = true }) {
                     HStack {
                         Image(systemName: "cart.fill")
                         Text("Košík")
@@ -53,6 +51,9 @@ struct SortimentView: View {
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 12)
+            }
+            .toolbar {
+                UserToolbar()
             }
             .navigationTitle("Sortiment")
             .background(Color("paleta1").ignoresSafeArea())

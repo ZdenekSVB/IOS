@@ -6,21 +6,20 @@
 //
 
 import SwiftUI
-import Foundation
 
 struct AdminTabView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     init() {
         let tabBarAppearance = UITabBarAppearance()
-                tabBarAppearance.configureWithOpaqueBackground()
-                tabBarAppearance.backgroundColor = UIColor(named: "Paleta2")
-
-                // Barvy pro vybranou položku
-                UITabBar.appearance().standardAppearance = tabBarAppearance
-                UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
-                UITabBar.appearance().tintColor = UIColor(named: "Paleta3")
-                UITabBar.appearance().unselectedItemTintColor = UIColor.black
-        }
+        tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = UIColor(named: "Paleta2")
+        
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        UITabBar.appearance().tintColor = UIColor(named: "Paleta3")
+        UITabBar.appearance().unselectedItemTintColor = UIColor.black
+    }
     
     var body: some View {
         TabView {
@@ -43,10 +42,9 @@ struct AdminTabView: View {
                 .tabItem {
                     Label("Historie", systemImage: "clock.arrow.circlepath")
                 }
-        }.toolbarBackground(.paleta2)
-            .accentColor(.paleta3)
-            
-        
+        }
+        .environmentObject(authViewModel)
+        .toolbarBackground(.paleta2)
+        .accentColor(.paleta3)
     }
 }
-

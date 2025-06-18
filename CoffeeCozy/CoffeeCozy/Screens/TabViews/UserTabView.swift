@@ -9,6 +9,30 @@ import SwiftUI
 import Foundation
 
 struct UserTabView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
+    var body: some View {
+        TabView {
+            HomeView()
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+            
+            SortimentView()
+                .tabItem {
+                    Label("Menu", systemImage: "list.bullet")
+                }
+            
+            OrdersView()
+                .tabItem {
+                    Label("Orders", systemImage: "cart")
+                }
+        }
+    }
+}
+/*
+
+struct UserTabView: View {
     
     init() {
         let tabBarAppearance = UITabBarAppearance()
@@ -43,3 +67,4 @@ struct UserTabView: View {
     }
 }
 
+*/

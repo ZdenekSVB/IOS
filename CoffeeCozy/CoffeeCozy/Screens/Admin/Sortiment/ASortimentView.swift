@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ASortimentView: View {
     @StateObject private var viewModel = ASortimentViewModel()
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var selectedItem: SortimentItem?
     @State private var editNew = false
     @State private var editItem: SortimentItem?
@@ -39,14 +40,14 @@ struct ASortimentView: View {
                     .padding()
                 }
             }
+            
             .background(Color("Paleta1").ignoresSafeArea())
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        editNew = true
-                    }) {
-                        Label("plus",systemImage: "plus")
-                            .labelStyle(.iconOnly)
+                AdminToolbar()
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { editNew = true }) {
+                        Image(systemName: "plus")
                     }
                 }
             }
