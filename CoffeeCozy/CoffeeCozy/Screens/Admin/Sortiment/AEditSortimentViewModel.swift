@@ -53,6 +53,9 @@ class AEditSortimentViewModel: ObservableObject {
                     print("Chyba při aktualizaci: \(error.localizedDescription)")
                 } else {
                     print("Položka upravena")
+                    ReportLogger.log(.nameChange, message: "Item updated: \(self.name)")
+
+                    
                 }
             }
         } else {
@@ -61,6 +64,8 @@ class AEditSortimentViewModel: ObservableObject {
                     print("Chyba při vytvoření: \(error.localizedDescription)")
                 } else {
                     print("Položka přidána")
+                    ReportLogger.log(.registration, message: "New item added: \(self.name)")
+
                 }
             }
         }

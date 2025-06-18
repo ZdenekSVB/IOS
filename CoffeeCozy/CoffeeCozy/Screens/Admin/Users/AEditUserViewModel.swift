@@ -62,6 +62,7 @@ class AEditUserViewModel: ObservableObject {
                 if let error = error {
                     print("Chyba při aktualizaci uživatele: \(error.localizedDescription)")
                 } else {
+                    ReportLogger.log(.nameChange, message: "User updated: \(self.username) – ID: \(id)")
                     print("Uživatel aktualizován")
                 }
             }

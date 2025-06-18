@@ -26,6 +26,7 @@ struct SortimentView: View {
                                 item: item,
                                 isAdmin: false,
                                 onEdit: {},
+                                onDelete: {},
                                 onAddToCart: {
                                     cartViewModel.add(item: item)
                                 },

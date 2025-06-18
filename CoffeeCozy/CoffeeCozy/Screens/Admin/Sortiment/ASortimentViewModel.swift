@@ -36,4 +36,18 @@ class ASortimentViewModel: ObservableObject {
             ? items
             : items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
+    func deleteItem(_ item: SortimentItem) {
+        guard let id = item.id else { return }
+
+        db.collection("sortiment").document(id).delete { error in
+            if let error = error {
+                print("Chyba při mazání: \(error.localizedDescription)")
+            } else {
+                print("Položka smazána")
+                ReportLogger.log(.deletion, message: "Item deleted: \(item.name) (ID: \(id))")
+            }
+        }
+    }
+
+
 }

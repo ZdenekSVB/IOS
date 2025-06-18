@@ -38,6 +38,7 @@ class LoginViewModel: ObservableObject {
         db.collection("users").document(uid).updateData(["lastLoggedIn": FieldValue.serverTimestamp()])
         self.fetchUserData(uid: uid)
     }
+
     
     private func fetchUserData(uid: String) {
         db.collection("users").document(uid).getDocument { document, error in

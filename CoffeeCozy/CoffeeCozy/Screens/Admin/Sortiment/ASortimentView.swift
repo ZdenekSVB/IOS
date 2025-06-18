@@ -32,10 +32,12 @@ struct ASortimentView: View {
                                 item: item,
                                 isAdmin: true,
                                 onEdit: { editItem = item },
+                                onDelete: { viewModel.deleteItem(item) },
                                 onAddToCart: {},
                                 onTap: { selectedItem = item }
                             )
                         }
+
                     }
                     .padding()
                 }

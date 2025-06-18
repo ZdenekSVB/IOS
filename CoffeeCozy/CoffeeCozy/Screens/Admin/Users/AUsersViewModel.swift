@@ -70,6 +70,8 @@ class AUsersViewModel: ObservableObject {
                                 print("Error deleting auth user: \(error.localizedDescription)")
                             } else {
                                 print("User deleted from Authentication")
+                                ReportLogger.log(.deletion, message: "User deleted: \(user.username) (\(user.email))")
+
                             }
                         }
                     } else {

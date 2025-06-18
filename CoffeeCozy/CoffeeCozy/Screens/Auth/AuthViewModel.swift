@@ -13,6 +13,7 @@ class AuthViewModel: ObservableObject {
     private init() {}
     
     func login(email: String, password: String) {
+        
         isLoading = true
         errorMessage = ""
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
@@ -28,6 +29,7 @@ class AuthViewModel: ObservableObject {
                     return
                 }
                 
+                ReportLogger.log(.login, message: "User \(email) logged in")
                 self?.fetchUserRole(uid: user.uid)
             }
         }
@@ -35,6 +37,9 @@ class AuthViewModel: ObservableObject {
     
     func logout() {
         do {
+            if let email = Auth.auth().currentUser?.email {
+                ReportLogger.log(.logout, message: "User \(email) logged out")
+            }
             try Auth.auth().signOut()
             isLoggedIn = false
             isAdmin = false
@@ -42,6 +47,7 @@ class AuthViewModel: ObservableObject {
             errorMessage = error.localizedDescription
         }
     }
+
     
     private func fetchUserRole(uid: String) {
         Firestore.firestore().collection("users").document(uid).getDocument { [weak self] snapshot, error in

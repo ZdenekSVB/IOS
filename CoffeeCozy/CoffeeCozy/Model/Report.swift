@@ -1,5 +1,5 @@
 //
-//  ReportCategory 2.swift
+//  ReportCategory.swift
 //  CoffeeCozy
 //
 //  Created by Zdeněk Svoboda on 17.06.2025.
@@ -11,12 +11,14 @@ import FirebaseFirestore
 
 enum ReportCategory: String, CaseIterable, Identifiable, Codable {
     case login = "Login"
+    case logout = "Logout"
     case registration = "Registration"
     case deletion = "Deletion"
     case nameChange = "Name Change"
 
     var id: String { self.rawValue }
 }
+
 
 struct ReportEntry: Identifiable, Codable {
     @DocumentID var id: String?

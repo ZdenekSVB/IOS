@@ -60,6 +60,8 @@ class RegisterViewModel: ObservableObject {
                     self.errorMessage = "Error saving to Firestore: \(error.localizedDescription)"
                 } else {
                     self.isRegistered = true
+                    ReportLogger.log(.registration, message: "New user registered: \(self.email)")
+
                 }
             }
         }
