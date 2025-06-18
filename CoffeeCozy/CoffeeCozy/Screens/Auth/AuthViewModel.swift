@@ -69,4 +69,16 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
+    
+    func checkIfUserIsLoggedIn() {
+        if let user = Auth.auth().currentUser {
+            // Uživatel je stále přihlášen
+            fetchUserRole(uid: user.uid)
+            print("Uživatel je stále přihlášen: \(user.email ?? "Neznámý email")")
+        } else {
+            isLoggedIn = false
+            print("Uživatel není přihlášen")
+        }
+    }
+
 }

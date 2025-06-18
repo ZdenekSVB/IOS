@@ -14,6 +14,7 @@ struct CoffeeCozyApp: App {
 
     init() {
         FirebaseApp.configure()
+        authViewModel.checkIfUserIsLoggedIn()  // <- přidej sem
     }
 
     var body: some Scene {

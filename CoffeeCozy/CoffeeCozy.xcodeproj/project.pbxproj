@@ -26,7 +26,7 @@
 		2CC8A9F82E02E0F6001FFCCC /* Exceptions for "CoffeeCozy" folder in "CoffeeCozy" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				FBExtension.swift,
+				Services/FBExtension.swift,
 			);
 			target = 2C6D93BA2DE07838000ECC77 /* CoffeeCozy */;
 		};
@@ -37,7 +37,7 @@
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = 2C6D93B92DE07838000ECC77 /* Resources */;
 			membershipExceptions = (
-				FBExtension.swift,
+				Services/FBExtension.swift,
 			);
 		};
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
