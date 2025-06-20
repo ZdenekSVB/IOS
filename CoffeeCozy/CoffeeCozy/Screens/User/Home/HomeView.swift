@@ -17,6 +17,15 @@ struct HomeView: View {
                     .font(.title)
                     .padding()
                 
+                NavigationLink("Go to Map") {
+                                    MapView(viewModel: MapViewModel())
+                                }
+                                .font(.title2)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                
                 Spacer()
             }
             .toolbar {

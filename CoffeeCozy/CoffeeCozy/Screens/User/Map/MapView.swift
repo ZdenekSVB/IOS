@@ -11,7 +11,6 @@ import MapKit
 struct MapView: View {
     
     @State private var viewModel: MapViewModel
-    @State var isDetailPresented = false
     
     init(viewModel: MapViewModel) {
         self.viewModel = viewModel
@@ -20,16 +19,24 @@ struct MapView: View {
     var body: some View {
             NavigationStack {
                 Map(position: $viewModel.state.mapCameraPosition, interactionModes: [.pan, .zoom]) {
-                    ForEach(viewModel.state.cafes) { cafe in
+                    ForEach(viewModel.cafes) { cafe in
                         Annotation(
                             "",
                             coordinate: cafe.coordinates
                         ){
-                            
+                            VStack(spacing: 5) {
+                                Image(
+                                    systemName: "mappin.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.red)
+                                 Text(cafe.name)
+                                     .font(.caption2)
+                                     .fixedSize()
+                                }
                         }
                     }
                 }
-                .navigationTitle("Brno Map")
+                .navigationTitle("Map")
                 .edgesIgnoringSafeArea(.all)
             }
         }

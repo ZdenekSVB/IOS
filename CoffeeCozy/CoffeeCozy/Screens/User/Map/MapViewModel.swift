@@ -8,27 +8,59 @@
 import SwiftUI
 import CoreLocation
 import MapKit
+import FirebaseFirestore
 
 class MapViewModel: ObservableObject{
     var state: MapViewState = MapViewState()
-    @Published var cafes: [Cafes] = []
+    @Published var cafes: [Cafe] = []
 
-        // Výchozí kamera na Brno
-        @Published var region = MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 49.1951, longitude: 16.6068),
-            span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-        )
+    private var db = Firestore.firestore()
 
-        init() {
-            loadCafes()
+    init() {
+        fetchCafes()
+    }
+
+    func fetchCafes() {
+        db.collection("locations").getDocuments { snapshot, error in
+            if let error = error {
+                print("Error fetching cafes: \(error.localizedDescription)")
+                return
+            }
+
+            guard let documents = snapshot?.documents else { return }
+
+            let loadedCafes = documents.compactMap { doc -> Cafe? in
+                let data = doc.data()
+
+                guard
+                    let name = data["name"] as? String,
+                    let latitude = data["latitude"] as? Double,
+                    let longitude = data["longitude"] as? Double
+                else {
+                    return nil
+                }
+
+                return Cafe(
+                    id: doc.documentID,
+                    name: name,
+                    description: data["description"] as? String,
+                    latitude: latitude,
+                    longitude: longitude,
+                    street: data["street"] as? String,
+                    buildingNumber: data["buildingNumber"] as? String,
+                    city: data["city"] as? String,
+                    zipCode: data["zipCode"] as? String
+                )
+            }
+
+            DispatchQueue.main.async {
+                self.cafes = loadedCafes
+            }
         }
+    }
 
-        func loadCafes() {
-            cafes = [
-                Cafes(name: "Špilberk Castle", coordinates: CLLocationCoordinate2D(latitude: 49.1956, longitude: 16.6078)),
-                Cafes(name: "St. Peter and Paul Cathedral", coordinates: CLLocationCoordinate2D(latitude: 49.1964, longitude: 16.6101)),
-                Cafes(name: "Freedom Square", coordinates: CLLocationCoordinate2D(latitude: 49.1939, longitude: 16.6070))
-            ]
-        }
+
+    
+    
     
 }
