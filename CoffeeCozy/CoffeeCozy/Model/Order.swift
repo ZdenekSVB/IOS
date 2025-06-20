@@ -1,6 +1,13 @@
+//
+//  Order.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
+
 import Foundation
 import FirebaseFirestore
-
+import SwiftUI
 
 struct OrderItem: Codable, Identifiable {
     var id: String { itemId }
@@ -18,7 +25,6 @@ struct OrderItem: Codable, Identifiable {
         itemId = try container.decode(String.self, forKey: .itemId)
         name = try container.decode(String.self, forKey: .name)
 
-        // price: zkus dekódovat Double, pokud ne, zkus string -> Double
         if let priceDouble = try? container.decode(Double.self, forKey: .price) {
             price = priceDouble
         } else if let priceString = try? container.decode(String.self, forKey: .price),
@@ -30,7 +36,6 @@ struct OrderItem: Codable, Identifiable {
                                                    debugDescription: "Price is not a valid Double or convertible String")
         }
 
-        // quantity: zkus dekódovat Int, pokud ne, zkus string -> Int
         if let quantityInt = try? container.decode(Int.self, forKey: .quantity) {
             quantity = quantityInt
         } else if let quantityString = try? container.decode(String.self, forKey: .quantity),
@@ -54,7 +59,6 @@ struct OrderRecord: Identifiable, Codable {
     let totalPrice: Double
     let items: [OrderItem]
     
-    // Toto pole není ve Firestore, proto je potřeba ho ignorovat při dekódování
     var userName: String = "Unknown User"
 
     enum CodingKeys: CodingKey {
@@ -66,4 +70,24 @@ struct OrderCount: Identifiable {
     let id = UUID()
     let date: Date
     let count: Int
+}
+
+enum OrderStatus: String {
+    case pending = "pending"
+    case finished = "finished"
+    case cancelled = "cancelled"
+    case unknown = "unknown"
+
+    var color: Color {
+        switch self {
+        case .pending:
+            return .orange
+        case .finished:
+            return .green
+        case .cancelled:
+            return .red
+        case .unknown:
+            return .gray
+        }
+    }
 }

@@ -1,5 +1,9 @@
+//
 //  AEditSortimentViewModel.swift
 //  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
 
 import SwiftUI
 import PhotosUI
@@ -12,24 +16,24 @@ class AEditSortimentViewModel: ObservableObject {
     @Published var imageURL: String
 
     let isEditing: Bool
-    private var db = Firestore.firestore()
+    private let db = Firestore.firestore()
     private var existingItemID: String?
 
     init(item: SortimentItem? = nil) {
         if let item = item {
-            self.name = item.name
-            self.description = item.desc
-            self.price = item.price
-            self.imageURL = item.image
-            self.isEditing = true
-            self.existingItemID = item.id
+            name = item.name
+            description = item.desc
+            price = item.price
+            imageURL = item.image
+            isEditing = true
+            existingItemID = item.id
         } else {
-            self.name = ""
-            self.description = ""
-            self.price = 0
-            self.imageURL = ""
-            self.isEditing = false
-            self.existingItemID = nil
+            name = ""
+            description = ""
+            price = 0
+            imageURL = ""
+            isEditing = false
+            existingItemID = nil
         }
     }
 
@@ -54,8 +58,6 @@ class AEditSortimentViewModel: ObservableObject {
                 } else {
                     print("Položka upravena")
                     ReportLogger.log(.nameChange, message: "Item updated: \(self.name)")
-
-                    
                 }
             }
         } else {
@@ -65,7 +67,6 @@ class AEditSortimentViewModel: ObservableObject {
                 } else {
                     print("Položka přidána")
                     ReportLogger.log(.registration, message: "New item added: \(self.name)")
-
                 }
             }
         }

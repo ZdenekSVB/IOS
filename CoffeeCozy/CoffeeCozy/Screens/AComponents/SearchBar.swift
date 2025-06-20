@@ -5,9 +5,6 @@
 //  Created by Zdeněk Svoboda on 29.05.2025.
 //
 
-//  SearchBar.swift
-//  CoffeeCozy
-
 import SwiftUI
 
 struct SearchBar: View {

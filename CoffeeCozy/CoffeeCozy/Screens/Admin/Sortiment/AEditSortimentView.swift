@@ -1,3 +1,10 @@
+//
+// AEditSortimentView.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
+
 import SwiftUI
 import PhotosUI
 
@@ -17,8 +24,7 @@ struct AEditSortimentView: View {
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .empty:
-                                ProgressView()
-                                    .frame(height: 150)
+                                ProgressView().frame(height: 150)
                             case .success(let image):
                                 image
                                     .resizable()
@@ -27,15 +33,12 @@ struct AEditSortimentView: View {
                                     .clipped()
                                     .cornerRadius(8)
                             case .failure:
-                                Color.gray
-                                    .frame(height: 150)
-                                    .cornerRadius(8)
+                                Color.gray.frame(height: 150).cornerRadius(8)
                             @unknown default:
                                 EmptyView()
                             }
                         }
                     }
-
                 }
 
                 Section("Basic Info") {

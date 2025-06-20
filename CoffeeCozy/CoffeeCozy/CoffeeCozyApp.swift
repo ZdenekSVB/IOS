@@ -9,12 +9,12 @@ import SwiftUI
 import FirebaseCore
 @main
 struct CoffeeCozyApp: App {
-    @StateObject private var authViewModel = AuthViewModel.shared
+    @ObservedObject private var authViewModel = AuthViewModel.shared
     let persistenceController = PersistenceController.shared
 
     init() {
         FirebaseApp.configure()
-        authViewModel.checkIfUserIsLoggedIn()  // <- přidej sem
+        authViewModel.checkIfUserIsLoggedIn()
     }
 
     var body: some Scene {

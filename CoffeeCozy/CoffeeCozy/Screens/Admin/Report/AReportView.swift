@@ -1,6 +1,9 @@
+//
 // AReportView.swift
-// CoffeeCozy
-
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
 import SwiftUI
 
 struct AReportView: View {
@@ -9,7 +12,6 @@ struct AReportView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                // Dropdown menu for selecting category
                 Menu {
                     ForEach(ReportCategory.allCases) { category in
                         Button(category.rawValue) {
@@ -26,7 +28,6 @@ struct AReportView: View {
                 }
                 .padding()
 
-                // List of filtered report entries
                 List(viewModel.filteredEntries) { entry in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(entry.message)
@@ -40,15 +41,10 @@ struct AReportView: View {
                 }
                 .listStyle(.plain)
                 .background(Color.white)
-
             }
-            .toolbar {
-                AdminToolbar()
-            }
+            .toolbar { AdminToolbar() }
             .background(Color("Paleta1").ignoresSafeArea())
-            .onAppear {
-                viewModel.loadEntries()
-            }
+            .onAppear(perform: viewModel.loadEntries)
         }
     }
 }

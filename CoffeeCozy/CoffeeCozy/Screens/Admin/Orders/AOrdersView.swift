@@ -1,3 +1,10 @@
+//
+// AOrdersView.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
+
 import SwiftUI
 import Charts
 
@@ -10,32 +17,23 @@ struct AOrdersView: View {
             VStack {
                 if viewModel.isLoading {
                     ProgressView()
-                } else if viewModel.orders.isEmpty {
-                    if !viewModel.errorMessage.isEmpty {
-                        VStack {
-                            Text(viewModel.errorMessage)
-                                .font(.headline)
-                            Button("Try Again") {
-                                viewModel.loadOrders()
-                            }
+                } else if !viewModel.errorMessage.isEmpty {
+                    VStack {
+                        Text(viewModel.errorMessage)
+                            .font(.headline)
+                        Button("Try Again", action: viewModel.loadOrders)
                             .padding()
-                        }
-                    } else {
-                        Text("No orders found")
                     }
+                } else if viewModel.orders.isEmpty {
+                    Text("No orders found")
                 } else {
-                    // SearchBar pro filtrování seznamu
                     SearchBar(text: $viewModel.searchText)
 
-                    // Graf – vždy se zobrazuje na základě všech objednávek
                     OrderRevenueChartView(orders: viewModel.orders)
                         .padding(.horizontal)
 
-                    // Filtrovaný seznam objednávek
                     List(viewModel.filteredOrders) { order in
-                        NavigationLink {
-                            AOrderDetailView(order: order, viewModel: viewModel)
-                        } label: {
+                        NavigationLink(destination: AOrderDetailView(order: order, viewModel: viewModel)) {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text(order.userName)
@@ -44,9 +42,17 @@ struct AOrdersView: View {
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
                                 }
+
                                 Spacer()
-                                Text(String(format: "%.2f Kč", order.totalPrice))
-                                    .font(.subheadline).bold()
+
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    Text(String(format: "%.2f Kč", order.totalPrice))
+                                        .font(.subheadline)
+                                        .bold()
+
+                                    StatusBadge(status: OrderStatus(rawValue: order.status) ?? .unknown)
+                                        .padding(.top, 4)
+                                }
                             }
                             .padding(.vertical, 4)
                         }
@@ -54,13 +60,9 @@ struct AOrdersView: View {
                     .listStyle(.plain)
                 }
             }
-            .toolbar {
-                AdminToolbar()
-            }
+            .toolbar { AdminToolbar() }
             .background(Color("Paleta1").ignoresSafeArea())
-            .onAppear {
-                viewModel.loadOrders()
-            }
+            .onAppear(perform: viewModel.loadOrders)
         }
     }
 }

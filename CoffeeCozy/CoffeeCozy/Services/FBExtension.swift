@@ -4,10 +4,6 @@
 //
 //  Created by Zdeněk Svoboda on 18.06.2025.
 //
-
-
-// Firestore+Extensions.swift
-import
 import FirebaseFirestore
 
 extension DocumentReference {

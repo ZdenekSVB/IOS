@@ -1,3 +1,10 @@
+//
+//  AEditUserViewModel.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
+
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
@@ -8,7 +15,7 @@ class AEditUserViewModel: ObservableObject {
     @Published var lastname = ""
     @Published var phoneNumber = ""
     @Published var email = ""
-    @Published var password = "" // Používá se jen při registraci
+    @Published var password = ""
     @Published var imageUrl = ""
     @Published var role = "user"
 
@@ -16,30 +23,24 @@ class AEditUserViewModel: ObservableObject {
     private var existingUserId: String?
     private var createdAt: Date?
 
-    var isEditing: Bool {
-        existingUserId != nil
-    }
+    var isEditing: Bool { existingUserId != nil }
 
     init(user: User? = nil) {
         if let user = user {
-            self.username = user.username
-            self.firstname = user.firstname
-            self.lastname = user.lastname
-            self.phoneNumber = user.phoneNumber
-            self.email = user.email
-            self.imageUrl = user.imageUrl ?? ""
-            self.role = user.role
-            self.existingUserId = user.id
-            self.createdAt = user.createdAt
+            username = user.username
+            firstname = user.firstname
+            lastname = user.lastname
+            phoneNumber = user.phoneNumber
+            email = user.email
+            imageUrl = user.imageUrl ?? ""
+            role = user.role
+            existingUserId = user.id
+            createdAt = user.createdAt
         }
     }
 
     var isValid: Bool {
-        !username.isEmpty &&
-        !firstname.isEmpty &&
-        !lastname.isEmpty &&
-        !email.isEmpty &&
-        (!isEditing || !password.isEmpty)
+        !username.isEmpty && !firstname.isEmpty && !lastname.isEmpty && !email.isEmpty && (isEditing || !password.isEmpty)
     }
 
     func save() {
@@ -57,7 +58,6 @@ class AEditUserViewModel: ObservableObject {
         ]
 
         if let id = existingUserId {
-            // Update existujícího uživatele v databázi
             db.collection("users").document(id).setData(userData, merge: true) { error in
                 if let error = error {
                     print("Chyba při aktualizaci uživatele: \(error.localizedDescription)")
@@ -67,7 +67,6 @@ class AEditUserViewModel: ObservableObject {
                 }
             }
         } else {
-            // Vytvoření nového uživatele – pouze Auth obsahuje heslo
             Auth.auth().createUser(withEmail: email, password: password) { result, error in
                 if let error = error {
                     print("Chyba při registraci uživatele v Auth: \(error.localizedDescription)")
@@ -76,7 +75,6 @@ class AEditUserViewModel: ObservableObject {
 
                 guard let uid = result?.user.uid else { return }
 
-                // Firestore – bez hesla
                 self.db.collection("users").document(uid).setData(userData) { error in
                     if let error = error {
                         print("Chyba při ukládání do Firestore: \(error.localizedDescription)")

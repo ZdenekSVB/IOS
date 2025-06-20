@@ -1,3 +1,10 @@
+//
+// User.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
+
 import Foundation
 import FirebaseFirestore
 
@@ -9,7 +16,7 @@ struct User: Identifiable, Codable {
     var phoneNumber: String
     var email: String
     var imageUrl: String?
-    var role: String // "user" or "admin"
+    var role: String 
     var createdAt: Date?
     var updatedAt: Date?
 }

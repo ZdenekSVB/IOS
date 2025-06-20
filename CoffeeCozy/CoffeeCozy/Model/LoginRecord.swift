@@ -5,10 +5,7 @@
 //  Created by Zdeněk Svoboda on 29.05.2025.
 //
 
-// LoginRecord.swift
-
 import Foundation
-
 
 struct LoginRecord: Identifiable {
     var id = UUID()

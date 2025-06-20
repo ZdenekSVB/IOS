@@ -4,6 +4,7 @@
 //
 //  Created by Zdeněk Svoboda on 18.06.2025.
 //
+
 import SwiftUI
 
 struct UserToolbar: ToolbarContent {
@@ -28,13 +29,13 @@ struct UserToolbar: ToolbarContent {
         
     }
 }
+
 //
 //  AdminToolbar.swift
 //  CoffeeCozy
 //
 //  Created by Zdeněk Svoboda on 18.06.2025.
 //
-
 
 import SwiftUI
 

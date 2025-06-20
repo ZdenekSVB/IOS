@@ -1,5 +1,9 @@
+//
 // SortimentItem.swift
-
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
 import Foundation
 import FirebaseFirestore
 

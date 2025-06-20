@@ -1,3 +1,10 @@
+//
+//  ASortimentViewModel.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
+
 import Foundation
 import FirebaseFirestore
 
@@ -5,7 +12,7 @@ class ASortimentViewModel: ObservableObject {
     @Published var items: [SortimentItem] = []
     @Published var searchText = ""
 
-    private var db = Firestore.firestore()
+    private let db = Firestore.firestore()
 
     init() {
         fetchItems()
@@ -23,10 +30,8 @@ class ASortimentViewModel: ObservableObject {
                 return
             }
 
-            self.items = documents.compactMap { doc -> SortimentItem? in
-                let item = try? doc.data(as: SortimentItem.self)
-                print("Načteno (admin): \(String(describing: item))")
-                return item
+            self.items = documents.compactMap {
+                try? $0.data(as: SortimentItem.self)
             }
         }
     }
@@ -36,6 +41,7 @@ class ASortimentViewModel: ObservableObject {
             ? items
             : items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
     }
+
     func deleteItem(_ item: SortimentItem) {
         guard let id = item.id else { return }
 
@@ -48,6 +54,4 @@ class ASortimentViewModel: ObservableObject {
             }
         }
     }
-
-
 }

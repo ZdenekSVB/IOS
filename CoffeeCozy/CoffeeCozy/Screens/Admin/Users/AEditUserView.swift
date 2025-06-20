@@ -1,3 +1,10 @@
+//
+//  AEditUserView.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
+
 import SwiftUI
 
 struct AEditUserView: View {
@@ -15,18 +22,10 @@ struct AEditUserView: View {
                     if let url = URL(string: viewModel.imageUrl), !viewModel.imageUrl.isEmpty {
                         AsyncImage(url: url) { phase in
                             switch phase {
-                            case .empty:
-                                ProgressView().frame(height: 150)
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 150)
-                                    .cornerRadius(8)
-                            case .failure:
-                                Color.gray.frame(height: 150).cornerRadius(8)
-                            @unknown default:
-                                EmptyView()
+                            case .empty: ProgressView().frame(height: 150)
+                            case .success(let image): image.resizable().scaledToFit().frame(height: 150).cornerRadius(8)
+                            case .failure: Color.gray.frame(height: 150).cornerRadius(8)
+                            @unknown default: EmptyView()
                             }
                         }
                     }

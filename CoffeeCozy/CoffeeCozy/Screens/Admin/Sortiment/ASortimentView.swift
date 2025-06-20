@@ -2,6 +2,8 @@
 //  ASortimentView.swift
 //  CoffeeCozy
 //
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
 
 import SwiftUI
 
@@ -17,17 +19,14 @@ struct ASortimentView: View {
         GridItem(.flexible(), spacing: 16)
     ]
 
-
     var body: some View {
         NavigationStack {
             VStack {
                 SearchBar(text: $viewModel.searchText)
 
-                let items = viewModel.filteredItems
-
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(items) { item in
+                        ForEach(viewModel.filteredItems) { item in
                             SortimentTile(
                                 item: item,
                                 isAdmin: true,
@@ -37,34 +36,22 @@ struct ASortimentView: View {
                                 onTap: { selectedItem = item }
                             )
                         }
-
                     }
                     .padding()
                 }
             }
-            
             .background(Color("Paleta1").ignoresSafeArea())
             .toolbar {
                 AdminToolbar()
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { editNew = true }) {
+                    Button { editNew = true } label: {
                         Image(systemName: "plus")
                     }
                 }
             }
-            // DETAIL
-            .sheet(item: $selectedItem) { item in
-                SortimentDetail(item: item)
-            }
-            // NOVÝ
-            .sheet(isPresented: $editNew) {
-                AEditSortimentView(viewModel: AEditSortimentViewModel())
-            }
-            // EDITACE
-            .sheet(item: $editItem) { item in
-                AEditSortimentView(viewModel: AEditSortimentViewModel(item: item))
-            }
+            .sheet(item: $selectedItem) { SortimentDetail(item: $0) }
+            .sheet(isPresented: $editNew) { AEditSortimentView(viewModel: AEditSortimentViewModel()) }
+            .sheet(item: $editItem) { AEditSortimentView(viewModel: AEditSortimentViewModel(item: $0)) }
         }
     }
 }

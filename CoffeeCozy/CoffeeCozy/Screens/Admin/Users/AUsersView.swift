@@ -1,13 +1,16 @@
-// AUsersView.swift
+//
+//  AUsersView.swift
+//  CoffeeCozy
+//
+//  Created by Zdeněk Svoboda on 29.05.2025.
+//
 
 import SwiftUI
-
-
 
 struct AUsersView: View {
     @StateObject private var viewModel = AUsersViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -22,7 +25,6 @@ struct AUsersView: View {
             }
             .toolbar {
                 AdminToolbar()
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
                         AEditUserView(viewModel: AEditUserViewModel())
@@ -32,13 +34,10 @@ struct AUsersView: View {
                 }
             }
             .background(Color("Paleta1").ignoresSafeArea())
-            .onAppear {
-                viewModel.loadUsers()
-            }
+            .onAppear { viewModel.loadUsers() }
         }
     }
 }
-
 
 struct UserListView: View {
     let users: [User]
@@ -53,14 +52,9 @@ struct UserListView: View {
                     } label: {
                         UserRow(user: user)
                     }
-
                     Spacer()
-
-                    Button(role: .destructive) {
-                        deleteAction(user)
-                    } label: {
-                        Image(systemName: "trash")
-                    }
+                    Button(role: .destructive) { deleteAction(user) }
+                    label: { Image(systemName: "trash") }
                     .buttonStyle(BorderlessButtonStyle())
                 }
                 .padding(.vertical, 4)
@@ -78,15 +72,9 @@ struct UserRow: View {
             if let imageUrl = user.imageUrl, let url = URL(string: imageUrl) {
                 AsyncImage(url: url) { phase in
                     switch phase {
-                    case .empty:
-                        ProgressView()
-                            .frame(width: 40, height: 40)
+                    case .empty: ProgressView().frame(width: 40, height: 40)
                     case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
+                        image.resizable().scaledToFill().frame(width: 40, height: 40).clipShape(Circle())
                     case .failure:
                         Image(systemName: "person.circle.fill")
                             .resizable()
@@ -94,8 +82,7 @@ struct UserRow: View {
                             .frame(width: 40, height: 40)
                             .clipShape(Circle())
                             .foregroundStyle(.gray)
-                    @unknown default:
-                        EmptyView()
+                    @unknown default: EmptyView()
                     }
                 }
             } else {
@@ -108,11 +95,8 @@ struct UserRow: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(user.username)
-                    .font(.headline)
-                Text("\(user.firstname) \(user.lastname)")
-                    .font(.subheadline)
-                    .foregroundStyle(.gray)
+                Text(user.username).font(.headline)
+                Text("\(user.firstname) \(user.lastname)").font(.subheadline).foregroundStyle(.gray)
             }
         }
     }
