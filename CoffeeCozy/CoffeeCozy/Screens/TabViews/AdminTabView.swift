@@ -30,17 +30,17 @@ struct AdminTabView: View {
 
             AUsersView()
                 .tabItem {
-                    Label("Uživatelé", systemImage: "person.3.fill")
+                    Label("Users", systemImage: "person.3.fill")
                 }
 
             AReportView()
                 .tabItem {
-                    Label("Reporty", systemImage: "doc.text.magnifyingglass")
+                    Label("Reports", systemImage: "doc.text.magnifyingglass")
                 }
 
             AOrdersView()
                 .tabItem {
-                    Label("Historie", systemImage: "clock.arrow.circlepath")
+                    Label("History", systemImage: "clock.arrow.circlepath")
                 }
         }
         .environmentObject(authViewModel)

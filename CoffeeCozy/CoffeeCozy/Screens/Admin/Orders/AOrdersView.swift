@@ -46,7 +46,7 @@ struct AOrdersView: View {
                                 Spacer()
 
                                 VStack(alignment: .trailing, spacing: 4) {
-                                    Text(String(format: "%.2f Kč", order.totalPrice))
+                                    Text(String(format: "%.2f $", order.totalPrice))
                                         .font(.subheadline)
                                         .bold()
 
