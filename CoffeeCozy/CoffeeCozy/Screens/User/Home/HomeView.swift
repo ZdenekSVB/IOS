@@ -30,7 +30,7 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Home")
-            .background(Color("paleta1").ignoresSafeArea())
+            .background(Color("Paleta1").ignoresSafeArea())
         }
     }
 }

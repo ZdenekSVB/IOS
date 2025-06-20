@@ -10,6 +10,9 @@ import Foundation
 
 struct CartView: View {
     @ObservedObject var viewModel: CartViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var showAlert = false
+    @State private var alertMessage = "Hello"
 
     var body: some View {
         VStack(spacing: 12) {
@@ -107,8 +110,10 @@ struct CartView: View {
                        switch result {
                        case .success:
                            print("Objednávka úspěšně odeslána.")
+                           showAlert = true
                        case .failure(let error):
                            print("Chyba při odesílání objednávky: \(error.localizedDescription)")
+                           showAlert = true
                        }
                    }
             }) {
@@ -121,6 +126,11 @@ struct CartView: View {
                     .bold()
             }
             .padding(.horizontal)
+            .alert(alertMessage, isPresented: $showAlert){
+                Button("OK"){
+                    dismiss()
+                }
+            }
 
 
             Spacer()

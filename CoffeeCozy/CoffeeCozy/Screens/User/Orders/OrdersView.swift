@@ -32,7 +32,7 @@ struct OrdersView: View {
                     }
                 }
                 .navigationTitle("Orders")
-                .background(Color("paleta1").ignoresSafeArea())
+                .background(Color("Paleta1").ignoresSafeArea())
                 .toolbar {
                     UserToolbar()
                 }

@@ -57,7 +57,7 @@ struct SortimentView: View {
                 UserToolbar()
             }
             .navigationTitle("Sortiment")
-            .background(Color("paleta1").ignoresSafeArea())
+            .background(Color("Paleta1").ignoresSafeArea())
             .sheet(isPresented: $showCart) {
                 CartView(viewModel: cartViewModel)
             }

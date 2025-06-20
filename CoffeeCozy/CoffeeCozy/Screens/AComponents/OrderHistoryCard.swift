@@ -16,7 +16,7 @@ struct OrderHistoryCard: View {
             switch item.status.lowercased() {
             case "finished": return .green
             case "pending": return .orange
-            default: return .gray
+            default: return .red
             }
         }
         
