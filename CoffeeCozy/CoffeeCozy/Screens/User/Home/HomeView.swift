@@ -21,6 +21,13 @@ struct HomeView: View {
             }
             .toolbar {
                 UserToolbar()
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        ProfileView(viewModel: ProfileViewModel())
+                    } label: {
+                        Image(systemName: "person.fill")
+                    }
+                }
             }
             .navigationTitle("Home")
             .background(Color("paleta1").ignoresSafeArea())

@@ -13,14 +13,14 @@ struct UserTabView: View {
     
     var body: some View {
         TabView {
+            SortimentView()
+                .tabItem {
+                    Label("Sortiment", systemImage: "list.bullet")
+                }
+            
             HomeView()
                 .tabItem {
                     Label("Home", systemImage: "house")
-                }
-            
-            SortimentView()
-                .tabItem {
-                    Label("Menu", systemImage: "list.bullet")
                 }
             
             OrdersView()
