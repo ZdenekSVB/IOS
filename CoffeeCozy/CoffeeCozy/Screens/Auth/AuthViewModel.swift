@@ -10,6 +10,8 @@ class AuthViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage = ""
     
+    @Published var currentUserUID: String?
+    
     private init() {}
     
     func login(email: String, password: String) {
@@ -73,6 +75,7 @@ class AuthViewModel: ObservableObject {
     func checkIfUserIsLoggedIn() {
         if let user = Auth.auth().currentUser {
             // Uživatel je stále přihlášen
+            currentUserUID = user.uid
             fetchUserRole(uid: user.uid)
             print("Uživatel je stále přihlášen: \(user.email ?? "Neznámý email")")
         } else {

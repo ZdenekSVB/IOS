@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseFirestore
 
 class SortimentViewModel: ObservableObject {
     @Published var items: [SortimentItem] = []
