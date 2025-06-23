@@ -74,6 +74,7 @@ struct OrderCount: Identifiable {
 
 enum OrderStatus: String {
     case pending = "pending"
+    case preparing = "preparing"
     case finished = "finished"
     case cancelled = "cancelled"
     case unknown = "unknown"
@@ -82,6 +83,8 @@ enum OrderStatus: String {
         switch self {
         case .pending:
             return .orange
+        case .preparing:
+            return .yellow
         case .finished:
             return .green
         case .cancelled:

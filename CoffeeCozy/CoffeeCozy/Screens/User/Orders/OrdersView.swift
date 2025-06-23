@@ -22,7 +22,6 @@ struct OrdersView: View {
                     OrdersList(orders: $viewModel.orders)
                 }
             }
-            .navigationTitle("Orders")
             .background(Color("Paleta1").ignoresSafeArea())
             .toolbar {
                 Toolbar()

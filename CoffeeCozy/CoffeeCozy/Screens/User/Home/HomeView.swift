@@ -27,7 +27,6 @@ struct HomeView: View {
                 .foregroundColor(.white)
                 .cornerRadius(12)
 
-                // --- Reward system UI ---
                 TextField("Enter total price (USD)", text: $homeVM.totalPriceText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .keyboardType(.decimalPad)
@@ -51,39 +50,15 @@ struct HomeView: View {
                         .foregroundColor(.green)
                         .padding()
                 }
-                // ------------------------
                 
                 Spacer()
             }
             .toolbar {
                 Toolbar()
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink {
-                        ProfileView(viewModel: ProfileViewModel())
-                    } label: {
-                        if let urlString = homeVM.profileImageUrl,
-                           let url = URL(string: urlString) {
-                            AsyncImage(url: url) { image in
-                                image.resizable()
-                                     .scaledToFill()
-                            } placeholder: {
-                                Image(systemName: "person.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                            }
-                            .frame(width: 50, height: 50)
-                            .clipShape(Circle())
-                        } else {
-                            Image(systemName: "person.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50, height: 50)
-                        }
-                    }
+                    ProfileIconButton(imageUrl: homeVM.profileImageUrl)
                 }
             }
-
-            .navigationTitle("Home")
             .background(Color("Paleta1").ignoresSafeArea())
             .onAppear {
                 homeVM.fetchRewardPoints()
