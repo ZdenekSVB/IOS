@@ -11,6 +11,8 @@ import FirebaseAuth
 
 class OrdersViewModel: ObservableObject {
     @Published var orders: [OrderRecord] = []
+    @Published var dateFrom: Date = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+    @Published var dateTo: Date = Date()
 
     private var db = Firestore.firestore()
 
@@ -20,9 +22,16 @@ class OrdersViewModel: ObservableObject {
 
     func fetchOrders() {
         guard let uid = userId else { return }
+        guard dateFrom <= dateTo else {
+            print("Invalid date range")
+            return
+        }
+
 
         db.collection("orders")
             .whereField("userId", isEqualTo: uid)
+            .whereField("createdAt", isGreaterThanOrEqualTo: Timestamp(date: dateFrom))
+            .whereField("createdAt", isLessThanOrEqualTo: Timestamp(date: dateTo.endOfDay()))
             .order(by: "createdAt", descending: true)
             .getDocuments { snapshot, error in
                 if let error = error {
@@ -39,4 +48,5 @@ class OrdersViewModel: ObservableObject {
                 }
             }
     }
+
 }

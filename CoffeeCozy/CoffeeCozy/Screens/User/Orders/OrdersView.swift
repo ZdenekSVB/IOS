@@ -13,9 +13,12 @@ struct OrdersView: View {
     var body: some View {
         NavigationStack {
             VStack {
+                DateFilter(from: $viewModel.dateFrom, to: $viewModel.dateTo) {
+                    viewModel.fetchOrders()
+                }
                 if viewModel.orders.isEmpty {
                     Spacer()
-                    Text("No orders yet.")
+                    Text("No orders found.")
                         .foregroundColor(.gray)
                     Spacer()
                 } else {
@@ -32,6 +35,7 @@ struct OrdersView: View {
         }
     }
 }
+
 
 struct OrdersList: View {
     @Binding var orders: [OrderRecord]
