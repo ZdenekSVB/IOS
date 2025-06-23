@@ -28,3 +28,6 @@ struct UserStat: Identifiable {
     let date: Date
     let count: Int
 }
+extension UserStat: ChartDataPoint {
+    var value: Double { Double(count) }
+}

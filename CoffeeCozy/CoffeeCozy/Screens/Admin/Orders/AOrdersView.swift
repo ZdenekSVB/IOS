@@ -28,9 +28,14 @@ struct AOrdersView: View {
                     Text("No orders found")
                 } else {
                     SearchBar(text: $viewModel.searchText)
-
-                    OrderRevenueChartView(orders: viewModel.orders)
-                        .padding(.horizontal)
+                    
+                    GenericChartView(
+                        dataPoints: viewModel.orderCounts,
+                        lineColor: Color("Paleta3"),
+                        pointColor: Color("Paleta4"),
+                        annotationSuffix: "$ our revenue"
+                    )
+                    .padding()
 
                     List(viewModel.filteredOrders) { order in
                         NavigationLink(destination: AOrderDetailView(order: order, viewModel: viewModel)) {

@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import SwiftUI
+
 struct AUsersView: View {
     @StateObject private var viewModel = AUsersViewModel()
     @EnvironmentObject var authViewModel: AuthViewModel
@@ -18,9 +20,14 @@ struct AUsersView: View {
                     .padding(.vertical, 8)
                     .padding(.horizontal)
 
-                UserStatsChartView(viewModel: viewModel)
-                    .padding(.horizontal)
-
+                GenericChartView(
+                    dataPoints: viewModel.userStats,
+                    lineColor: Color("Paleta3"),
+                    pointColor: Color("Paleta4"),
+                    annotationSuffix: "accounts created"
+                )
+                .padding()
+                
                 UserListView(users: viewModel.filteredUsers, deleteAction: viewModel.delete)
             }
             .toolbar {
@@ -38,6 +45,7 @@ struct AUsersView: View {
         }
     }
 }
+
 
 struct UserListView: View {
     let users: [User]

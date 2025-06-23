@@ -123,10 +123,17 @@ class AOrdersViewModel: ObservableObject {
 
     private func updateOrderCounts() {
         let calendar = Calendar.current
-        let grouped = Dictionary(grouping: orders) { calendar.startOfDay(for: $0.createdAt) }
-        orderCounts = grouped.map { OrderCount(date: $0.key, count: $0.value.count) }
-            .sorted { $0.date < $1.date }
+        let finishedOrders = orders.filter { $0.status == "finished" }
+        
+        let grouped = Dictionary(grouping: finishedOrders) { calendar.startOfDay(for: $0.createdAt) }
+        
+        orderCounts = grouped.map { (key, ordersForDay) in
+            let totalRevenue = ordersForDay.reduce(0) { $0 + $1.totalPrice }
+            return OrderCount(date: key, count: totalRevenue)
+        }
+        .sorted { $0.date < $1.date }
     }
+
 
     deinit {
         listener?.remove()

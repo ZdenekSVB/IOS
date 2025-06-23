@@ -69,8 +69,13 @@ struct OrderRecord: Identifiable, Codable {
 struct OrderCount: Identifiable {
     let id = UUID()
     let date: Date
-    let count: Int
+    let count: Double
 }
+
+extension OrderCount: ChartDataPoint {
+    var value: Double { count }
+}
+
 
 enum OrderStatus: String {
     case pending = "pending"
