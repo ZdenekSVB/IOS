@@ -94,6 +94,43 @@
                                 }
                             )
                         }
+
+                
+                VStack {
+                    Text("You have \(viewModel.userPoints) point(s)")
+                        .font(.subheadline)
+                        .padding(.top)
+                    
+                    if viewModel.redeemableCount > viewModel.redeemedFreeCoffees {
+                        Text("Redeem your free coffee(s)")
+                        
+                        ForEach(viewModel.items) { cartItem in
+                            let redeemedCount = viewModel.freeCoffeeRedemptions[cartItem.id] ?? 0
+                            
+                            HStack {
+                                Text("\(cartItem.item.name) (\(cartItem.quantity) pcs)")
+                                
+                                Spacer()
+                                
+                                if redeemedCount < cartItem.quantity {
+                                    Button("Redeem free coffee") {
+                                        viewModel.redeemFreeCoffee(for: cartItem)
+                                    }
+                                    .padding(6)
+                                    .background(Color.green.opacity(0.2))
+                                    .cornerRadius(8)
+                                } else {
+                                    Text("Free coffee redeemed")
+                                        .foregroundColor(.green)
+                                        .font(.caption)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                
                 
                 Button(action: {
                     guard !viewModel.items.isEmpty else {
