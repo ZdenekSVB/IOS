@@ -13,6 +13,7 @@ struct CartView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showAlert = false
     @State private var alertMessage = "Hello"
+    @State private var showMapSelection = false
 
     var body: some View {
         VStack(spacing: 12) {
@@ -23,10 +24,6 @@ struct CartView: View {
             
             ForEach(viewModel.items) { cartItem in
                 HStack {
-                    // Ikonka
-                    Image(systemName: "speaker.wave.2.fill")
-                        .foregroundColor(.brown)
-
                     VStack(alignment: .leading) {
                         Text(cartItem.item.name)
                         Text("\(cartItem.quantity)x").font(.subheadline).foregroundColor(.secondary)
@@ -59,43 +56,42 @@ struct CartView: View {
 
             
             HStack {
-                Button("Pick-up") {
-                    viewModel.isDelivery = false
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(!viewModel.isDelivery ? Color.white : Color.clear)
-                .cornerRadius(8)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
-
-                Button("Deliver") {
-                    viewModel.isDelivery = true
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(viewModel.isDelivery ? Color.white : Color.clear)
-                .cornerRadius(8)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
-            }
-            .background(Color(UIColor.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .padding(.horizontal)
-
-            
-            HStack {
-                Text("Choose branch")
-                Spacer()
-                Text("Label ⌄")
-            }
-            .padding(.horizontal)
-
-           
-            HStack {
-                Text("Choose payment method")
-                Spacer()
-                Text("Label ⌄")
-            }
-            .padding(.horizontal)
+                Menu {
+                    ForEach(viewModel.branches) { branch in
+                        Button(branch.name) {
+                            viewModel.selectedBranch = branch
+                            }
+                        }
+                                
+                    Divider()
+                                
+                    Button("Select on map") {
+                        showMapSelection = true
+                        }
+                    } label: {
+                        Label(
+                            viewModel.selectedBranch?.name ?? "Choose branch",
+                            systemImage: "chevron.down"
+                            )
+                            .foregroundColor(.black)
+                            .padding(.horizontal)
+                            .padding(.vertical, 8)
+                            .background(Color.white)
+                            .cornerRadius(8)
+                        }
+                    }
+                    .padding()
+                    .padding(.horizontal)
+                    .sheet(isPresented: $showMapSelection) {
+                        MapView(
+                            viewModel: MapViewModel(),
+                            selectionMode: true,
+                            onSelect: { selectedCafe in
+                                viewModel.selectedBranch = selectedCafe
+                                showMapSelection = false
+                            }
+                        )
+                    }
 
             
             TextField("Note", text: $viewModel.note)

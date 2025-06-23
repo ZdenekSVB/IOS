@@ -59,8 +59,28 @@ class MapViewModel: ObservableObject{
         }
     }
 
-
+    func syncLocation() {
+        Task {
+            let manager = CLLocationManager()
+            manager.requestWhenInUseAuthorization()
+            if let userLocation = manager.location?.coordinate {
+                DispatchQueue.main.async {
+                    self.state.mapCameraPosition = .camera(
+                        .init(centerCoordinate: userLocation, distance: 3000)
+                    )
+                }
+            }
+        }
+    }
     
+    func findNearestCafe(to location: CLLocationCoordinate2D) -> Cafe? {
+        cafes.min { cafeA, cafeB in
+            let locA = CLLocation(latitude: cafeA.latitude, longitude: cafeA.longitude)
+            let locB = CLLocation(latitude: cafeB.latitude, longitude: cafeB.longitude)
+            let userLoc = CLLocation(latitude: location.latitude, longitude: location.longitude)
+            return locA.distance(from: userLoc) < locB.distance(from: userLoc)
+        }
+    }
     
     
 }

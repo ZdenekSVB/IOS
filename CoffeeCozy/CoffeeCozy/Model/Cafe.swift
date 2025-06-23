@@ -7,7 +7,7 @@
 import UIKit
 import CoreLocation
 
-struct Cafe: Identifiable {
+struct Cafe: Identifiable, Hashable {
     var id: String              
     var name: String
     var description: String?
