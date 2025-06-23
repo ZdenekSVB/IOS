@@ -11,8 +11,6 @@ import Foundation
 struct CartView: View {
     @ObservedObject var viewModel: CartViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var showAlert = false
-    @State private var alertMessage = "Hello"
     @State private var showMapSelection = false
 
     var body: some View {
@@ -92,24 +90,16 @@ struct CartView: View {
                             }
                         )
                     }
-
-            
-            TextField("Note", text: $viewModel.note)
-                .padding()
-                .background(Color.white)
-                .cornerRadius(8)
-                .padding(.horizontal)
-
             
             Button(action: {
                 viewModel.submitOrder { result in
                        switch result {
                        case .success:
                            print("Objednávka úspěšně odeslána.")
-                           showAlert = true
+                           dismiss()
                        case .failure(let error):
                            print("Chyba při odesílání objednávky: \(error.localizedDescription)")
-                           showAlert = true
+                           
                        }
                    }
             }) {
@@ -122,12 +112,7 @@ struct CartView: View {
                     .bold()
             }
             .padding(.horizontal)
-            .alert(alertMessage, isPresented: $showAlert){
-                Button("OK"){
-                    dismiss()
-                }
-            }
-
+            
 
             Spacer()
         }

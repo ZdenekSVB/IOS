@@ -16,7 +16,7 @@ struct MapView: View {
     var onSelect: ((Cafe) -> Void)? = nil
     
     @Environment(\.dismiss) private var dismiss
-        @State private var selectedCafe: Cafe?
+        //@State private var selectedCafe: Cafe?
     
     init(viewModel: MapViewModel, selectionMode: Bool = false, onSelect: ((Cafe) -> Void)? = nil) {
             self.viewModel = viewModel
@@ -25,51 +25,62 @@ struct MapView: View {
         }
     
     var body: some View {
-            NavigationStack {
+        NavigationStack {
+            ZStack(alignment: .top) {
+                // Mapa s anotacemi
                 Map(
                     position: $viewModel.state.mapCameraPosition,
-                    interactionModes: [.pan, .zoom]) {
-                        ForEach(viewModel.state.cafes) { cafe in
-                            Annotation("", coordinate: cafe.coordinates) {
-                                CafeAnnotationView(
-                                    cafe: cafe,
-                                    selectionMode: selectionMode,
-                                    onSelect: { selectedCafe in
-                                        viewModel.state.selectedCafe = selectedCafe
-                                    }
-                                )
-                                .onTapGesture {
-                                    if selectionMode {
-                                        viewModel.state.selectedCafe = cafe
-                                    }
+                    interactionModes: [.pan, .zoom]
+                ) {
+                    ForEach(viewModel.state.cafes) { cafe in
+                        Annotation("", coordinate: cafe.coordinates) {
+                            CafeAnnotationView(
+                                cafe: cafe,
+                                selectionMode: selectionMode,
+                                onSelect: { selectedCafe in
+                                    viewModel.selectCafe(selectedCafe)
                                 }
+                            )
                         }
                     }
                 }
-                .toolbar {
-                    if selectionMode {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Save") {
-                                if let selectedCafe {
-                                    onSelect?(selectedCafe)
-                                }
-                                dismiss()
-                            }
-                            .disabled(selectedCafe == nil)
-                        }
-                    }
-                }
-                .onAppear {
-                    viewModel.fetchCafes()
-                    viewModel.syncLocation()
-                    
-                    Task{
-                        await viewModel.startPeriodicLocationUpdate()
-                    }
-                }
-                .navigationTitle(selectionMode ? "Select Branch" : "Map")
                 .edgesIgnoringSafeArea(.all)
+
+                if selectionMode, let selected = viewModel.state.selectedCafe {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Selected branch: \(selected.name)")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        Spacer()
+                    }
+                    .padding()
+                    .background(.thinMaterial)
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top))
+                }
+            }
+            .toolbar {
+                if selectionMode {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Save") {
+                            if let selected = viewModel.state.selectedCafe {
+                                onSelect?(selected)
+                            }
+                            dismiss()
+                        }
+                        .disabled(viewModel.state.selectedCafe == nil)
+                    }
+                }
+            }
+            .navigationTitle(selectionMode ? "Choose Branch" : "Where to find us")
+            .onAppear {
+                viewModel.fetchCafes()
             }
         }
+    }
 }
 

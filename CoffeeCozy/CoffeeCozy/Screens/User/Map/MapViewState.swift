@@ -18,6 +18,7 @@ final class MapViewState {
     
     var currentLocation: CLLocationCoordinate2D?
     
+    
     var mapCameraPosition: MapCameraPosition = .camera(
         .init(
             centerCoordinate: .init(

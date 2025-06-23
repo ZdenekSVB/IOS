@@ -63,11 +63,14 @@ extension MapViewModel{
             }
         }
     }
-    
+    /*
     func syncLocation() {
-        state.mapCameraPosition = locationManager.cameraPosition
         state.currentLocation = locationManager.currentLocation
-    }
+        
+        if state.selectedCafe == nil {
+            state.mapCameraPosition = locationManager.cameraPosition
+        }
+    }*/
     
     func findNearestCafe(to location: CLLocationCoordinate2D) -> Cafe? {
         state.cafes.min { cafeA, cafeB in
@@ -77,7 +80,7 @@ extension MapViewModel{
             return locA.distance(from: userLoc) < locB.distance(from: userLoc)
         }
     }
-    
+    /*
     func startPeriodicLocationUpdate() async {
         if !periodicUpdatesRunning {
             periodicUpdatesRunning.toggle()
@@ -87,6 +90,11 @@ extension MapViewModel{
                 syncLocation()
             }
         }
-    }
+    }*/
+    
+    
+    func selectCafe(_ cafe: Cafe) {
+           state.selectedCafe = cafe
+       }
 }
 
