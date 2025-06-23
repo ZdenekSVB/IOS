@@ -12,6 +12,10 @@ struct CartView: View {
     @ObservedObject var viewModel: CartViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showMapSelection = false
+    
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    @State private var alertTitle = ""
 
     var body: some View {
         VStack(spacing: 12) {
@@ -96,10 +100,16 @@ struct CartView: View {
                        switch result {
                        case .success:
                            print("Objednávka úspěšně odeslána.")
-                           dismiss()
+                           
+                           alertTitle = "Order Sent"
+                           alertMessage = "Your order was successfully placed."
+                           showAlert = true
+                           
                        case .failure(let error):
                            print("Chyba při odesílání objednávky: \(error.localizedDescription)")
-                           
+                           alertTitle = "Error"
+                           alertMessage = "Order failed: \(error.localizedDescription)"
+                           showAlert = true
                        }
                    }
             }) {
@@ -118,6 +128,17 @@ struct CartView: View {
         }
         .padding(.top)
         .background(Color("Paleta1").ignoresSafeArea())
+        .alert(isPresented: $showAlert) {
+                    Alert(
+                        title: Text(alertTitle),
+                        message: Text(alertMessage),
+                        dismissButton: .default(Text("OK")) {
+                            if alertTitle == "Order Sent" {
+                                dismiss()
+                            }
+                        }
+                    )
+                }
     }
 }
 
