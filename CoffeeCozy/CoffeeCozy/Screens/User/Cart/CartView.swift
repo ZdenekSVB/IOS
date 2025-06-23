@@ -100,36 +100,54 @@
                     Text("You have \(viewModel.userPoints) point(s)")
                         .font(.subheadline)
                         .padding(.top)
-                    
-                    if viewModel.redeemableCount > viewModel.redeemedFreeCoffees {
-                        Text("Redeem your free coffee(s)")
-                        
-                        ForEach(viewModel.items) { cartItem in
-                            let redeemedCount = viewModel.freeCoffeeRedemptions[cartItem.id] ?? 0
-                            
-                            HStack {
-                                Text("\(cartItem.item.name) (\(cartItem.quantity) pcs)")
-                                
-                                Spacer()
-                                
-                                if redeemedCount < cartItem.quantity {
-                                    Button("Redeem free coffee") {
+
+                    let remainingRedeemable = max(0, viewModel.redeemableCount - viewModel.redeemedFreeCoffees)
+
+                    Text("You can redeem up to \(viewModel.redeemableCount) free coffee(s)")
+                    Text("Redeemed: \(viewModel.redeemedFreeCoffees)")
+
+                    ForEach(viewModel.items) { cartItem in
+                        let redeemedCount = viewModel.freeCoffeeRedemptions[cartItem.id] ?? 0
+                        let maxRedeemForItem = cartItem.quantity - redeemedCount
+
+                        HStack {
+                            Text("\(cartItem.item.name) (\(cartItem.quantity)x)")
+
+                            Spacer()
+
+                            Text("Redeemed: \(redeemedCount)")
+                                .foregroundColor(Color("Paleta3"))
+
+                            HStack(spacing: 8) {
+                                Button(action: {
+                                    viewModel.removeRedeemedFreeCoffee(for: cartItem)
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .frame(width: 20, height: 20)
+                                        .foregroundColor(redeemedCount > 0 ? .red : .gray)
+                                        .font(.title2)
+                                }
+                                .disabled(redeemedCount == 0)
+
+                                Button(action: {
+                                    if remainingRedeemable > 0 && maxRedeemForItem > 0 {
                                         viewModel.redeemFreeCoffee(for: cartItem)
                                     }
-                                    .padding(6)
-                                    .background(Color.green.opacity(0.2))
-                                    .cornerRadius(8)
-                                } else {
-                                    Text("Free coffee redeemed")
-                                        .foregroundColor(.green)
-                                        .font(.caption)
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .frame(width: 20, height: 20)
+                                        .foregroundColor(maxRedeemForItem > 0 && remainingRedeemable > 0 ? .green : .gray)
+                                        .font(.title2)
                                 }
+                                .disabled(maxRedeemForItem == 0 || remainingRedeemable == 0)
                             }
-                            .padding(.horizontal)
                         }
+                        .padding(.horizontal)
                     }
                 }
                 .padding(.horizontal)
+
+
                 
                 
                 Button(action: {
