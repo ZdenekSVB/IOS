@@ -39,12 +39,10 @@ struct GenericChartView<T: ChartDataPoint>: View {
                 .foregroundStyle(lineColor)
 
                 if selectedPoint?.id == point.id {
-                    // Čárkovaná čára pod tooltipem
                     RuleMark(x: .value("Datum", point.date))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
                         .foregroundStyle(pointColor.opacity(0.6))
 
-                    // Bod + tooltip nad čarou
                     PointMark(
                         x: .value("Datum", point.date),
                         y: .value("Hodnota", point.value)
@@ -73,6 +71,20 @@ struct GenericChartView<T: ChartDataPoint>: View {
                     AxisGridLine()
                 }
             }
+            
+            .chartYAxis {
+                AxisMarks(position: .leading) { value in
+                    if let doubleValue = value.as(Double.self), doubleValue.truncatingRemainder(dividingBy: 1) == 0 {
+                        AxisValueLabel("\(Int(doubleValue))")
+                        AxisTick()
+                        AxisGridLine()
+                    } else {
+                        AxisTick()
+                        AxisGridLine()
+                    }
+                }
+            }
+
 
             .chartYScale(domain: 0...maxY)
             .frame(height: 200)
