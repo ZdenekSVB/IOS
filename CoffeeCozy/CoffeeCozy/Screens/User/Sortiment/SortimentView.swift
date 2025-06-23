@@ -10,7 +10,7 @@ import ImageIO
 
 struct SortimentView: View {
     @StateObject private var viewModel = SortimentViewModel()
-    @StateObject private var cartViewModel = CartViewModel()
+    @StateObject private var cartViewModel = CartViewModel(locationManager: LocationManager())
     @EnvironmentObject var authViewModel: AuthViewModel
     
     @State private var showCart = false
