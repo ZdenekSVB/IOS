@@ -1,15 +1,10 @@
-//
-//  LocationManager.swift
-//  CityGuide
-//
-//  Created by David Procházka on 02.04.2025.
-//
+import CoreLocation
 import MapKit
 import SwiftUI
-import CoreLocation
 
 @Observable
 final class LocationManager: NSObject, LocationManaging, CLLocationManagerDelegate {
+    
     private var manager = CLLocationManager()
     var currentLocation: CLLocationCoordinate2D?
     var currentCity: String?
@@ -50,6 +45,7 @@ final class LocationManager: NSObject, LocationManaging, CLLocationManagerDelega
             currentLocation = coords
         }
     }
+
     
     func getCurrentDistance(to: CLLocationCoordinate2D) -> Double? {
         if let actLocation = currentLocation {
@@ -68,6 +64,8 @@ final class LocationManager: NSObject, LocationManaging, CLLocationManagerDelega
             return nil
         }
     }
+    
+    
     
     func getCurrentCityName(from coordinate: CLLocationCoordinate2D, completion: @escaping (String?) -> Void) {
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)

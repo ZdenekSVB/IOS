@@ -12,6 +12,10 @@ import SwiftUI
 @Observable
 final class MapViewState {
     
+    var cafes: [Cafe] = []
+    
+    var selectedCafe: Cafe?
+    
     var currentLocation: CLLocationCoordinate2D?
     
     var mapCameraPosition: MapCameraPosition = .camera(

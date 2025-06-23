@@ -11,7 +11,7 @@ import FirebaseFirestore
 import FirebaseAuth
 import CoreLocation
 
-class CartViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
+class CartViewModel: ObservableObject {
     
     @Published var items: [CartItem] = []
     @Published var note: String = ""
@@ -20,16 +20,13 @@ class CartViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
     @Published var isSelectingBranchOnMap: Bool = false
     
     private let db = Firestore.firestore()
-    private let locationManager = CLLocationManager()
-        private var userLocation: CLLocationCoordinate2D?
+    let locationManager: LocationManaging
     
-    override init() {
-            super.init()
-            locationManager.delegate = self
-            requestLocation()
+    init(locationManager: LocationManager) {
+            self.locationManager = locationManager
             fetchBranches()
         }
-
+    
     var totalPrice: Double {
         items.reduce(0) { $0 + (Double($1.quantity) * $1.item.price) }
     }
@@ -142,34 +139,6 @@ class CartViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
         }
     }
-    
-    
-    func setNearestBranchAsDefault() {
-            guard let userLoc = userLocation else { return }
-            self.selectedBranch = branches.min(by: {
-                CLLocation(latitude: $0.latitude, longitude: $0.longitude)
-                    .distance(from: CLLocation(latitude: userLoc.latitude, longitude: userLoc.longitude)) <
-                CLLocation(latitude: $1.latitude, longitude: $1.longitude)
-                    .distance(from: CLLocation(latitude: userLoc.latitude, longitude: userLoc.longitude))
-            })
-        }
-    
-    func requestLocation() {
-            locationManager.requestWhenInUseAuthorization()
-            locationManager.startUpdatingLocation()
-        }
-        
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-            if let location = locations.first?.coordinate {
-                userLocation = location
-                setNearestBranchAsDefault()
-                locationManager.stopUpdatingLocation()
-            }
-        }
-        
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-            print("Location error: \(error.localizedDescription)")
-        }
 
 }
 

@@ -10,16 +10,21 @@ import CoreLocation
 import MapKit
 import FirebaseFirestore
 
-class MapViewModel: ObservableObject{
+@Observable
+class MapViewModel: ObservableObject {
     var state: MapViewState = MapViewState()
-    @Published var cafes: [Cafe] = []
 
     private var db = Firestore.firestore()
-
+    private var locationManager: LocationManaging
+    private var periodicUpdatesRunning = false
+    
     init() {
-        fetchCafes()
+        locationManager = DIContainer.shared.resolve()
     }
+}
 
+extension MapViewModel{
+    
     func fetchCafes() {
         db.collection("locations").getDocuments { snapshot, error in
             if let error = error {
@@ -54,27 +59,18 @@ class MapViewModel: ObservableObject{
             }
 
             DispatchQueue.main.async {
-                self.cafes = loadedCafes
-            }
-        }
-    }
-
-    func syncLocation() {
-        Task {
-            let manager = CLLocationManager()
-            manager.requestWhenInUseAuthorization()
-            if let userLocation = manager.location?.coordinate {
-                DispatchQueue.main.async {
-                    self.state.mapCameraPosition = .camera(
-                        .init(centerCoordinate: userLocation, distance: 3000)
-                    )
-                }
+                self.state.cafes = loadedCafes
             }
         }
     }
     
+    func syncLocation() {
+        state.mapCameraPosition = locationManager.cameraPosition
+        state.currentLocation = locationManager.currentLocation
+    }
+    
     func findNearestCafe(to location: CLLocationCoordinate2D) -> Cafe? {
-        cafes.min { cafeA, cafeB in
+        state.cafes.min { cafeA, cafeB in
             let locA = CLLocation(latitude: cafeA.latitude, longitude: cafeA.longitude)
             let locB = CLLocation(latitude: cafeB.latitude, longitude: cafeB.longitude)
             let userLoc = CLLocation(latitude: location.latitude, longitude: location.longitude)
@@ -82,5 +78,15 @@ class MapViewModel: ObservableObject{
         }
     }
     
-    
+    func startPeriodicLocationUpdate() async {
+        if !periodicUpdatesRunning {
+            periodicUpdatesRunning.toggle()
+            
+            while true {
+                try? await Task.sleep(nanoseconds: 4_000_000_000)
+                syncLocation()
+            }
+        }
+    }
 }
+

@@ -19,35 +19,33 @@ struct MapView: View {
         @State private var selectedCafe: Cafe?
     
     init(viewModel: MapViewModel, selectionMode: Bool = false, onSelect: ((Cafe) -> Void)? = nil) {
-            self._viewModel = State(initialValue: viewModel)
+            self.viewModel = viewModel
             self.selectionMode = selectionMode
             self.onSelect = onSelect
         }
     
     var body: some View {
             NavigationStack {
-                Map(position: $viewModel.state.mapCameraPosition, interactionModes: [.pan, .zoom]) {
-                    ForEach(viewModel.cafes) { cafe in
-                        Annotation("", coordinate: cafe.coordinates) {
-                            VStack(spacing: 5) {
-                                Image(systemName: "mappin.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.red)
-                                Text(cafe.name)
-                                    .font(.caption2)
-                                    .padding(4)
-                                    .background(Color.white)
-                                    .cornerRadius(5)
-                            }
-                            .onTapGesture {
-                                if selectionMode {
-                                    selectedCafe = cafe
+                Map(
+                    position: $viewModel.state.mapCameraPosition,
+                    interactionModes: [.pan, .zoom]) {
+                        ForEach(viewModel.state.cafes) { cafe in
+                            Annotation("", coordinate: cafe.coordinates) {
+                                CafeAnnotationView(
+                                    cafe: cafe,
+                                    selectionMode: selectionMode,
+                                    onSelect: { selectedCafe in
+                                        viewModel.state.selectedCafe = selectedCafe
+                                    }
+                                )
+                                .onTapGesture {
+                                    if selectionMode {
+                                        viewModel.state.selectedCafe = cafe
+                                    }
                                 }
-                            }
                         }
                     }
                 }
-                .navigationTitle(selectionMode ? "Select Branch" : "Map")
                 .toolbar {
                     if selectionMode {
                         ToolbarItem(placement: .navigationBarTrailing) {
@@ -64,8 +62,14 @@ struct MapView: View {
                 .onAppear {
                     viewModel.fetchCafes()
                     viewModel.syncLocation()
+                    
+                    Task{
+                        await viewModel.startPeriodicLocationUpdate()
+                    }
                 }
+                .navigationTitle(selectionMode ? "Select Branch" : "Map")
                 .edgesIgnoringSafeArea(.all)
             }
         }
 }
+
