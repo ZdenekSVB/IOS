@@ -54,7 +54,7 @@ struct SortimentView: View {
                 .padding(.bottom, 12)
             }
             .toolbar {
-                UserToolbar()
+                Toolbar()
             }
             .navigationTitle("Sortiment")
             .background(Color("Paleta1").ignoresSafeArea())

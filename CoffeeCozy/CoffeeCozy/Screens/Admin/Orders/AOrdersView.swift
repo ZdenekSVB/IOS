@@ -60,7 +60,7 @@ struct AOrdersView: View {
                     .listStyle(.plain)
                 }
             }
-            .toolbar { AdminToolbar() }
+            .toolbar { Toolbar() }
             .background(Color("Paleta1").ignoresSafeArea())
             .onAppear(perform: viewModel.loadOrders)
         }

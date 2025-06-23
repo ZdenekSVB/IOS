@@ -42,7 +42,7 @@ struct ASortimentView: View {
             }
             .background(Color("Paleta1").ignoresSafeArea())
             .toolbar {
-                AdminToolbar()
+                Toolbar()
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button { editNew = true } label: {
                         Image(systemName: "plus")

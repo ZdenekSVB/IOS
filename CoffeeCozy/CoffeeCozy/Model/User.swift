@@ -16,10 +16,13 @@ struct User: Identifiable, Codable {
     var phoneNumber: String
     var email: String
     var imageUrl: String?
-    var role: String 
+    var role: String
     var createdAt: Date?
     var updatedAt: Date?
+
+    var rewardPoints: Int?
 }
+
 struct UserStat: Identifiable {
     let id = UUID()
     let date: Date

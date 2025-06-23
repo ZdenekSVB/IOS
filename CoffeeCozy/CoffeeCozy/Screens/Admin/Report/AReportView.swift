@@ -42,7 +42,7 @@ struct AReportView: View {
                 .listStyle(.plain)
                 .background(Color.white)
             }
-            .toolbar { AdminToolbar() }
+            .toolbar { Toolbar() }
             .background(Color("Paleta1").ignoresSafeArea())
             .onAppear(perform: viewModel.loadEntries)
         }

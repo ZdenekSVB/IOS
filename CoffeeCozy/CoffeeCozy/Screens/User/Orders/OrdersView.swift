@@ -25,7 +25,7 @@ struct OrdersView: View {
             .navigationTitle("Orders")
             .background(Color("Paleta1").ignoresSafeArea())
             .toolbar {
-                UserToolbar()
+                Toolbar()
             }
             .onAppear {
                 viewModel.fetchOrders()

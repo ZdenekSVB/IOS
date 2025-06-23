@@ -24,7 +24,7 @@ struct AUsersView: View {
                 UserListView(users: viewModel.filteredUsers, deleteAction: viewModel.delete)
             }
             .toolbar {
-                AdminToolbar()
+                Toolbar()
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink {
                         AEditUserView(viewModel: AEditUserViewModel())
