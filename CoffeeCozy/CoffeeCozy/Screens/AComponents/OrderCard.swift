@@ -15,6 +15,7 @@ struct OrderCard: View {
     let total: Double
     @Binding var status: OrderStatus
     var onStatusChange: (OrderStatus) -> Void
+    var isAdmin: Bool = false
 
     @State private var showingStatusSheet = false
 
@@ -28,33 +29,37 @@ struct OrderCard: View {
 
                 Spacer()
 
-                Button {
-                    showingStatusSheet = true
-                } label: {
-                    Text(status.rawValue.capitalized)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(status.color)
-                        .clipShape(Capsule())
-                }
-                .actionSheet(isPresented: $showingStatusSheet) {
-                    ActionSheet(
-                        title: Text("Change Order Status"),
-                        buttons: [
-                            .default(Text("Pending")) {
-                                updateStatus(.pending)
-                            },
-                            .default(Text("Finished")) {
-                                updateStatus(.finished)
-                            },
-                            .default(Text("Cancelled")) {
-                                updateStatus(.cancelled)
-                            },
-                            .cancel()
-                        ])
+                if isAdmin {
+                    Button {
+                        showingStatusSheet = true
+                    } label: {
+                        Text(status.rawValue.capitalized)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(status.color)
+                            .clipShape(Capsule())
+                    }
+                    .actionSheet(isPresented: $showingStatusSheet) {
+                        ActionSheet(
+                            title: Text("Change Order Status"),
+                            buttons: [
+                                .default(Text("Pending")) {
+                                    updateStatus(.pending)
+                                },
+                                .default(Text("Finished")) {
+                                    updateStatus(.finished)
+                                },
+                                .default(Text("Cancelled")) {
+                                    updateStatus(.cancelled)
+                                },
+                                .cancel()
+                            ])
+                    }
+                } else {
+                    StatusBadge(status: status)
                 }
             }
             .padding(.horizontal, 20)

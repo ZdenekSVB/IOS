@@ -32,8 +32,10 @@ struct AOrderDetailView: View {
                     status: $status,
                     onStatusChange: { newStatus in
                         viewModel.updateOrderStatus(orderId: order.id ?? "", newStatus: newStatus.rawValue)
-                    }
+                    },
+                    isAdmin: true
                 )
+
             }
             .padding()
         }
