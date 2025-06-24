@@ -63,13 +63,9 @@ struct RegisterView: View {
                     }
                     .padding()
                 }
-
-                // Navigation for successful registration
                 .navigationDestination(isPresented: $viewModel.isRegistered) {
                     RootTabView(isAdmin: false)
                 }
-
-                // Navigation to login view
                 .navigationDestination(isPresented: $viewModel.showingLogin) {
                     LoginView().navigationBarBackButtonHidden(true)
                 }

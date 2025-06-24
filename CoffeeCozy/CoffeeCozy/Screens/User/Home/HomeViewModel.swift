@@ -1,5 +1,5 @@
 //
-//  CartViewModel.swift
+//  HomeViewModel.swift
 //  CoffeeCozy
 //
 //  Created by Vít Čevelík on 12.06.2025.
@@ -18,6 +18,8 @@ class HomeViewModel: ObservableObject {
     @Published var message: String = ""
     @Published var isLoading = false
     @Published var profileImageUrl: String? = nil
+    
+    @Published var latestOrder: OrderRecord? = nil
 
     private var db = Firestore.firestore()
 
@@ -128,5 +130,30 @@ class HomeViewModel: ObservableObject {
                 }
             }
         }
+    }
+    
+    func fetchLatestOrder() {
+        guard let uid = currentUserUID else { return }
+
+        db.collection("orders")
+            .whereField("userId", isEqualTo: uid)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 1)
+            .getDocuments { [weak self] snapshot, error in
+                guard let document = snapshot?.documents.first else {
+                    DispatchQueue.main.async {
+                        self?.latestOrder = nil
+                    }
+                    return
+                }
+                do {
+                    let order = try document.data(as: OrderRecord.self)
+                    DispatchQueue.main.async {
+                        self?.latestOrder = order
+                    }
+                } catch {
+                    print("Error: \(error.localizedDescription)")
+                }
+            }
     }
 }

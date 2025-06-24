@@ -9,60 +9,53 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
-    @StateObject private var homeVM = HomeViewModel()
+    @StateObject var viewModel = HomeViewModel()
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Text("Welcome to CoffeeCozy")
-                    .font(.title)
+        NavigationStack{
+            VStack{
+                Text("You currently have \(viewModel.rewardPoints) points, yey!")
+                    .background(Color("Paleta3"))
                     .padding()
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
                 
-                NavigationLink("Go to Map") {
+                Spacer()
+                
+                if let order = viewModel.latestOrder {
+                    LatestOrderCard(order: order)
+                } else {
+                    Text("You have no orders")
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+
+                NavigationLink("Find us") {
                     MapView(viewModel: MapViewModel())
                 }
                 .font(.title2)
                 .padding()
-                .background(Color.blue)
+                .background(Color("Paleta3"))
                 .foregroundColor(.white)
                 .cornerRadius(12)
-
-                TextField("Enter total price (USD)", text: $homeVM.totalPriceText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .keyboardType(.decimalPad)
-                    .padding(.horizontal)
-
-                Text("Current Reward Points: \(homeVM.rewardPoints)")
-                    .font(.headline)
-
-                Button("Calculate and Save Points") {
-                    homeVM.savePoints()
-                }
-                .disabled(homeVM.isLoading)
-
-                Button("Claim Free Coffee (-10 points)") {
-                    homeVM.claimFreeCoffee()
-                }
-                .disabled(homeVM.rewardPoints < 10 || homeVM.isLoading)
-
-                if !homeVM.message.isEmpty {
-                    Text(homeVM.message)
-                        .foregroundColor(.green)
-                        .padding()
-                }
-                
-                Spacer()
             }
+            .padding()
+            .background(Color("Paleta1").ignoresSafeArea())
             .toolbar {
                 Toolbar()
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    ProfileIconButton(imageUrl: homeVM.profileImageUrl)
+                    ProfileIconButton(imageUrl: viewModel.profileImageUrl)
                 }
             }
-            .background(Color("Paleta1").ignoresSafeArea())
             .onAppear {
-                homeVM.fetchRewardPoints()
+                viewModel.fetchRewardPoints()
+                viewModel.fetchLatestOrder()
             }
+            
         }
+        /*.padding(.top)
+        .background(Color("Paleta1").ignoresSafeArea())*/
     }
 }

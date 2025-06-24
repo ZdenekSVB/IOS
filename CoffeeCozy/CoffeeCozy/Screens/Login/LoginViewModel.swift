@@ -16,12 +16,12 @@ class LoginViewModel: ObservableObject {
     @Published var isLoggedIn = false
     @Published var errorMessage = ""
     @Published var isAdmin = false
-    @Published var isLoading = false // Přidáme stav načítání
+    @Published var isLoading = false
     
     private let db = Firestore.firestore()
     
     func login() {
-        isLoading = true // Začátek načítání
+        isLoading = true
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -43,7 +43,7 @@ class LoginViewModel: ObservableObject {
     private func fetchUserData(uid: String) {
         db.collection("users").document(uid).getDocument { document, error in
             DispatchQueue.main.async {
-                self.isLoading = false // Konec načítání
+                self.isLoading = false 
                 if let document = document, document.exists {
                     let data = document.data()
                     if let role = data?["role"] as? String {
@@ -52,7 +52,7 @@ class LoginViewModel: ObservableObject {
                         self.isAdmin = false
                     }
                 }
-                self.isLoggedIn = true // Nastavíme isLoggedIn až po načtení všech dat
+                self.isLoggedIn = true
             }
         }
     }

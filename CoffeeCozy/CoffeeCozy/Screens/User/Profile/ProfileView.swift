@@ -77,6 +77,7 @@ struct ProfileView: View {
                     SecureField("Password", text: $viewModel.password)
                 }
             }
+            .background(Color("Paleta1").ignoresSafeArea())
             .onAppear {
                 viewModel.loadUserData()
             }
@@ -88,6 +89,7 @@ struct ProfileView: View {
                     }
                 }
             }
+            
         }
     }
 }

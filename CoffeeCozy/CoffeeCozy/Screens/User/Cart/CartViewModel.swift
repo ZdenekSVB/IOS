@@ -191,8 +191,8 @@ class CartViewModel: ObservableObject {
     func redeemFreeCoffee(for cartItem: CartItem) {
         let currentRedeemed = freeCoffeeRedemptions[cartItem.id] ?? 0
         
-        guard redeemedFreeCoffees < redeemableCount else { return } // limit bodů
-        guard currentRedeemed < cartItem.quantity else { return }  // nemůžeš redeemovat víc než kusů
+        guard redeemedFreeCoffees < redeemableCount else { return }
+        guard currentRedeemed < cartItem.quantity else { return }
         
         freeCoffeeRedemptions[cartItem.id] = currentRedeemed + 1
     }
@@ -211,7 +211,6 @@ class CartViewModel: ObservableObject {
     func syncFreeCoffeeRedemptions() {
         for (itemId, redeemedCount) in freeCoffeeRedemptions {
             guard let item = items.first(where: { $0.id == itemId }) else {
-                // Položka už neexistuje, smažeme všechny free coffee pro ni
                 freeCoffeeRedemptions.removeValue(forKey: itemId)
                 continue
             }

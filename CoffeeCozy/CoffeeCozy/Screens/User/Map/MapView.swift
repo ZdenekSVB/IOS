@@ -27,7 +27,6 @@ struct MapView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                // Mapa s anotacemi
                 Map(
                     position: $viewModel.state.mapCameraPosition,
                     interactionModes: [.pan, .zoom]

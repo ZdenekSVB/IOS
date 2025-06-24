@@ -74,7 +74,7 @@ struct OrdersRow: View {
             orderNumber: order.id ?? "N/A",
             date: formattedDate(order.createdAt),
             time: formattedTime(order.createdAt),
-            items: order.items, // Now [OrderItem]
+            items: order.items,
             total: order.totalPrice,
             status: Binding(
                 get: {
