@@ -156,4 +156,16 @@ class HomeViewModel: ObservableObject {
                 }
             }
     }
+    
+     func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: date)
+    }
+
+     func formattedTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
 }

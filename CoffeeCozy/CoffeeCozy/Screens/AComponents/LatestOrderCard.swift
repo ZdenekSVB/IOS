@@ -24,8 +24,8 @@ struct LatestOrderCard: View {
             ForEach(order.items) { item in
                 HStack {
                     Text(item.name)
-                    Spacer()
                     Text("x\(item.quantity)")
+                    Spacer()
                     Text(String(format: "%.0f $", item.price))
                 }
                 .font(.subheadline)
