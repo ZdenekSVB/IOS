@@ -12,63 +12,54 @@ struct HomeView: View {
     @StateObject var viewModel = HomeViewModel()
     
     var body: some View {
-        NavigationStack{
-            ZStack{
-                Color("Paleta1").ignoresSafeArea()
-                
-                VStack{
-                    Text("You currently have \(viewModel.rewardPoints) points, yey!")
-                        .background(Color("Paleta3"))
-                        .padding()
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
+            NavigationStack{
+                ZStack{
+                    Color("Paleta1").ignoresSafeArea()
                     
-                    if let order = viewModel.latestOrder {
-                        OrderCard(
-                            orderNumber: order.id ?? "N/A",
-                            date: viewModel.formattedDate(order.createdAt),
-                            time: viewModel.formattedTime(order.createdAt),
-                            items: order.items,
-                            total: order.totalPrice,
-                            status: Binding(
-                                get: {
-                                    OrderStatus(rawValue: order.status) ?? .unknown
-                                },
-                                set: { _ in }
-                            ),
-                            onStatusChange: { _ in },
-                            isAdmin: false
-                        )
-                        //LatestOrderCard(order: order)
-                    } else {
-                        Text("You have no orders")
-                            .foregroundColor(.gray)
+                    VStack(spacing: 20) {
+                        Text("You currently have \(viewModel.rewardPoints) points, yey!")
+                            .frame(width: 350,height: 50)
+                            .background(Color("Paleta3"))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .cornerRadius(10)
+                            .shadow(radius: 1)
+                            
+                            
+                        
+                        if let order = viewModel.latestOrder {
+                            CurrentOrderCard(
+                                order: order,
+                                estimatedTime: 5,
+                                onLocationTap: {
+                                    print("Navigate to location")
+                                }
+                            )
+                        } else {
+                            NavigationLink("Find us") {
+                                MapView(viewModel: MapViewModel())
+                            }
+                            .font(.title2)
+                            .padding()
+                            .background(Color("Paleta3"))
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                        Spacer()
                     }
-                    
-                    
-                    NavigationLink("Find us") {
-                        MapView(viewModel: MapViewModel())
+                }
+                .padding()
+                .background(Color("Paleta1").ignoresSafeArea())
+                .toolbar {
+                    Toolbar()
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        ProfileIconButton(imageUrl: viewModel.profileImageUrl)
                     }
-                    .font(.title2)
-                    .padding()
-                    .background(Color("Paleta3"))
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
+                }
+                .onAppear {
+                    viewModel.fetchRewardPoints()
+                    viewModel.fetchLatestOrder()
                 }
             }
-            .padding()
-            .background(Color("Paleta1").ignoresSafeArea())
-            .toolbar {
-                Toolbar()
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    ProfileIconButton(imageUrl: viewModel.profileImageUrl)
-                }
-            }
-            .onAppear {
-                viewModel.fetchRewardPoints()
-                viewModel.fetchLatestOrder()
-            }
-            
         }
-    }
 }

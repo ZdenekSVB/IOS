@@ -97,4 +97,3 @@ extension MapViewModel{
            state.selectedCafe = cafe
        }
 }
-
