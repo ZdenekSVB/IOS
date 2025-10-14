@@ -6,15 +6,27 @@
 //
 
 import SwiftUI
+import FirebaseCore
 
 @main
 struct DungeonStrideApp: App {
-    let persistenceController = PersistenceController.shared
+    
+    @ObservedObject private var authViewModel = AuthViewModel()
+    
+    init() {
+        FirebaseApp.configure()
+        authViewModel.checkIfUserIsLoggedIn()
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            Group{
+                if authViewModel.isLoggedIn {
+                    //
+                } else {
+                    LoginView()
+                }
+            }
         }
     }
 }
