@@ -1,15 +1,9 @@
-//
-//  RegisterView .swift
-//  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 03.11.2025.
-//
-
 import SwiftUI
 
 struct RegisterView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @Environment(\.dismiss) var dismiss
+    var onSwitchToLogin: () -> Void  // ← PŘIDEJ TUTO ŘÁDKU
     
     @State private var email = ""
     @State private var password = ""
@@ -19,8 +13,8 @@ struct RegisterView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color(.systemBackground)
+                // Background s Paleta3
+                Color("Paleta3")
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -29,15 +23,16 @@ struct RegisterView: View {
                         VStack(spacing: 12) {
                             Image(systemName: "person.badge.plus")
                                 .font(.system(size: 60))
-                                .foregroundColor(.blue)
+                                .foregroundColor(Color("Paleta2"))
                             
                             Text("Create Account")
-                                .font(.largeTitle)
+                                .font(.title)
                                 .fontWeight(.bold)
+                                .foregroundColor(.white)
                             
                             Text("Join the adventure")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Color("Paleta4"))
                         }
                         .padding(.top, 40)
                         
@@ -47,7 +42,7 @@ struct RegisterView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Username")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.white)
                                 
                                 TextField("Enter your username", text: $username)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -59,7 +54,7 @@ struct RegisterView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Email")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.white)
                                 
                                 TextField("Enter your email", text: $email)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -72,7 +67,7 @@ struct RegisterView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Password")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.white)
                                 
                                 SecureField("Enter your password", text: $password)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -83,7 +78,7 @@ struct RegisterView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Confirm Password")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.white)
                                 
                                 SecureField("Confirm your password", text: $confirmPassword)
                                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -114,13 +109,7 @@ struct RegisterView: View {
                                     .frame(height: 50)
                             }
                         }
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [.blue, .purple]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                        .background(Color("Paleta2"))
                         .cornerRadius(12)
                         .disabled(authViewModel.isLoading || !isFormValid)
                         .opacity((authViewModel.isLoading || !isFormValid) ? 0.6 : 1.0)
@@ -129,12 +118,12 @@ struct RegisterView: View {
                         // Login Link
                         HStack {
                             Text("Already have an account?")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Color("Paleta4"))
                             
                             Button("Sign In") {
-                                dismiss()
+                                onSwitchToLogin()  // ← ZMĚŇ dismiss() NA TOTO
                             }
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color("Paleta2"))
                             .fontWeight(.semibold)
                         }
                         .padding(.top, 8)
@@ -150,7 +139,7 @@ struct RegisterView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color("Paleta2"))
                 }
             }
         }
@@ -180,12 +169,5 @@ struct RegisterView: View {
         authViewModel.username = username
         
         authViewModel.register()
-    }
-}
-
-struct RegisterView_Previews: PreviewProvider {
-    static var previews: some View {
-        RegisterView()
-            .environmentObject(AuthViewModel())
     }
 }

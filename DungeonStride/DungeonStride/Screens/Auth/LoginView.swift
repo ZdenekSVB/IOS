@@ -1,41 +1,30 @@
-//
-//  LoginView.swift
-//  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 03.11.2025.
-//
-
-
 import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @Environment(\.dismiss) var dismiss
     
     @State private var email = ""
     @State private var password = ""
-    @State private var showRegister = false
     
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color(.systemBackground)
+                // Background s Paleta3
+                Color("Paleta3")
                     .ignoresSafeArea()
                 
                 VStack(spacing: 30) {
                     // Header
                     VStack(spacing: 12) {
                         Image(systemName: "person.crop.circle.fill")
-                            .font(.system(size: 80))
-                            .foregroundColor(.blue)
+                            .font(.system(size: 60))
+                            .foregroundColor(Color("Paleta2"))
                         
-                        Text("Dungeon Stride")
-                            .font(.largeTitle)
+                        Text("Welcome Back")
+                            .font(.title2)
                             .fontWeight(.bold)
-                        
-                        Text("Embark on your adventure")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                     }
                     .padding(.top, 60)
                     
@@ -45,7 +34,7 @@ struct LoginView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Email")
                                 .font(.headline)
-                                .foregroundColor(.primary)
+                                .foregroundColor(.white)
                             
                             TextField("Enter your email", text: $email)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -58,7 +47,7 @@ struct LoginView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Password")
                                 .font(.headline)
-                                .foregroundColor(.primary)
+                                .foregroundColor(.white)
                             
                             SecureField("Enter your password", text: $password)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -89,47 +78,29 @@ struct LoginView: View {
                                 .frame(height: 50)
                         }
                     }
-                    .background(
-                        LinearGradient(
-                            gradient: Gradient(colors: [.blue, .purple]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
+                    .background(Color("Paleta2"))
                     .cornerRadius(12)
                     .disabled(authViewModel.isLoading || email.isEmpty || password.isEmpty)
                     .opacity((authViewModel.isLoading || email.isEmpty || password.isEmpty) ? 0.6 : 1.0)
                     .padding(.horizontal)
                     
-                    // Register Link
-                    HStack {
-                        Text("Don't have an account?")
-                            .foregroundColor(.secondary)
-                        
-                        Button("Sign Up") {
-                            showRegister = true
-                        }
-                        .foregroundColor(.blue)
-                        .fontWeight(.semibold)
-                    }
-                    
                     Spacer()
                 }
             }
-            .sheet(isPresented: $showRegister) {
-                RegisterView()
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Back") {
+                        dismiss()
+                    }
+                    .foregroundColor(Color("Paleta2"))
+                }
             }
         }
     }
     
     private func login() {
         authViewModel.login(email: email, password: password)
-    }
-}
-
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView()
-            .environmentObject(AuthViewModel())
     }
 }

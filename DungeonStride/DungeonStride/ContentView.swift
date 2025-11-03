@@ -14,16 +14,14 @@ struct ContentView: View {
     var body: some View {
         Group {
             if authViewModel.isLoggedIn {
-                MainAppView() // Tady bude hlavní obsah aplikace
+                HomeView()  // ← ZMĚNA: MainAppView na HomeView
             } else {
-                LoginView()
+                WelcomeView()
             }
         }
+        .environmentObject(authViewModel)
     }
 }
-
-
-
 #Preview {
     //ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }

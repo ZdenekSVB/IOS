@@ -10,10 +10,12 @@ import FirebaseCore
 
 @main
 struct DungeonStrideApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authViewModel = AuthViewModel()
     
     init() {
         FirebaseApp.configure()
+        print("🚀 Firebase configured")
     }
 
     var body: some Scene {
@@ -24,27 +26,5 @@ struct DungeonStrideApp: App {
     }
 }
 
-// Dočasný placeholder pro hlavní aplikaci
-struct MainAppView: View {
-    @EnvironmentObject var authViewModel: AuthViewModel
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text("Welcome to Dungeon Stride!")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                Text("You are successfully logged in")
-                    .foregroundColor(.secondary)
-                
-                Button("Logout") {
-                    authViewModel.logout()
-                }
-                .foregroundColor(.red)
-                .padding()
-            }
-            .navigationTitle("Dungeon Stride")
-        }
-    }
-}
+
+
