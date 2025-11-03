@@ -5,40 +5,41 @@
 //  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
-
 import SwiftUI
 
 struct LastRunCard: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Last Run")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Spacer()
                 
                 Text("2 hours ago")
                     .font(.caption)
-                    .foregroundColor(Color("Paleta4"))
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             // Map Image Placeholder
             ZStack {
                 Rectangle()
-                    .fill(Color("Paleta4").opacity(0.3))
+                    .fill(themeManager.secondaryTextColor.opacity(0.3))
                     .frame(height: 120)
                     .cornerRadius(8)
                 
                 Image(systemName: "map.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(Color("Paleta2"))
+                    .foregroundColor(themeManager.accentColor)
                 
                 Text("Forest Path")
                     .font(.caption)
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                     .padding(8)
-                    .background(Color("Paleta3").opacity(0.8))
+                    .background(themeManager.backgroundColor.opacity(0.8))
                     .cornerRadius(6)
                     .offset(y: 30)
             }
@@ -52,7 +53,7 @@ struct LastRunCard: View {
             }
         }
         .padding()
-        .background(Color("Paleta5"))
+        .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
     }
 }
@@ -60,6 +61,7 @@ struct LastRunCard: View {
 struct LastRunCard_Previews: PreviewProvider {
     static var previews: some View {
         LastRunCard()
+            .environmentObject(ThemeManager())
             .previewLayout(.sizeThatFits)
             .padding()
     }

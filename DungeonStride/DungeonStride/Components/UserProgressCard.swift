@@ -5,27 +5,26 @@
 //  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
-
-
 import SwiftUI
 
 struct UserProgressCard: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Image(systemName: "person.circle.fill")
                     .font(.title2)
-                    .foregroundColor(Color("Paleta2"))
+                    .foregroundColor(themeManager.accentColor)
                 
                 VStack(alignment: .leading) {
                     Text("Welcome back!")
                         .font(.caption)
-                        .foregroundColor(Color("Paleta4"))
+                        .foregroundColor(themeManager.secondaryTextColor)
                     Text(authViewModel.currentUserEmail ?? "User")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(themeManager.primaryTextColor)
                 }
                 
                 Spacer()
@@ -34,11 +33,11 @@ struct UserProgressCard: View {
                 VStack {
                     Text("Lvl")
                         .font(.caption2)
-                        .foregroundColor(Color("Paleta4"))
+                        .foregroundColor(themeManager.secondaryTextColor)
                     Text("5")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(Color("Paleta2"))
+                        .foregroundColor(themeManager.accentColor)
                 }
             }
             
@@ -47,29 +46,29 @@ struct UserProgressCard: View {
                 HStack {
                     Text("Progress to next level")
                         .font(.caption)
-                        .foregroundColor(Color("Paleta4"))
+                        .foregroundColor(themeManager.secondaryTextColor)
                     Spacer()
                     Text("1,250 / 2,000 XP")
                         .font(.caption)
-                        .foregroundColor(.white)
+                        .foregroundColor(themeManager.primaryTextColor)
                 }
                 
                 // Progress Bar
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color("Paleta5"))
+                        .fill(themeManager.cardBackgroundColor)
                         .frame(height: 8)
                         .cornerRadius(4)
                     
                     Rectangle()
-                        .fill(Color("Paleta2"))
+                        .fill(themeManager.accentColor)
                         .frame(width: 125, height: 8) // 1250/2000 = 62.5%
                         .cornerRadius(4)
                 }
             }
         }
         .padding()
-        .background(Color("Paleta5"))
+        .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
     }
 }
@@ -78,6 +77,7 @@ struct UserProgressCard_Previews: PreviewProvider {
     static var previews: some View {
         UserProgressCard()
             .environmentObject(AuthViewModel())
+            .environmentObject(ThemeManager())
             .previewLayout(.sizeThatFits)
     }
 }

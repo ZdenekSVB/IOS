@@ -22,11 +22,13 @@ struct ProfileView: View {
     let currentXP = 1250
     let xpForNextLevel = 2000
     
+    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO
+    
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color("Paleta3")
+                // Dynamické pozadí podle tématu
+                themeManager.backgroundColor
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -142,7 +144,7 @@ struct ProfileView: View {
                         .padding(.horizontal)
                         
                         // Action Buttons
-                        VStack(spacing: 12) {                            
+                        VStack(spacing: 12) {
                             Button("Logout") {
                                 authViewModel.logout()
                             }

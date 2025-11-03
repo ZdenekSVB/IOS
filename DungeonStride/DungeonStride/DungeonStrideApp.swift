@@ -12,6 +12,7 @@ import FirebaseCore
 struct DungeonStrideApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var themeManager = ThemeManager() // ← PŘIDÁNO
     
     init() {
         FirebaseApp.configure()
@@ -22,9 +23,8 @@ struct DungeonStrideApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authViewModel)
+                .environmentObject(themeManager) // ← PŘIDÁNO
+                .preferredColorScheme(themeManager.isDarkMode ? .dark : .light) // ← PŘIDÁNO
         }
     }
 }
-
-
-

@@ -8,15 +8,21 @@
 import SwiftUI
 
 struct ActivityView: View {
+    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO
+    
     var body: some View {
-        ZStack {
-            Color("Paleta3").ignoresSafeArea()
-            VStack {
-                Text("Activity")
-                    .font(.title)
-                    .foregroundColor(.white)
-                Text("Coming soon...")
-                    .foregroundColor(Color("Paleta4"))
+        NavigationView {
+            ZStack {
+                // Dynamické pozadí podle tématu
+                themeManager.backgroundColor
+                    .ignoresSafeArea()
+                VStack {
+                    Text("Activity")
+                        .font(.title)
+                        .foregroundColor(.white)
+                    Text("Coming soon...")
+                        .foregroundColor(Color("Paleta4"))
+                }
             }
         }
     }

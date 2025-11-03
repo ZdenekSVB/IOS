@@ -5,10 +5,10 @@
 //  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
-
 import SwiftUI
 
 struct QuestsCard: View {
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var quests: [Quest] = [
         Quest(id: 1, title: "Daily Steps", description: "Walk 10,000 steps", progress: 7, total: 10, isCompleted: false),
         Quest(id: 2, title: "Forest Explorer", description: "Complete 3 forest runs", progress: 2, total: 3, isCompleted: false),
@@ -20,13 +20,13 @@ struct QuestsCard: View {
             HStack {
                 Text("Daily Quests")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Spacer()
                 
                 Text("\(quests.filter { $0.isCompleted }.count)/\(quests.count)")
                     .font(.caption)
-                    .foregroundColor(Color("Paleta4"))
+                    .foregroundColor(themeManager.secondaryTextColor)
             }
             
             VStack(spacing: 12) {
@@ -34,11 +34,12 @@ struct QuestsCard: View {
                     QuestRow(quest: quest, onComplete: {
                         completeQuest(quest.id)
                     })
+                    .environmentObject(themeManager)
                 }
             }
         }
         .padding()
-        .background(Color("Paleta5"))
+        .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
     }
     
@@ -59,6 +60,7 @@ struct QuestsCard: View {
 struct QuestsCard_Previews: PreviewProvider {
     static var previews: some View {
         QuestsCard()
+            .environmentObject(ThemeManager())
             .previewLayout(.sizeThatFits)
             .padding()
     }

@@ -5,17 +5,10 @@
 //  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
-
-//
-//  QuestRow.swift
-//  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 03.11.2025.
-//
-
 import SwiftUI
 
 struct QuestRow: View {
+    @EnvironmentObject var themeManager: ThemeManager
     let quest: Quest
     let onComplete: () -> Void
     
@@ -24,21 +17,21 @@ struct QuestRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(quest.title)
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 Text(quest.description)
                     .font(.caption)
-                    .foregroundColor(Color("Paleta4"))
+                    .foregroundColor(themeManager.secondaryTextColor)
                 
                 // Progress Bar
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Color("Paleta3"))
+                        .fill(themeManager.backgroundColor)
                         .frame(height: 4)
                         .cornerRadius(2)
                     
                     Rectangle()
-                        .fill(Color("Paleta2"))
+                        .fill(themeManager.accentColor)
                         .frame(width: CGFloat(quest.progress) / CGFloat(quest.total) * 100, height: 4)
                         .cornerRadius(2)
                 }
@@ -50,7 +43,7 @@ struct QuestRow: View {
             VStack(spacing: 4) {
                 Text("\(quest.progress)/\(quest.total)")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
+                    .foregroundColor(themeManager.primaryTextColor)
                 
                 if quest.isCompleted {
                     Image(systemName: "checkmark.circle.fill")
@@ -64,17 +57,17 @@ struct QuestRow: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color("Paleta2"))
+                    .background(themeManager.accentColor)
                     .cornerRadius(6)
                 } else {
                     Text("\(quest.total - quest.progress) left")
                         .font(.system(size: 10))
-                        .foregroundColor(Color("Paleta4"))
+                        .foregroundColor(themeManager.secondaryTextColor)
                 }
             }
         }
         .padding(12)
-        .background(Color("Paleta3"))
+        .background(themeManager.backgroundColor)
         .cornerRadius(8)
     }
 }
@@ -84,7 +77,7 @@ struct QuestRow_Previews: PreviewProvider {
         QuestRow(
             quest: Quest(
                 id: 1,
-                title: "Daily Steps", 
+                title: "Daily Steps",
                 description: "Walk 10,000 steps",
                 progress: 7,
                 total: 10,
@@ -92,6 +85,7 @@ struct QuestRow_Previews: PreviewProvider {
             ),
             onComplete: {}
         )
+        .environmentObject(ThemeManager())
         .previewLayout(.sizeThatFits)
         .padding()
         .background(Color("Paleta5"))

@@ -5,20 +5,13 @@
 //  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
-
-//
-//  TabBarButton.swift
-//  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 03.11.2025.
-//
-
 import SwiftUI
 
 struct TabBarButton: View {
     let icon: String
     let title: String
     let isSelected: Bool
+    let themeManager: ThemeManager
     let action: () -> Void
     
     var body: some View {
@@ -26,11 +19,11 @@ struct TabBarButton: View {
             VStack(spacing: 4) {
                 Image(systemName: icon)
                     .font(.system(size: 20))
-                    .foregroundColor(isSelected ? Color("Paleta2") : Color("Paleta4"))
+                    .foregroundColor(isSelected ? themeManager.accentColor : themeManager.secondaryTextColor)
                 
                 Text(title)
                     .font(.system(size: 10))
-                    .foregroundColor(isSelected ? Color("Paleta2") : Color("Paleta4"))
+                    .foregroundColor(isSelected ? themeManager.accentColor : themeManager.secondaryTextColor)
             }
             .frame(maxWidth: .infinity)
         }
@@ -43,6 +36,7 @@ struct TabBarButton_Previews: PreviewProvider {
             icon: "house.fill",
             title: "Home",
             isSelected: true,
+            themeManager: ThemeManager(),
             action: {}
         )
         .previewLayout(.sizeThatFits)

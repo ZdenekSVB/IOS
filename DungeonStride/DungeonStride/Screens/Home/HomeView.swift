@@ -5,25 +5,18 @@
 //  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
-
-//
-//  HomeView.swift
-//  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 03.11.2025.
-//
-
 import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO
     @State private var selectedTab = 2 // Home je vybraný defaultně
     
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color("Paleta3")
+                // Background - dynamické podle tématu
+                themeManager.backgroundColor
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
@@ -58,5 +51,6 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .environmentObject(AuthViewModel())
+            .environmentObject(ThemeManager())
     }
 }

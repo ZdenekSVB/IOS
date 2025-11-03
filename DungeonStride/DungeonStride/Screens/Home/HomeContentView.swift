@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct HomeContentView: View {
+    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO ZDE
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -29,5 +31,6 @@ struct HomeContentView_Previews: PreviewProvider {
     static var previews: some View {
         HomeContentView()
             .environmentObject(AuthViewModel())
+            .environmentObject(ThemeManager()) // ← PŘIDÁNO ZDE
     }
 }
