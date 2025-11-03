@@ -2,111 +2,134 @@
 //  LoginView.swift
 //  DungeonStride
 //
-//  Created by Vít Čevelík on 14.10.2025.
+//  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
-import SwiftUI
-import Firebase
-import FirebaseAuth
-import FirebaseFirestore
 
-struct LoginView : View {
+import SwiftUI
+
+struct LoginView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    
     @State private var email = ""
     @State private var password = ""
-    
-    
+    @State private var showRegister = false
     
     var body: some View {
-        NavigationStack{
+        NavigationView {
             ZStack {
-                Color("Paleta1").ignoresSafeArea()
+                // Background
+                Color(.systemBackground)
+                    .ignoresSafeArea()
                 
-                if authViewModel.isLoading {
-                    ProgressView()
-                        .scaleEffect(2)
-                } else {
-                    VStack(spacing: 20) {
-                        Image("Logo")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 300, height: 300)
-                            .foregroundColor(.brown)
-                            .padding(.bottom, 30)
+                VStack(spacing: 30) {
+                    // Header
+                    VStack(spacing: 12) {
+                        Image(systemName: "person.crop.circle.fill")
+                            .font(.system(size: 80))
+                            .foregroundColor(.blue)
                         
-                        Text("Login")
+                        Text("Dungeon Stride")
                             .font(.largeTitle)
-                            .bold()
+                            .fontWeight(.bold)
                         
-                        ClearableTextField("Email", text: $email)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                        
-                        SecureField("Password", text: $password)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding(.horizontal)
-                            .submitLabel(.go)
-                            .onSubmit {
-                                authViewModel.login(email: email, password: password)
-                            }
-                        
-                        if !authViewModel.errorMessage.isEmpty {
-                            Text(authViewModel.errorMessage)
-                                .foregroundColor(.red)
-                                .padding()
-                        }
-                        
-                        Button("Log in") {
-                            authViewModel.login(email: email, password: password)
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color("Paleta2"))
-                        .foregroundColor(.black)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                        
-                        HStack {
-                            Text("Don't have an account?")
-                            NavigationLink(destination: RegisterView().navigationBarBackButtonHidden(true)) {
-                                Text("Register")
-                                    .foregroundColor(.blue)
-                            }
-                        }
-                        .padding(.top)
+                        Text("Embark on your adventure")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
-                    .padding()
+                    .padding(.top, 60)
+                    
+                    // Form
+                    VStack(spacing: 20) {
+                        // Email Field
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Email")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            
+                            TextField("Enter your email", text: $email)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .keyboardType(.emailAddress)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                        }
+                        
+                        // Password Field
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Password")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            
+                            SecureField("Enter your password", text: $password)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .textInputAutocapitalization(.never)
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // Error Message
+                    if !authViewModel.errorMessage.isEmpty {
+                        Text(authViewModel.errorMessage)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Login Button
+                    Button(action: login) {
+                        if authViewModel.isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        } else {
+                            Text("Sign In")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                        }
+                    }
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [.blue, .purple]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(12)
+                    .disabled(authViewModel.isLoading || email.isEmpty || password.isEmpty)
+                    .opacity((authViewModel.isLoading || email.isEmpty || password.isEmpty) ? 0.6 : 1.0)
+                    .padding(.horizontal)
+                    
+                    // Register Link
+                    HStack {
+                        Text("Don't have an account?")
+                            .foregroundColor(.secondary)
+                        
+                        Button("Sign Up") {
+                            showRegister = true
+                        }
+                        .foregroundColor(.blue)
+                        .fontWeight(.semibold)
+                    }
+                    
+                    Spacer()
                 }
             }
-            .navigationBarHidden(true)
+            .sheet(isPresented: $showRegister) {
+                RegisterView()
+            }
         }
     }
     
+    private func login() {
+        authViewModel.login(email: email, password: password)
+    }
 }
 
-
-struct ClearableTextField: View {
-    let placeholder: String
-    @Binding var text: String
-    
-    init(_ placeholder: String, text: Binding<String>) {
-        self.placeholder = placeholder
-        self._text = text
-    }
-    
-    var body: some View {
-        ZStack(alignment: .trailing) {
-            TextField(placeholder, text: $text)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal)
-            
-            if !text.isEmpty {
-                Button(action: { text = "" }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
-                .padding(.trailing, 30)
-            }
-        }
+struct LoginView_Previews: PreviewProvider {
+    static var previews: some View {
+        LoginView()
+            .environmentObject(AuthViewModel())
     }
 }

@@ -9,12 +9,17 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-
-
-    var body: some View {
-        
-    }
+    @EnvironmentObject var authViewModel: AuthViewModel
     
+    var body: some View {
+        Group {
+            if authViewModel.isLoggedIn {
+                MainAppView() // Tady bude hlavní obsah aplikace
+            } else {
+                LoginView()
+            }
+        }
+    }
 }
 
 
