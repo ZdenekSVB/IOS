@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import GoogleSignIn
 
 struct WelcomeView: View {
     @State private var showLogin = false
@@ -51,10 +52,13 @@ struct WelcomeView: View {
                         .background(Color("Paleta2"))
                         .cornerRadius(12)
                         
+                        
+                        
                         // Google Login Button
                         Button(action: {
-                            // TODO: Google login implementation
-                            print("Google login tapped")
+                            Task{
+                                await authViewModel.signInWithGoogle()
+                            }
                         }) {
                             HStack(spacing: 12) {
                                 Image("Google")

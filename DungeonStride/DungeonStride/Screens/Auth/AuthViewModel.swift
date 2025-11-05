@@ -10,6 +10,8 @@ import Foundation
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import GoogleSignIn
+import GoogleSignInSwift
 
 class AuthViewModel: ObservableObject {
     
@@ -246,6 +248,88 @@ class AuthViewModel: ObservableObject {
             @unknown default:
                 print("❓ Unknown notification status")
             }
+        }
+    }
+    
+    func signInWithGoogle() async {
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            self.errorMessage = "Missing Google Client ID"
+            print("❌ Missing Google Client ID")
+            return
+        }
+        
+        isLoading = true
+        errorMessage = ""
+        
+        do {
+            // Získání "root view controlleru" (musí se předat do GIDSignIn)
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootVC = windowScene.windows.first?.rootViewController else {
+                self.errorMessage = "Unable to find root view controller"
+                return
+            }
+            
+            // Přihlášení uživatele přes Google
+            let signInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
+            
+            guard let idToken = signInResult.user.idToken?.tokenString else {
+                self.errorMessage = "Missing ID token"
+                return
+            }
+            
+            let accessToken = signInResult.user.accessToken.tokenString
+            
+            // Přihlášení do Firebase pomocí Google credentialu
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+            let result = try await Auth.auth().signIn(with: credential)
+            
+            // Získáme přihlášeného uživatele
+            let user = result.user
+            self.currentUserUID = user.uid
+            self.currentUserEmail = user.email
+            self.isLoggedIn = true
+            self.errorMessage = ""
+            
+            print("✅ Google Sign-In successful: \(user.email ?? "Unknown")")
+            
+            // Ulož nebo aktualizuj data o uživateli ve Firestore
+            await saveGoogleUserToFirestore(user: user)
+            
+        } catch {
+            print("❌ Google Sign-In error: \(error.localizedDescription)")
+            self.errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
+    }
+    
+    private func saveGoogleUserToFirestore(user: FirebaseAuth.User) async {
+        let db = getDB()
+        let userRef = db.collection("users").document(user.uid)
+        
+        do {
+            let doc = try await userRef.getDocument()
+            if !doc.exists {
+                // Uživatel se přihlašuje poprvé – vytvoř záznam
+                try await userRef.setData([
+                    "username": user.displayName ?? "",
+                    "email": user.email ?? "",
+                    "imageUrl": user.photoURL?.absoluteString ?? "",
+                    "createdAt": FieldValue.serverTimestamp(),
+                    "updatedAt": FieldValue.serverTimestamp(),
+                    "lastLoggedIn": FieldValue.serverTimestamp()
+                ])
+                print("💾 Created new user in Firestore (Google)")
+            } else {
+                // Aktualizuj čas přihlášení
+                try await userRef.updateData([
+                    "lastLoggedIn": FieldValue.serverTimestamp(),
+                    "updatedAt": FieldValue.serverTimestamp()
+                ])
+                print("🔄 Updated existing Google user in Firestore")
+            }
+        } catch {
+            print("⚠️ Firestore error for Google user: \(error.localizedDescription)")
         }
     }
 }

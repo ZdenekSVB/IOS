@@ -8,6 +8,7 @@
 import UIKit
 import Firebase
 import FirebaseMessaging
+import GoogleSignIn
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     
@@ -31,6 +32,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         print("🔧 DEBUG: FCM Token will be available for testing")
         #endif
     }
+    
+    func application(_ app: UIApplication,
+                         open url: URL,
+                         options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+            // Google Sign-In callback handler
+            return GIDSignIn.sharedInstance.handle(url)
+        }
+        
     
     func application(_ application: UIApplication,
                    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

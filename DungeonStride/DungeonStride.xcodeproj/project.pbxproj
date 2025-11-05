@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C98887FD2EBB67FF0081A62E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = C98887FC2EBB67FF0081A62E /* GoogleSignIn */; };
+		C98887FF2EBB67FF0081A62E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C98887FE2EBB67FF0081A62E /* GoogleSignInSwift */; };
 		C9A1C8682E9E684C00EAE666 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = C9A1C8672E9E684C00EAE666 /* FirebaseAnalytics */; };
 		C9A1C86A2E9E684C00EAE666 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = C9A1C8692E9E684C00EAE666 /* FirebaseAppCheck */; };
 		C9A1C86C2E9E684C00EAE666 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C9A1C86B2E9E684C00EAE666 /* FirebaseAuth */; };
@@ -21,9 +23,22 @@
 		C9A1C8512E9E659200EAE666 /* DungeonStride.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DungeonStride.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C98888032EBB6A2D0081A62E /* Exceptions for "DungeonStride" folder in "DungeonStride" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C9A1C8502E9E659200EAE666 /* DungeonStride */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C9A1C8532E9E659200EAE666 /* DungeonStride */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C98888032EBB6A2D0081A62E /* Exceptions for "DungeonStride" folder in "DungeonStride" target */,
+			);
 			path = DungeonStride;
 			sourceTree = "<group>";
 		};
@@ -39,9 +54,11 @@
 				C9A1C8742E9E684C00EAE666 /* FirebaseMessaging in Frameworks */,
 				C9A1C8702E9E684C00EAE666 /* FirebaseCrashlytics in Frameworks */,
 				C9A1C86E2E9E684C00EAE666 /* FirebaseCore in Frameworks */,
+				C98887FF2EBB67FF0081A62E /* GoogleSignInSwift in Frameworks */,
 				C9A1C8762E9E684C00EAE666 /* FirebaseStorage in Frameworks */,
 				C9A1C8682E9E684C00EAE666 /* FirebaseAnalytics in Frameworks */,
 				C9A1C8722E9E684C00EAE666 /* FirebaseFirestore in Frameworks */,
+				C98887FD2EBB67FF0081A62E /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +109,8 @@
 				C9A1C8712E9E684C00EAE666 /* FirebaseFirestore */,
 				C9A1C8732E9E684C00EAE666 /* FirebaseMessaging */,
 				C9A1C8752E9E684C00EAE666 /* FirebaseStorage */,
+				C98887FC2EBB67FF0081A62E /* GoogleSignIn */,
+				C98887FE2EBB67FF0081A62E /* GoogleSignInSwift */,
 			);
 			productName = DungeonStride;
 			productReference = C9A1C8512E9E659200EAE666 /* DungeonStride.app */;
@@ -123,6 +142,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				C9A1C8662E9E684C00EAE666 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				C98887FB2EBB67FF0081A62E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C9A1C8522E9E659200EAE666 /* Products */;
@@ -283,6 +303,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DungeonStride/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to set a custom profile picture.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -311,6 +332,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DungeonStride/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to set a custom profile picture.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -354,6 +376,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		C98887FB2EBB67FF0081A62E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
 		C9A1C8662E9E684C00EAE666 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -365,6 +395,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		C98887FC2EBB67FF0081A62E /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C98887FB2EBB67FF0081A62E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		C98887FE2EBB67FF0081A62E /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C98887FB2EBB67FF0081A62E /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
 		C9A1C8672E9E684C00EAE666 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C9A1C8662E9E684C00EAE666 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
