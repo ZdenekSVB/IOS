@@ -43,13 +43,18 @@ struct SettingsView: View {
                             
                             SettingsToggleRow(icon: "speaker.wave.2.fill", title: "Sound Effects", isOn: $soundEffects, themeManager: themeManager)
                             
-                            // DARK MODE TOGGLE - HLAVNÍ FUNKCE
+                            // V SettingsView upravte dark mode řádek:
                             SettingsToggleRow(
                                 icon: themeManager.isDarkMode ? "moon.fill" : "sun.max.fill",
                                 title: "Dark Mode",
                                 isOn: Binding(
                                     get: { themeManager.isDarkMode },
-                                    set: { _ in themeManager.toggleDarkMode() }
+                                    set: { newValue in
+                                        // Použijte toggle místo přímého nastavení pro konzistenci
+                                        if newValue != themeManager.isDarkMode {
+                                            themeManager.toggleDarkMode()
+                                        }
+                                    }
                                 ),
                                 themeManager: themeManager
                             )
@@ -198,9 +203,3 @@ struct SettingsToggleRow: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView()
-            .environmentObject(ThemeManager())
-    }
-}

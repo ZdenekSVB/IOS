@@ -15,6 +15,7 @@ class AuthViewModel: ObservableObject {
     
     private var db: Firestore?
     private let userService = UserService()
+    private var themeManager: ThemeManager?
     
     @Published var email = ""
     @Published var password = ""
@@ -36,6 +37,9 @@ class AuthViewModel: ObservableObject {
                 await self.checkIfUserIsLoggedIn()
             }
         }
+    }
+    func setupThemeManager(_ themeManager: ThemeManager) {
+        self.themeManager = themeManager
     }
     
     private func getDB() -> Firestore {
@@ -259,10 +263,13 @@ class AuthViewModel: ObservableObject {
         do {
             let user = try await userService.fetchUser(uid: uid)
             print("✅ User data loaded: \(user.username)")
+            
+            // Aktualizujte ThemeManager s nastavením uživatele
+            await MainActor.run {
+                themeManager?.setDarkMode(user.settings.isDarkMode)
+            }
         } catch {
             print("⚠️ Failed to load user data: \(error.localizedDescription)")
-            
-            // Pokud uživatel neexistuje v našem modelu, vytvoříme ho
             if let authUser = Auth.auth().currentUser {
                 await createUserFromAuthUser(authUser)
             }
@@ -347,6 +354,9 @@ class AuthViewModel: ObservableObject {
             
             // Resetovat UserService
             userService.currentUser = nil
+            
+            // Resetovat ThemeManager na výchozí nastavení
+            themeManager?.setDarkMode(false)
             
             print("✅ Logout successful")
         } catch {
