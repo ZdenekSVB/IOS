@@ -6,163 +6,163 @@
 import Foundation
 import FirebaseFirestore
 
-struct User: Codable, Identifiable {
-    
-    @DocumentID var id: String? // Toto bude document ID (uid)
-    
-    let email: String
-    let username: String
-    
-    // Avatar system
-    var selectedAvatar: String
-    
-    // Progress
-    var totalXP: Int
-    
-    // Activity Stats
-    var totalRuns: Int
-    var totalDistance: Int // v metrech
-    var totalCaloriesBurned: Int
-    var totalSteps: Int
-    
-    // Achievements
-    var myAchievements: [Achievement]
-    
-    // Settings & Preferences
+struct PlayerStats: Codable {
+    var hp: Int
+    var maxHP: Int
+    var physicalDamage: Int
+    var magicDamage: Int
+    var defense: Int
+    var speed: Int
+    var evasion: Double
+}
+
+struct UserSettings: Codable {
     var isDarkMode: Bool
     var notificationsEnabled: Bool
     var soundEffectsEnabled: Bool
     var units: DistanceUnit
-    
-    // Daily Progress
+}
+
+struct DailyActivity: Codable {
     var dailySteps: Int
-    var dailyDistance: Int // v metrech
+    var dailyDistance: Int    
     var dailyCaloriesBurned: Int
+}
+
+struct ActivityStats: Codable {
+    var totalRuns: Int
+    var totalDistance: Int
+    var totalCaloriesBurned: Int
+    var totalSteps: Int
+}
+
+// MARK: — Hlavní User model
+
+struct User: Codable, Identifiable {
+    @DocumentID var id: String?
     
-    // Timestamps
+    
+    let email: String
+    let username: String
+    var selectedAvatar: String
+    
+    
+    var stats: PlayerStats
+    var coins: Int
+    var gems: Int
+    var premiumMember: Bool
+    var totalXP: Int
+    
+    
+    var activityStats: ActivityStats
+    var dailyActivity: DailyActivity
+    
+    
+    var settings: UserSettings
+    
+    
+    var myAchievements: [Achievement]
+    var currentQuests: [Quest]
+    var completedQuests: [Quest]
+    
+    
     let createdAt: Date
     var updatedAt: Date
     var lastActiveAt: Date
     
-    // Social & Progression
-    var currentQuests: [Quest]
-    var completedQuests: [Quest]
     
-    // Economy
-    var coins: Int
-    var gems: Int
-    var premiumMember: Bool
-    
-    // MARK: - Computed Properties
     var level: Int {
         return (totalXP / 100) + 1
     }
-    
     var xpToNextLevel: Int {
         return (level * 100) - totalXP
     }
-    
     var levelProgress: Double {
         let currentLevelXP = totalXP % 100
         return Double(currentLevelXP) / 100.0
     }
     
-    // Vypočítaná property pro uid (pro zpětnou kompatibilitu)
     var uid: String {
         return id ?? ""
     }
     
-    // MARK: - Initializers
+    
     init(
         id: String? = nil,
         email: String,
         username: String,
         selectedAvatar: String = "default",
-        totalXP: Int = 0,
-        totalRuns: Int = 0,
-        totalDistance: Int = 0,
-        totalCaloriesBurned: Int = 0,
-        totalSteps: Int = 0,
-        myAchievements: [Achievement] = [],
-        isDarkMode: Bool = false,
-        notificationsEnabled: Bool = true,
-        soundEffectsEnabled: Bool = true,
-        units: DistanceUnit = .metric,
-        dailySteps: Int = 0,
-        dailyDistance: Int = 0,
-        dailyCaloriesBurned: Int = 0,
-        createdAt: Date = Date(),
-        updatedAt: Date = Date(),
-        lastActiveAt: Date = Date(),
-        currentQuests: [Quest] = [],
-        completedQuests: [Quest] = [],
+        stats: PlayerStats = PlayerStats(hp: 100, maxHP: 100, physicalDamage: 10, magicDamage: 5, defense: 5, speed: 10, evasion: 0.05),
         coins: Int = 0,
         gems: Int = 0,
-        premiumMember: Bool = false
+        premiumMember: Bool = false,
+        totalXP: Int = 0,
+        activityStats: ActivityStats = ActivityStats(totalRuns: 0, totalDistance: 0, totalCaloriesBurned: 0, totalSteps: 0),
+        dailyActivity: DailyActivity = DailyActivity(dailySteps: 0, dailyDistance: 0, dailyCaloriesBurned: 0),
+        settings: UserSettings = UserSettings(isDarkMode: false, notificationsEnabled: true, soundEffectsEnabled: true, units: .metric),
+        myAchievements: [Achievement] = [],
+        currentQuests: [Quest] = [],
+        completedQuests: [Quest] = [],
+        createdAt: Date = Date(),
+        updatedAt: Date = Date(),
+        lastActiveAt: Date = Date()
     ) {
         self.id = id
         self.email = email
         self.username = username
         self.selectedAvatar = selectedAvatar
-        self.totalXP = totalXP
-        self.totalRuns = totalRuns
-        self.totalDistance = totalDistance
-        self.totalCaloriesBurned = totalCaloriesBurned
-        self.totalSteps = totalSteps
-        self.myAchievements = myAchievements
-        self.isDarkMode = isDarkMode
-        self.notificationsEnabled = notificationsEnabled
-        self.soundEffectsEnabled = soundEffectsEnabled
-        self.units = units
-        self.dailySteps = dailySteps
-        self.dailyDistance = dailyDistance
-        self.dailyCaloriesBurned = dailyCaloriesBurned
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        self.lastActiveAt = lastActiveAt
-        self.currentQuests = currentQuests
-        self.completedQuests = completedQuests
+        
+        self.stats = stats
         self.coins = coins
         self.gems = gems
         self.premiumMember = premiumMember
+        self.totalXP = totalXP
+        
+        self.activityStats = activityStats
+        self.dailyActivity = dailyActivity
+        
+        self.settings = settings
+        
+        self.myAchievements = myAchievements
+        self.currentQuests = currentQuests
+        self.completedQuests = completedQuests
+        
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.lastActiveAt = lastActiveAt
     }
     
-    // MARK: - Helper Methods
+    // MARK: — Helper metody
     mutating func addXP(_ amount: Int) {
         totalXP += amount
         updatedAt = Date()
     }
-    
     mutating func addCoins(_ amount: Int) {
         coins += amount
         updatedAt = Date()
     }
-    
     mutating func addGems(_ amount: Int) {
         gems += amount
         updatedAt = Date()
     }
-    
     mutating func updateDailyProgress(steps: Int, distance: Int, calories: Int) {
-        dailySteps = steps
-        dailyDistance = distance
-        dailyCaloriesBurned = calories
+        dailyActivity.dailySteps = steps
+        dailyActivity.dailyDistance = distance
+        dailyActivity.dailyCaloriesBurned = calories
         
-        totalSteps += steps
-        totalDistance += distance
-        totalCaloriesBurned += calories
+        activityStats.totalSteps += steps
+        activityStats.totalDistance += distance
+        activityStats.totalCaloriesBurned += calories
         
         updatedAt = Date()
     }
-    
     mutating func completeQuest(_ quest: Quest) {
         if let index = currentQuests.firstIndex(where: { $0.id == quest.id }) {
             currentQuests.remove(at: index)
-            var completedQuest = quest
-            completedQuest.completedAt = Date()
-            completedQuests.append(completedQuest)
+            var completed = quest
+            completed.completedAt = Date()
+            completedQuests.append(completed)
             
-            // Přidat odměny
             addXP(quest.xpReward)
             addCoins(quest.xpReward / 10)
             
@@ -170,7 +170,6 @@ struct User: Codable, Identifiable {
         }
     }
 }
-
 // MARK: - Firestore Helpers
 extension User {
     func toFirestore() -> [String: Any] {
@@ -178,112 +177,146 @@ extension User {
             "email": email,
             "username": username,
             "selectedAvatar": selectedAvatar,
-            "totalXP": totalXP,
-            "totalRuns": totalRuns,
-            "totalDistance": totalDistance,
-            "totalCaloriesBurned": totalCaloriesBurned,
-            "totalSteps": totalSteps,
-            "myAchievements": myAchievements.map { $0.toFirestore() },
-            "isDarkMode": isDarkMode,
-            "notificationsEnabled": notificationsEnabled,
-            "soundEffectsEnabled": soundEffectsEnabled,
-            "units": units.rawValue,
-            "dailySteps": dailySteps,
-            "dailyDistance": dailyDistance,
-            "dailyCaloriesBurned": dailyCaloriesBurned,
-            "createdAt": Timestamp(date: createdAt),
-            "updatedAt": Timestamp(date: updatedAt),
-            "lastActiveAt": Timestamp(date: lastActiveAt),
-            "currentQuests": currentQuests.map { $0.toFirestore() },
-            "completedQuests": completedQuests.map { $0.toFirestore() },
+            
+            // Stats
+            "stats": [
+                "hp": stats.hp,
+                "maxHP": stats.maxHP,
+                "physicalDamage": stats.physicalDamage,
+                "magicDamage": stats.magicDamage,
+                "defense": stats.defense,
+                "speed": stats.speed,
+                "evasion": stats.evasion
+            ],
+            
+            // Economy / progression
             "coins": coins,
             "gems": gems,
-            "premiumMember": premiumMember
+            "premiumMember": premiumMember,
+            "totalXP": totalXP,
+            
+            // Activity stats
+            "activityStats": [
+                "totalRuns": activityStats.totalRuns,
+                "totalDistance": activityStats.totalDistance,
+                "totalCaloriesBurned": activityStats.totalCaloriesBurned,
+                "totalSteps": activityStats.totalSteps
+            ],
+            
+            // Daily activity
+            "dailyActivity": [
+                "dailySteps": dailyActivity.dailySteps,
+                "dailyDistance": dailyActivity.dailyDistance,
+                "dailyCaloriesBurned": dailyActivity.dailyCaloriesBurned
+            ],
+            
+            // Settings
+            "settings": [
+                "isDarkMode": settings.isDarkMode,
+                "notificationsEnabled": settings.notificationsEnabled,
+                "soundEffectsEnabled": settings.soundEffectsEnabled,
+                "units": settings.units.rawValue
+            ],
+            
+            // Achievements & Quests
+            "myAchievements": myAchievements.map { $0.toFirestore() },
+            "currentQuests": currentQuests.map { $0.toFirestore() },
+            "completedQuests": completedQuests.map { $0.toFirestore() },
+            
+            // Timestamps
+            "createdAt": Timestamp(date: createdAt),
+            "updatedAt": Timestamp(date: updatedAt),
+            "lastActiveAt": Timestamp(date: lastActiveAt)
         ]
     }
-    
+
     static func fromFirestore(documentId: String, data: [String: Any]) -> User? {
         guard let email = data["email"] as? String,
               let username = data["username"] as? String else {
             return nil
         }
         
-        // Parse basic data
         let selectedAvatar = data["selectedAvatar"] as? String ?? "default"
+
+        // Parse stats
+        let statsDict = data["stats"] as? [String: Any] ?? [:]
+        let stats = PlayerStats(
+            hp: statsDict["hp"] as? Int ?? 100,
+            maxHP: statsDict["maxHP"] as? Int ?? 100,
+            physicalDamage: statsDict["physicalDamage"] as? Int ?? 10,
+            magicDamage: statsDict["magicDamage"] as? Int ?? 5,
+            defense: statsDict["defense"] as? Int ?? 5,
+            speed: statsDict["speed"] as? Int ?? 10,
+            evasion: statsDict["evasion"] as? Double ?? 0.0
+        )
+
+        // Parse economy / progression
+        let coins = data["coins"] as? Int ?? 0
+        let gems = data["gems"] as? Int ?? 0
+        let premiumMember = data["premiumMember"] as? Bool ?? false
         let totalXP = data["totalXP"] as? Int ?? 0
-        let totalRuns = data["totalRuns"] as? Int ?? 0
-        let totalDistance = data["totalDistance"] as? Int ?? 0
-        let totalCaloriesBurned = data["totalCaloriesBurned"] as? Int ?? 0
-        let totalSteps = data["totalSteps"] as? Int ?? 0
-        
+
+        // Parse activity stats
+        let actStatsDict = data["activityStats"] as? [String: Any] ?? [:]
+        let activityStats = ActivityStats(
+            totalRuns: actStatsDict["totalRuns"] as? Int ?? 0,
+            totalDistance: actStatsDict["totalDistance"] as? Int ?? 0,
+            totalCaloriesBurned: actStatsDict["totalCaloriesBurned"] as? Int ?? 0,
+            totalSteps: actStatsDict["totalSteps"] as? Int ?? 0
+        )
+
+        // Parse daily activity
+        let dailyActDict = data["dailyActivity"] as? [String: Any] ?? [:]
+        let dailyActivity = DailyActivity(
+            dailySteps: dailyActDict["dailySteps"] as? Int ?? 0,
+            dailyDistance: dailyActDict["dailyDistance"] as? Int ?? 0,
+            dailyCaloriesBurned: dailyActDict["dailyCaloriesBurned"] as? Int ?? 0
+        )
+
         // Parse settings
-        let isDarkMode = data["isDarkMode"] as? Bool ?? false
-        let notificationsEnabled = data["notificationsEnabled"] as? Bool ?? true
-        let soundEffectsEnabled = data["soundEffectsEnabled"] as? Bool ?? true
-        let unitsRaw = data["units"] as? String ?? "metric"
-        let units = DistanceUnit(rawValue: unitsRaw) ?? .metric
-        
-        // Parse daily progress
-        let dailySteps = data["dailySteps"] as? Int ?? 0
-        let dailyDistance = data["dailyDistance"] as? Int ?? 0
-        let dailyCaloriesBurned = data["dailyCaloriesBurned"] as? Int ?? 0
-        
+        let settingsDict = data["settings"] as? [String: Any] ?? [:]
+        let unitsRaw = settingsDict["units"] as? String ?? DistanceUnit.metric.rawValue
+        let settings = UserSettings(
+            isDarkMode: settingsDict["isDarkMode"] as? Bool ?? false,
+            notificationsEnabled: settingsDict["notificationsEnabled"] as? Bool ?? true,
+            soundEffectsEnabled: settingsDict["soundEffectsEnabled"] as? Bool ?? true,
+            units: DistanceUnit(rawValue: unitsRaw) ?? .metric
+        )
+
+        // Parse achievements & quests
+        let achData = data["myAchievements"] as? [[String: Any]] ?? []
+        let myAchievements = achData.compactMap { Achievement.fromFirestore($0) }
+
+        let currQuestData = data["currentQuests"] as? [[String: Any]] ?? []
+        let currentQuests = currQuestData.compactMap { Quest.fromFirestore($0) }
+
+        let compQuestData = data["completedQuests"] as? [[String: Any]] ?? []
+        let completedQuests = compQuestData.compactMap { Quest.fromFirestore($0) }
+
         // Parse timestamps
         let createdAt = (data["createdAt"] as? Timestamp)?.dateValue() ?? Date()
         let updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
         let lastActiveAt = (data["lastActiveAt"] as? Timestamp)?.dateValue() ?? Date()
-        
-        // Parse economy
-        let coins = data["coins"] as? Int ?? 0
-        let gems = data["gems"] as? Int ?? 0
-        let premiumMember = data["premiumMember"] as? Bool ?? false
-        
-        // Parse achievements
-        let achievementsData = data["myAchievements"] as? [[String: Any]] ?? []
-        let myAchievements = achievementsData.compactMap { Achievement.fromFirestore($0) }
-        
-        // Parse quests
-        let currentQuestsData = data["currentQuests"] as? [[String: Any]] ?? []
-        let currentQuests = currentQuestsData.compactMap { Quest.fromFirestore($0) }
-        
-        let completedQuestsData = data["completedQuests"] as? [[String: Any]] ?? []
-        let completedQuests = completedQuestsData.compactMap { Quest.fromFirestore($0) }
-        
+
         return User(
-            id: documentId, // Použijeme document ID jako id
+            id: documentId,
             email: email,
             username: username,
             selectedAvatar: selectedAvatar,
-            totalXP: totalXP,
-            totalRuns: totalRuns,
-            totalDistance: totalDistance,
-            totalCaloriesBurned: totalCaloriesBurned,
-            totalSteps: totalSteps,
-            myAchievements: myAchievements,
-            isDarkMode: isDarkMode,
-            notificationsEnabled: notificationsEnabled,
-            soundEffectsEnabled: soundEffectsEnabled,
-            units: units,
-            dailySteps: dailySteps,
-            dailyDistance: dailyDistance,
-            dailyCaloriesBurned: dailyCaloriesBurned,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            lastActiveAt: lastActiveAt,
-            currentQuests: currentQuests,
-            completedQuests: completedQuests,
+            stats: stats,
             coins: coins,
             gems: gems,
-            premiumMember: premiumMember
+            premiumMember: premiumMember,
+            totalXP: totalXP,
+            activityStats: activityStats,
+            dailyActivity: dailyActivity,
+            settings: settings,
+            myAchievements: myAchievements,
+            currentQuests: currentQuests,
+            completedQuests: completedQuests,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            lastActiveAt: lastActiveAt
         )
-    }
-    
-    // Zpětná kompatibilita - pro případy, kdy potřebujeme parsovat bez documentId
-    static func fromFirestore(_ data: [String: Any]) -> User? {
-        // Pokud v datech ještě je uid field (pro zpětnou kompatibilitu)
-        if let uid = data["uid"] as? String {
-            return fromFirestore(documentId: uid, data: data)
-        }
-        return nil
     }
 }
