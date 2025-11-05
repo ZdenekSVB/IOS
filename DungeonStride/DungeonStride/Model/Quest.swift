@@ -155,7 +155,7 @@ extension Quest {
               let xpReward = data["xpReward"] as? Int,
               let requirementString = data["requirement"] as? String,
               let progress = data["progress"] as? Int,
-              let totalRequired = data["totalRequired"] as? Int else {
+              let _ = data["totalRequired"] as? Int else {
             return nil
         }
         

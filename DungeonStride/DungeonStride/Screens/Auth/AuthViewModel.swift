@@ -2,9 +2,6 @@
 //  AuthViewModel.swift
 //  DungeonStride
 //
-//  Created by Zdeněk Svoboda on 03.11.2025.
-//
-
 
 import Foundation
 import Firebase
@@ -13,9 +10,11 @@ import FirebaseFirestore
 import GoogleSignIn
 import GoogleSignInSwift
 
+@MainActor
 class AuthViewModel: ObservableObject {
     
     private var db: Firestore?
+    private let userService = UserService()
     
     @Published var email = ""
     @Published var password = ""
@@ -32,18 +31,21 @@ class AuthViewModel: ObservableObject {
     init() {
         // Počkejte s inicializací Firestore až po konfiguraci Firebase
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.db = Firestore.firestore()
-            self.checkIfUserIsLoggedIn()
+            Task { @MainActor in
+                self.db = Firestore.firestore()
+                await self.checkIfUserIsLoggedIn()
+            }
         }
     }
     
     private func getDB() -> Firestore {
         guard let db = db else {
-            // Fallback - vytvořte novou instanci pokud selže
             return Firestore.firestore()
         }
         return db
     }
+    
+    // MARK: - Email/Password Authentication
     
     func login(email: String, password: String) {
         isLoading = true
@@ -52,43 +54,37 @@ class AuthViewModel: ObservableObject {
         print("🔐 Attempting login for: \(email)")
         
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-            DispatchQueue.main.async {
-                self?.isLoading = false
+            Task { @MainActor in
+                guard let self = self else { return }
+                
+                self.isLoading = false
                 
                 if let error = error {
-                    let errorMsg = self?.parseAuthError(error) ?? error.localizedDescription
-                    self?.errorMessage = errorMsg
+                    let errorMsg = self.parseAuthError(error)
+                    self.errorMessage = errorMsg
                     print("❌ Login failed: \(errorMsg)")
                     return
                 }
                 
                 guard let user = result?.user else {
-                    self?.errorMessage = "Login failed - no user data"
+                    self.errorMessage = "Login failed - no user data"
                     print("❌ Login failed - no user data")
                     return
                 }
                 
                 print("✅ Login successful: \(user.email ?? "Unknown")")
-                self?.currentUserUID = user.uid
-                self?.currentUserEmail = user.email
-                self?.isLoggedIn = true
-                self?.errorMessage = ""
+                self.currentUserUID = user.uid
+                self.currentUserEmail = user.email
+                self.isLoggedIn = true
+                self.errorMessage = ""
+                
+                // Načíst uživatelská data z Firestore
+                await self.loadUserData(uid: user.uid)
                 
                 // Aktualizujte Firestore
-                self?.updateLastLogin(uid: user.uid)
+                self.updateLastLogin(uid: user.uid)
+                self.setupUserNotifications()
             }
-        }
-    }
-    
-    func checkIfUserIsLoggedIn() {
-        if let user = Auth.auth().currentUser {
-            currentUserUID = user.uid
-            currentUserEmail = user.email
-            isLoggedIn = true
-            print("✅ User already logged in: \(user.email ?? "Unknown")")
-        } else {
-            isLoggedIn = false
-            print("ℹ️ No user logged in")
         }
     }
     
@@ -115,67 +111,200 @@ class AuthViewModel: ObservableObject {
         print("📝 Starting registration for: \(email)")
         
         Auth.auth().createUser(withEmail: email, password: password) { [weak self] result, error in
-            DispatchQueue.main.async {
+            Task { @MainActor in
+                guard let self = self else { return }
+                
                 if let error = error {
-                    self?.isLoading = false
-                    let errorMsg = self?.parseAuthError(error) ?? error.localizedDescription
-                    self?.errorMessage = errorMsg
+                    self.isLoading = false
+                    let errorMsg = self.parseAuthError(error)
+                    self.errorMessage = errorMsg
                     print("❌ Registration failed: \(errorMsg)")
                     return
                 }
                 
                 guard let user = result?.user else {
-                    self?.isLoading = false
-                    self?.errorMessage = "Failed to create user account"
+                    self.isLoading = false
+                    self.errorMessage = "Failed to create user account"
                     print("❌ Registration failed - no user data")
                     return
                 }
                 
                 print("✅ Firebase Auth success: \(user.uid)")
-                self?.saveUserToFirestore(uid: user.uid)
+                await self.createUserInFirestore(uid: user.uid)
             }
         }
     }
     
-    private func saveUserToFirestore(uid: String) {
-        let userData: [String: Any] = [
-            "username": username,
-            "email": email,
-            "imageUrl": "",
-            "createdAt": FieldValue.serverTimestamp(),
-            "updatedAt": FieldValue.serverTimestamp(),
-            "lastLoggedIn": FieldValue.serverTimestamp()
-        ]
-
-        print("💾 Saving to Firestore: \(uid)")
+    // MARK: - Google Sign-In
+    
+    func signInWithGoogle() async {
+        // Kontrola Google Client ID (bez warningu)
+        guard FirebaseApp.app()?.options.clientID != nil else {
+            errorMessage = "Missing Google Client ID"
+            print("❌ Missing Google Client ID")
+            return
+        }
         
-        getDB().collection("users").document(uid).setData(userData) { [weak self] error in
-            DispatchQueue.main.async {
-                self?.isLoading = false
+        isLoading = true
+        errorMessage = ""
+        
+        do {
+            // Získání "root view controlleru" - není async operace
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootVC = windowScene.windows.first?.rootViewController else {
+                errorMessage = "Unable to find root view controller"
+                isLoading = false
+                return
+            }
+            
+            // Přihlášení uživatele přes Google - TOTO JE async operace
+            let signInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
+            
+            guard let idToken = signInResult.user.idToken?.tokenString else {
+                errorMessage = "Missing ID token"
+                isLoading = false
+                return
+            }
+            
+            let accessToken = signInResult.user.accessToken.tokenString
+            
+            // Přihlášení do Firebase pomocí Google credentialu - TOTO JE async operace
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
+            let result = try await Auth.auth().signIn(with: credential)
+            
+            // Získáme přihlášeného uživatele
+            let user = result.user
+            
+            currentUserUID = user.uid
+            currentUserEmail = user.email
+            isLoggedIn = true
+            errorMessage = ""
+            
+            print("✅ Google Sign-In successful: \(user.email ?? "Unknown")")
+            
+            // Ulož nebo aktualizuj data o uživateli ve Firestore - TOTO JE async operace
+            await handleGoogleUser(user: user)
+            
+        } catch {
+            print("❌ Google Sign-In error: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+            isLoading = false
+        }
+    }
+    
+    // MARK: - User Management
+    
+    private func createUserInFirestore(uid: String) async {
+        do {
+            // Vytvořit nového uživatele pomocí UserService
+            let newUser = try await userService.createUser(
+                uid: uid,
+                email: email,
+                username: username
+            )
+            
+            isLoading = false
+            currentUserUID = uid
+            currentUserEmail = email
+            isLoggedIn = true
+            isRegistered = true
+            errorMessage = ""
+            
+            print("🎉 Registration completed successfully")
+            print("👤 User created: \(newUser.username)")
+            
+        } catch {
+            isLoading = false
+            errorMessage = "Failed to create user profile: \(error.localizedDescription)"
+            print("❌ Firestore user creation failed: \(error.localizedDescription)")
+            
+            // Pokusíme se smazat auth účet, když selže Firestore
+            deleteAuthAccount(uid: uid)
+        }
+    }
+    
+    private func handleGoogleUser(user: FirebaseAuth.User) async {
+        do {
+            // Zkusíme načíst existujícího uživatele
+            let existingUser = try? await userService.fetchUser(uid: user.uid)
+            
+            if existingUser == nil {
+                // Uživatel se přihlašuje poprvé – vytvoř nový profil
+                let googleUsername = user.displayName ?? user.email?.components(separatedBy: "@").first ?? "GoogleUser"
                 
-                if let error = error {
-                    print("⚠️ Firestore save warning: \(error.localizedDescription)")
-                    // Pokračujte i když Firestore selže - uživatel je registrovaný v Auth
-                    // Můžete se pokusit znovu uložit později
-                } else {
-                    print("✅ Firestore save successful")
-                }
+                let newUser = try await userService.createUser(
+                    uid: user.uid,
+                    email: user.email ?? "",
+                    username: googleUsername
+                )
                 
-                // Uživatel je přihlášen bez ohledu na Firestore výsledek
-                self?.currentUserUID = uid
-                self?.currentUserEmail = self?.email
-                self?.isLoggedIn = true
-                self?.isRegistered = true
-                self?.errorMessage = ""
-                
-                print("🎉 Registration completed successfully")
+                print("🎉 Google user created: \(newUser.username)")
+            } else {
+                // Uživatel již existuje - aktualizuj poslední přihlášení
+                try await userService.updateLastActive(uid: user.uid)
+                print("🔁 Existing Google user loaded")
+            }
+            
+            isLoading = false
+            setupUserNotifications()
+            
+        } catch {
+            isLoading = false
+            errorMessage = "Failed to handle Google user: \(error.localizedDescription)"
+            print("❌ Google user handling failed: \(error.localizedDescription)")
+        }
+    }
+    
+    private func loadUserData(uid: String) async {
+        do {
+            let user = try await userService.fetchUser(uid: uid)
+            print("✅ User data loaded: \(user.username)")
+        } catch {
+            print("⚠️ Failed to load user data: \(error.localizedDescription)")
+            
+            // Pokud uživatel neexistuje v našem modelu, vytvoříme ho
+            if let authUser = Auth.auth().currentUser {
+                await createUserFromAuthUser(authUser)
             }
         }
     }
     
+    private func createUserFromAuthUser(_ authUser: FirebaseAuth.User) async {
+        do {
+            let username = authUser.displayName ?? authUser.email?.components(separatedBy: "@").first ?? "User"
+            let _ = try await userService.createUser(
+                uid: authUser.uid,
+                email: authUser.email ?? "",
+                username: username
+            )
+            
+            print("✅ Created user profile from auth data")
+        } catch {
+            print("❌ Failed to create user from auth: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    func checkIfUserIsLoggedIn() async {
+        if let user = Auth.auth().currentUser {
+            currentUserUID = user.uid
+            currentUserEmail = user.email
+            isLoggedIn = true
+            print("✅ User already logged in: \(user.email ?? "Unknown")")
+            
+            // Načíst uživatelská data
+            await loadUserData(uid: user.uid)
+        } else {
+            isLoggedIn = false
+            print("ℹ️ No user logged in")
+        }
+    }
+    
+    // V AuthViewModel uprav metodu updateLastLogin:
     private func updateLastLogin(uid: String) {
         let updateData: [String: Any] = [
-            "lastLoggedIn": FieldValue.serverTimestamp(),
+            "lastActiveAt": FieldValue.serverTimestamp(),
             "updatedAt": FieldValue.serverTimestamp()
         ]
         
@@ -184,6 +313,17 @@ class AuthViewModel: ObservableObject {
                 print("⚠️ Failed to update last login: \(error.localizedDescription)")
             } else {
                 print("✅ Last login updated")
+            }
+        }
+    }
+    
+    private func deleteAuthAccount(uid: String) {
+        let user = Auth.auth().currentUser
+        user?.delete { error in
+            if let error = error {
+                print("⚠️ Failed to delete auth account: \(error.localizedDescription)")
+            } else {
+                print("🗑️ Auth account deleted due to Firestore failure")
             }
         }
     }
@@ -204,6 +344,9 @@ class AuthViewModel: ObservableObject {
             password = ""
             username = ""
             errorMessage = ""
+            
+            // Resetovat UserService
+            userService.currentUser = nil
             
             print("✅ Logout successful")
         } catch {
@@ -232,9 +375,8 @@ class AuthViewModel: ObservableObject {
             return error.localizedDescription
         }
     }
-    // V AuthViewModel přidej do login a register funkcí:
+    
     private func setupUserNotifications() {
-        // Po přihlášení zkontroluj stav notifikací
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             switch settings.authorizationStatus {
             case .authorized, .provisional:
@@ -248,88 +390,6 @@ class AuthViewModel: ObservableObject {
             @unknown default:
                 print("❓ Unknown notification status")
             }
-        }
-    }
-    
-    func signInWithGoogle() async {
-        guard let clientID = FirebaseApp.app()?.options.clientID else {
-            self.errorMessage = "Missing Google Client ID"
-            print("❌ Missing Google Client ID")
-            return
-        }
-        
-        isLoading = true
-        errorMessage = ""
-        
-        do {
-            // Získání "root view controlleru" (musí se předat do GIDSignIn)
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let rootVC = windowScene.windows.first?.rootViewController else {
-                self.errorMessage = "Unable to find root view controller"
-                return
-            }
-            
-            // Přihlášení uživatele přes Google
-            let signInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootVC)
-            
-            guard let idToken = signInResult.user.idToken?.tokenString else {
-                self.errorMessage = "Missing ID token"
-                return
-            }
-            
-            let accessToken = signInResult.user.accessToken.tokenString
-            
-            // Přihlášení do Firebase pomocí Google credentialu
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-            let result = try await Auth.auth().signIn(with: credential)
-            
-            // Získáme přihlášeného uživatele
-            let user = result.user
-            self.currentUserUID = user.uid
-            self.currentUserEmail = user.email
-            self.isLoggedIn = true
-            self.errorMessage = ""
-            
-            print("✅ Google Sign-In successful: \(user.email ?? "Unknown")")
-            
-            // Ulož nebo aktualizuj data o uživateli ve Firestore
-            await saveGoogleUserToFirestore(user: user)
-            
-        } catch {
-            print("❌ Google Sign-In error: \(error.localizedDescription)")
-            self.errorMessage = error.localizedDescription
-        }
-        
-        isLoading = false
-    }
-    
-    private func saveGoogleUserToFirestore(user: FirebaseAuth.User) async {
-        let db = getDB()
-        let userRef = db.collection("users").document(user.uid)
-        
-        do {
-            let doc = try await userRef.getDocument()
-            if !doc.exists {
-                // Uživatel se přihlašuje poprvé – vytvoř záznam
-                try await userRef.setData([
-                    "username": user.displayName ?? "",
-                    "email": user.email ?? "",
-                    "imageUrl": user.photoURL?.absoluteString ?? "",
-                    "createdAt": FieldValue.serverTimestamp(),
-                    "updatedAt": FieldValue.serverTimestamp(),
-                    "lastLoggedIn": FieldValue.serverTimestamp()
-                ])
-                print("💾 Created new user in Firestore (Google)")
-            } else {
-                // Aktualizuj čas přihlášení
-                try await userRef.updateData([
-                    "lastLoggedIn": FieldValue.serverTimestamp(),
-                    "updatedAt": FieldValue.serverTimestamp()
-                ])
-                print("🔄 Updated existing Google user in Firestore")
-            }
-        } catch {
-            print("⚠️ Firestore error for Google user: \(error.localizedDescription)")
         }
     }
 }

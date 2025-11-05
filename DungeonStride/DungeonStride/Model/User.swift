@@ -8,9 +8,8 @@ import FirebaseFirestore
 
 struct User: Codable, Identifiable {
     
-    @DocumentID var id: String?
+    @DocumentID var id: String? // Toto bude document ID (uid)
     
-    let uid: String
     let email: String
     let username: String
     
@@ -68,10 +67,14 @@ struct User: Codable, Identifiable {
         return Double(currentLevelXP) / 100.0
     }
     
+    // Vypočítaná property pro uid (pro zpětnou kompatibilitu)
+    var uid: String {
+        return id ?? ""
+    }
+    
     // MARK: - Initializers
     init(
         id: String? = nil,
-        uid: String,
         email: String,
         username: String,
         selectedAvatar: String = "default",
@@ -98,7 +101,6 @@ struct User: Codable, Identifiable {
         premiumMember: Bool = false
     ) {
         self.id = id
-        self.uid = uid
         self.email = email
         self.username = username
         self.selectedAvatar = selectedAvatar
@@ -173,7 +175,6 @@ struct User: Codable, Identifiable {
 extension User {
     func toFirestore() -> [String: Any] {
         return [
-            "uid": uid,
             "email": email,
             "username": username,
             "selectedAvatar": selectedAvatar,
@@ -201,9 +202,8 @@ extension User {
         ]
     }
     
-    static func fromFirestore(_ data: [String: Any]) -> User? {
-        guard let uid = data["uid"] as? String,
-              let email = data["email"] as? String,
+    static func fromFirestore(documentId: String, data: [String: Any]) -> User? {
+        guard let email = data["email"] as? String,
               let username = data["username"] as? String else {
             return nil
         }
@@ -250,7 +250,7 @@ extension User {
         let completedQuests = completedQuestsData.compactMap { Quest.fromFirestore($0) }
         
         return User(
-            uid: uid,
+            id: documentId, // Použijeme document ID jako id
             email: email,
             username: username,
             selectedAvatar: selectedAvatar,
@@ -276,5 +276,14 @@ extension User {
             gems: gems,
             premiumMember: premiumMember
         )
+    }
+    
+    // Zpětná kompatibilita - pro případy, kdy potřebujeme parsovat bez documentId
+    static func fromFirestore(_ data: [String: Any]) -> User? {
+        // Pokud v datech ještě je uid field (pro zpětnou kompatibilitu)
+        if let uid = data["uid"] as? String {
+            return fromFirestore(documentId: uid, data: data)
+        }
+        return nil
     }
 }
