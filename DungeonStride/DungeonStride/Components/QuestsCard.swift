@@ -9,11 +9,8 @@ import SwiftUI
 
 struct QuestsCard: View {
     @EnvironmentObject var themeManager: ThemeManager
-    @State private var quests: [Quest] = [
-        Quest(id: 1, title: "Daily Steps", description: "Walk 10,000 steps", progress: 7, total: 10, isCompleted: false),
-        Quest(id: 2, title: "Forest Explorer", description: "Complete 3 forest runs", progress: 2, total: 3, isCompleted: false),
-        Quest(id: 3, title: "Energy Master", description: "Keep energy above 80% for a day", progress: 1, total: 1, isCompleted: true)
-    ]
+    @EnvironmentObject var questService: QuestService
+    @EnvironmentObject var userService: UserService
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -24,44 +21,70 @@ struct QuestsCard: View {
                 
                 Spacer()
                 
-                Text("\(quests.filter { $0.isCompleted }.count)/\(quests.count)")
-                    .font(.caption)
-                    .foregroundColor(themeManager.secondaryTextColor)
+                if questService.isLoading {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                } else {
+                    Text("\(questService.dailyQuests.filter { $0.isCompleted }.count)/\(questService.dailyQuests.count)")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
             }
             
-            VStack(spacing: 12) {
-                ForEach(quests) { quest in
-                    QuestRow(quest: quest, onComplete: {
-                        completeQuest(quest.id)
-                    })
-                    .environmentObject(themeManager)
+            if questService.isLoading {
+                ProgressView("Loading quests...")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+            } else if questService.dailyQuests.isEmpty {
+                Text("No quests available today")
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+            } else {
+                VStack(spacing: 12) {
+                    ForEach(questService.dailyQuests) { quest in
+                        QuestRow(quest: quest, onComplete: {
+                            Task {
+                                await completeQuest(quest.id)
+                            }
+                        })
+                        .environmentObject(themeManager)
+                    }
                 }
             }
         }
         .padding()
         .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
+        .onAppear {
+            loadQuests()
+        }
     }
     
-    private func completeQuest(_ questId: Int) {
-        if let index = quests.firstIndex(where: { $0.id == questId }) {
-            quests[index].isCompleted = true
-            // Simulace znovu vygenerování questu po 10 vteřinách
-            DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-                if let index = quests.firstIndex(where: { $0.id == questId }) {
-                    quests[index].isCompleted = false
-                    quests[index].progress = 0
-                }
+    private func loadQuests() {
+        Task {
+            if let userId = userService.currentUser?.uid {
+                try? await questService.loadDailyQuests(for: userId)
             }
         }
     }
-}
-
-struct QuestsCard_Previews: PreviewProvider {
-    static var previews: some View {
-        QuestsCard()
-            .environmentObject(ThemeManager())
-            .previewLayout(.sizeThatFits)
-            .padding()
+    
+    private func completeQuest(_ questId: String) async {
+        guard let userId = userService.currentUser?.uid else { return }
+        
+        do {
+            try await questService.completeQuest(userId: userId, questId: questId)
+            
+            // Přidat odměny uživateli
+            if let quest = questService.dailyQuests.first(where: { $0.id == questId }),
+               var user = userService.currentUser {
+                user.addXP(quest.xpReward)
+                user.addCoins(quest.xpReward / 10)
+                try await userService.updateUser(user)
+            }
+        } catch {
+            print("Error completing quest: \(error)")
+        }
     }
 }
