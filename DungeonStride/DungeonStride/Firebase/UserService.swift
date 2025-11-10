@@ -10,6 +10,7 @@ class UserService: ObservableObject {
     @Published var currentUser: User?
     private var userListener: ListenerRegistration?
     
+    
     // MARK: - User Management
     
     func createUser(uid: String, email: String, username: String) async throws -> User {
@@ -38,6 +39,23 @@ class UserService: ObservableObject {
         currentUser = newUser
         return newUser
     }
+    // MARK: - Avatar Management
+    func updateSelectedAvatar(uid: String, avatarName: String) async throws {
+        let updateData: [String: Any] = [
+            "selectedAvatar": avatarName,
+            "updatedAt": FieldValue.serverTimestamp()
+        ]
+        
+        try await db.collection("users").document(uid).updateData(updateData)
+        
+        // Lokálně aktualizuj currentUser
+        if var user = currentUser {
+            user.selectedAvatar = avatarName
+            user.updatedAt = Date()
+            currentUser = user
+        }
+    }
+
     
     func fetchUser(uid: String) async throws -> User {
         let document = try await db.collection("users").document(uid).getDocument()
@@ -162,10 +180,9 @@ class UserService: ObservableObject {
     }
     
     deinit {
-        Task { @MainActor in
             userListener?.remove()
             userListener = nil
-        }
+        
     }
 }
 

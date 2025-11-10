@@ -3,15 +3,21 @@
 //  DungeonStride
 //
 //  Created by Zdeněk Svoboda on 03.11.2025.
+//  OPRAVA: child views používají @ObservedObject themeManager, aby reagovaly na změny
 //
 
 import SwiftUI
 
 struct SettingsView: View {
+    
     @Environment(\.dismiss) var dismiss
     @State private var notificationsEnabled = true
     @State private var soundEffects = true
-    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO
+    @State private var selectedUnit: DistanceUnit = .metric
+    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO jako EnvironmentObject
+    @EnvironmentObject var userService: UserService
+    @EnvironmentObject var authViewModel: AuthViewModel
+
     
     var body: some View {
         NavigationView {
@@ -37,32 +43,69 @@ struct SettingsView: View {
                             }
                         }
                         
-                        // App Settings
+                        // MARK: - APP SETTINGS
                         SettingsSection(title: "APP SETTINGS", themeManager: themeManager) {
-                            SettingsToggleRow(icon: "bell.fill", title: "Push Notifications", isOn: $notificationsEnabled, themeManager: themeManager)
-                            
-                            SettingsToggleRow(icon: "speaker.wave.2.fill", title: "Sound Effects", isOn: $soundEffects, themeManager: themeManager)
-                            
-                            // V SettingsView upravte dark mode řádek:
+                            SettingsToggleRow(
+                                icon: "bell.fill",
+                                title: "Push Notifications",
+                                isOn: $notificationsEnabled,
+                                themeManager: themeManager
+                            )
+                            .onChange(of: notificationsEnabled) { _, _ in updateSettingsInFirestore() }
+
+                            SettingsToggleRow(
+                                icon: "speaker.wave.2.fill",
+                                title: "Sound Effects",
+                                isOn: $soundEffects,
+                                themeManager: themeManager
+                            )
+                            .onChange(of: soundEffects) { _, _ in updateSettingsInFirestore() }
+
                             SettingsToggleRow(
                                 icon: themeManager.isDarkMode ? "moon.fill" : "sun.max.fill",
                                 title: "Dark Mode",
                                 isOn: Binding(
                                     get: { themeManager.isDarkMode },
                                     set: { newValue in
-                                        // Použijte toggle místo přímého nastavení pro konzistenci
                                         if newValue != themeManager.isDarkMode {
                                             themeManager.toggleDarkMode()
+                                            updateSettingsInFirestore()
                                         }
                                     }
                                 ),
                                 themeManager: themeManager
                             )
-                            
-                            SettingsRow(icon: "chart.bar.fill", title: "Units", value: "Metric", themeManager: themeManager) {
-                                // Units settings
+
+                            // 💡 Přidaný Picker pro jednotky
+                            HStack {
+                                Image(systemName: "chart.bar.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(themeManager.accentColor)
+                                    .frame(width: 30)
+                                
+                                Text("Units")
+                                    .foregroundColor(themeManager.primaryTextColor)
+                                    .font(.system(size: 16))
+                                
+                                Spacer()
+                                
+                                Picker("", selection: $selectedUnit) {
+                                    ForEach(DistanceUnit.allCases, id: \.self) { unit in
+                                        Text(unit.displayName).tag(unit)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .onChange(of: selectedUnit) { _, _ in
+                                    updateSettingsInFirestore()
+                                }
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 14)
+                            .background(themeManager.cardBackgroundColor)
+                            .cornerRadius(12)
                         }
+
+
                         
                         // Support
                         SettingsSection(title: "SUPPORT", themeManager: themeManager) {
@@ -103,19 +146,49 @@ struct SettingsView: View {
                     .foregroundColor(themeManager.accentColor)
                 }
             }
+            
+        }.onAppear {
+            if let user = userService.currentUser {
+                notificationsEnabled = user.settings.notificationsEnabled
+                soundEffects = user.settings.soundEffectsEnabled
+                selectedUnit = user.settings.units
+            }
+            
+        }
+        
+    }
+    private func updateSettingsInFirestore() {
+        guard let uid = authViewModel.currentUserUID else { return }
+
+        let newSettings = UserSettings(
+            isDarkMode: themeManager.isDarkMode,
+            notificationsEnabled: notificationsEnabled,
+            soundEffectsEnabled: soundEffects,
+            units: selectedUnit
+        )
+
+
+        Task {
+            do {
+                try await userService.updateUserSettings(uid: uid, settings: newSettings)
+                print("✅ Settings updated in Firestore: \(newSettings)")
+            } catch {
+                print("❌ Failed to update settings: \(error.localizedDescription)")
+            }
         }
     }
+
 }
 
 // MARK: - Settings Components s podporou témat
 struct SettingsSection<Content: View>: View {
     let title: String
-    let themeManager: ThemeManager
+    @ObservedObject var themeManager: ThemeManager
     let content: Content
     
     init(title: String, themeManager: ThemeManager, @ViewBuilder content: () -> Content) {
         self.title = title
-        self.themeManager = themeManager
+        self._themeManager = ObservedObject(wrappedValue: themeManager)
         self.content = content()
     }
     
@@ -140,8 +213,16 @@ struct SettingsRow: View {
     let icon: String
     let title: String
     let value: String
-    let themeManager: ThemeManager
+    @ObservedObject var themeManager: ThemeManager
     let action: () -> Void
+    
+    init(icon: String, title: String, value: String, themeManager: ThemeManager, action: @escaping () -> Void) {
+        self.icon = icon
+        self.title = title
+        self.value = value
+        self._themeManager = ObservedObject(wrappedValue: themeManager)
+        self.action = action
+    }
     
     var body: some View {
         Button(action: action) {
@@ -171,6 +252,8 @@ struct SettingsRow: View {
             .padding(.vertical, 14)
             .background(themeManager.cardBackgroundColor)
         }
+        // odstraněno default button style interference, pokud chcete můžete přidat .buttonStyle(PlainButtonStyle())
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
@@ -178,7 +261,14 @@ struct SettingsToggleRow: View {
     let icon: String
     let title: String
     @Binding var isOn: Bool
-    let themeManager: ThemeManager
+    @ObservedObject var themeManager: ThemeManager
+    
+    init(icon: String, title: String, isOn: Binding<Bool>, themeManager: ThemeManager) {
+        self.icon = icon
+        self.title = title
+        self._isOn = isOn
+        self._themeManager = ObservedObject(wrappedValue: themeManager)
+    }
     
     var body: some View {
         HStack {
@@ -202,4 +292,3 @@ struct SettingsToggleRow: View {
         .background(themeManager.cardBackgroundColor)
     }
 }
-

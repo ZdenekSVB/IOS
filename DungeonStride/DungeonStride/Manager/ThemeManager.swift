@@ -1,4 +1,11 @@
-// ThemeManager.swift
+//
+//  ThemeManager.swift
+//  DungeonStride
+//
+//  Created by you on 2025.
+//  OPRAVA: nic zásadně měněno, ale zachování @Published a updateSystemAppearance
+//
+
 import SwiftUI
 import Combine
 
@@ -15,6 +22,7 @@ class ThemeManager: ObservableObject {
     }
     
     var cardBackgroundColor: Color {
+        // U light módu použijeme jemné pozadí pro karty
         isDarkMode ? Color("Paleta5") : Color("Paleta4").opacity(0.1)
     }
     
@@ -35,7 +43,7 @@ class ThemeManager: ObservableObject {
     
     init() {
         // Načíst lokální nastavení
-        self.isDarkMode = UserDefaults.standard.bool(forKey: darkModeKey)
+        self.isDarkMode = UserDefaults.standard.object(forKey: darkModeKey) as? Bool ?? true
     }
     
     func setupDependencies(userService: UserService, authViewModel: AuthViewModel) {
@@ -133,6 +141,7 @@ class ThemeManager: ObservableObject {
     }
     
     private func updateSystemAppearance() {
+        // Aktualizace windows tak aby i UIKit based screens reflektovaly změnu
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
             windowScene.windows.forEach { window in
                 window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
