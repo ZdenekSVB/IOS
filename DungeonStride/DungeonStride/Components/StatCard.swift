@@ -6,32 +6,30 @@
 //
 
 import SwiftUI
+// MARK: - Stat Card
 struct StatCard: View {
     let icon: String
     let title: String
     let value: String
-    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO
-    
+
     var body: some View {
-        VStack(spacing: 12) {
+        HStack {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundColor(themeManager.accentColor)
-            
-            VStack(spacing: 4) {
+                .foregroundColor(.white.opacity(0.8))
+                .frame(width: 30)
+            VStack(alignment: .leading) {
                 Text(title)
-                    .font(.caption)
-                    .foregroundColor(themeManager.secondaryTextColor)
-                    .multilineTextAlignment(.center)
-                
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
                 Text(value)
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(themeManager.primaryTextColor)
+                    .font(.headline)
+                    .foregroundColor(.white)
             }
+            Spacer()
         }
         .padding()
-        .frame(maxWidth: .infinity)
-        .background(themeManager.cardBackgroundColor)
+        .background(Color("Paleta5"))
         .cornerRadius(12)
     }
 }

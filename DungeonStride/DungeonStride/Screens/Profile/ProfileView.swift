@@ -2,320 +2,250 @@
 //  ProfileView.swift
 //  DungeonStride
 //
-//  Created by Zdeněk Svoboda on 03.11.2025.
-//
 
 import SwiftUI
-import PhotosUI
 
+// MARK: - Main Profile View
 struct ProfileView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var userService: UserService
+
     @State private var showAvatarPicker = false
     @State private var showSettings = false
-    @State private var selectedAvatar: String = "avatar1" // Default avatar
-    @State private var photosPickerItem: PhotosPickerItem?
-    
-    // Předdefinované avatary
-    let predefinedAvatars = ["avatar1", "avatar2", "avatar3", "avatar4", "avatar5"]
-    
-    // Level progress data
-    let currentXP = 1250
-    let xpForNextLevel = 2000
-    
-    @EnvironmentObject var themeManager: ThemeManager // ← PŘIDÁNO
-    
+    @State private var selectedAvatar: String = "avatar1"
+
+    let predefinedAvatars = ["avatar1", "avatar2", "avatar3", "avatar4", "avatar5", "avatar6"]
+
     var body: some View {
-        NavigationView {
-            ZStack {
-                // Dynamické pozadí podle tématu
-                themeManager.backgroundColor
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 30) {
-                        // Profile Header
-                        VStack(spacing: 20) {
-                            HStack {
-                                Spacer()
-                                
-                                // Settings Button
-                                Button(action: {
-                                    showSettings = true
-                                }) {
-                                    Image(systemName: "gearshape.fill")
-                                        .font(.title2)
-                                        .foregroundColor(Color("Paleta2"))
-                                        .padding(8)
-                                        .background(Color("Paleta5"))
-                                        .clipShape(Circle())
-                                }
-                            }
-                            .padding(.horizontal)
-                            
-                            // Avatar s možností změny
-                            Button(action: {
-                                showAvatarPicker = true
-                            }) {
-                                ZStack {
-                                    if selectedAvatar == "custom" {
-                                        // Custom avatar z galerie
-                                        if let customImage = loadCustomAvatar() {
-                                            Image(uiImage: customImage)
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: 120, height: 120)
-                                                .clipShape(Circle())
-                                        } else {
-                                            // Fallback placeholder
-                                            Image(systemName: "person.crop.circle.fill")
-                                                .resizable()
-                                                .aspectRatio(contentMode: .fit)
-                                                .frame(width: 120, height: 120)
-                                                .foregroundColor(Color("Paleta4"))
-                                        }
-                                    } else {
-                                        // Předdefinovaný avatar
-                                        Image(selectedAvatar)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 120, height: 120)
-                                            .clipShape(Circle())
-                                    }
-                                    
-                                    // Edit icon overlay - VIDITELNÝ
-                                    Circle()
-                                        .fill(Color.black.opacity(0.4))
-                                        .frame(width: 120, height: 120)
-                                        .overlay(
-                                            Image(systemName: "camera.fill")
-                                                .font(.title2)
-                                                .foregroundColor(.white)
-                                        )
-                                }
-                            }
-                            
-                            // User Info
-                            VStack(spacing: 12) {
-                                Text(authViewModel.currentUserEmail ?? "User")
-                                    .font(.title2)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.white)
-                                
-                                // Level s Progress Bar
-                                VStack(spacing: 8) {
-                                    HStack {
-                                        Text("Level 5")
-                                            .font(.headline)
-                                            .foregroundColor(Color("Paleta2"))
-                                        
-                                        Spacer()
-                                        
-                                        Text("\(currentXP)/\(xpForNextLevel) XP")
-                                            .font(.caption)
-                                            .foregroundColor(Color("Paleta4"))
-                                    }
-                                    
-                                    // Progress Bar
-                                    ZStack(alignment: .leading) {
-                                        Rectangle()
-                                            .fill(Color("Paleta5"))
-                                            .frame(height: 8)
-                                            .cornerRadius(4)
-                                        
-                                        Rectangle()
-                                            .fill(Color("Paleta2"))
-                                            .frame(width: CGFloat(currentXP) / CGFloat(xpForNextLevel) * 300, height: 8)
-                                            .cornerRadius(4)
-                                    }
-                                    .frame(width: 300)
-                                }
-                                .padding(.horizontal, 40)
-                            }
-                        }
-                        .padding(.top, 10)
-                        
-                        // Stats Cards
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
-                            StatCard(icon: "figure.walk", title: "Total Distance", value: "42.5 km")
-                            StatCard(icon: "star.fill", title: "Total XP", value: "12,450")
-                            StatCard(icon: "flag.fill", title: "Runs Completed", value: "28")
-                            StatCard(icon: "trophy.fill", title: "Achievements", value: "15")
-                        }
-                        .padding(.horizontal)
-                        
-                        // Action Buttons
-                        VStack(spacing: 12) {
-                            Button("Logout") {
-                                authViewModel.logout()
-                            }
-                            .foregroundColor(.white)
+        ZStack {
+            themeManager.backgroundColor.ignoresSafeArea()
+
+            ScrollView {
+                VStack(spacing: 30) {
+                    if let user = userService.currentUser {
+                        ProfileHeaderView(
+                            selectedAvatar: $selectedAvatar,
+                            showAvatarPicker: $showAvatarPicker,
+                            showSettings: $showSettings,
+                            user: user
+                        )
+
+                        StatsGridView(user: user)
+                        ActionButtonsView(logoutAction: authViewModel.logout)
+                    } else {
+                        ProgressView("Loading profile...")
+                            .progressViewStyle(CircularProgressViewStyle())
                             .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.red)
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-                        .padding(.bottom, 20)
                     }
                 }
+                .padding(.top, 10)
             }
-            .navigationBarHidden(true)
-            .sheet(isPresented: $showAvatarPicker) {
-                AvatarSelectionView(
-                    selectedAvatar: $selectedAvatar,
-                    photosPickerItem: $photosPickerItem,
-                    predefinedAvatars: predefinedAvatars
-                )
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsView()
-            }
-            .onChange(of: photosPickerItem) { oldValue, newValue in
-                Task {
-                    if let data = try? await newValue?.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        saveCustomAvatar(image)
-                        selectedAvatar = "custom"
-                    }
-                }
-            }
-        }
-    }
-    
-    private func loadCustomAvatar() -> UIImage? {
-        guard let data = UserDefaults.standard.data(forKey: "customAvatar") else { return nil }
-        return UIImage(data: data)
-    }
-    
-    private func saveCustomAvatar(_ image: UIImage) {
-        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
-        UserDefaults.standard.set(data, forKey: "customAvatar")
-    }
-}
 
-// MARK: - Avatar Selection View
-struct AvatarSelectionView: View {
-    @Binding var selectedAvatar: String
-    @Binding var photosPickerItem: PhotosPickerItem?
-    let predefinedAvatars: [String]
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Color("Paleta3")
+            if showAvatarPicker {
+                Color.black.opacity(0.55)
                     .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 24) {
-                        Text("Choose Your Avatar")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .padding(.top)
-                        
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3), spacing: 16) {
-                            // Upload from Gallery option - VIDITELNÝ
-                            PhotosPicker(selection: $photosPickerItem, matching: .images) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color("Paleta5"))
-                                        .frame(width: 80, height: 80)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color("Paleta2"), lineWidth: 2)
-                                        )
-                                    
-                                    VStack(spacing: 6) {
-                                        Image(systemName: "plus.circle.fill")
-                                            .font(.title2)
-                                            .foregroundColor(Color("Paleta2"))
-                                        Text("Upload")
-                                            .font(.caption)
-                                            .foregroundColor(Color("Paleta2"))
-                                            .fontWeight(.medium)
-                                    }
-                                }
-                            }
-                            
-                            // Predefined avatars
-                            ForEach(predefinedAvatars, id: \.self) { avatar in
-                                Button(action: {
-                                    selectedAvatar = avatar
-                                    dismiss()
-                                }) {
-                                    ZStack {
-                                        Image(avatar)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 80, height: 80)
-                                            .clipShape(Circle())
-                                        
-                                        Circle()
-                                            .stroke(selectedAvatar == avatar ? Color("Paleta2") : Color.clear, lineWidth: 3)
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                        
-                        // Current selection preview
-                        VStack(spacing: 12) {
-                            Text("Current Selection")
-                                .font(.headline)
-                                .foregroundColor(Color("Paleta4"))
-                            
-                            if selectedAvatar == "custom" {
-                                if let customImage = loadCustomAvatar() {
-                                    Image(uiImage: customImage)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 60, height: 60)
-                                        .clipShape(Circle())
-                                } else {
-                                    Image(systemName: "person.circle.fill")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(width: 60, height: 60)
-                                        .foregroundColor(Color("Paleta4"))
-                                }
-                            } else {
-                                Image(selectedAvatar)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 60, height: 60)
-                                    .clipShape(Circle())
-                            }
-                        }
-                        .padding()
-                        .background(Color("Paleta5"))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                    }
-                }
+                    .transition(.opacity)
+
+                AvatarSelectionPopup(
+                    selectedAvatar: $selectedAvatar,
+                    predefinedAvatars: predefinedAvatars,
+                    onClose: { showAvatarPicker = false }
+                )
+                .transition(.scale)
+                .zIndex(1)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle("Select Avatar")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(Color("Paleta2"))
-                }
+        }
+        .navigationBarHidden(true)
+        .sheet(isPresented: $showSettings) { SettingsView() }
+        .onAppear {
+            if let avatar = userService.currentUser?.selectedAvatar {
+                selectedAvatar = avatar
             }
         }
     }
-    
-    private func loadCustomAvatar() -> UIImage? {
-        guard let data = UserDefaults.standard.data(forKey: "customAvatar") else { return nil }
-        return UIImage(data: data)
+}
+
+// MARK: - Profile Header
+struct ProfileHeaderView: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var userService: UserService
+    @EnvironmentObject var authViewModel: AuthViewModel
+
+    @Binding var selectedAvatar: String
+    @Binding var showAvatarPicker: Bool
+    @Binding var showSettings: Bool
+
+    let user: User
+
+    var body: some View {
+        VStack(spacing: 20) {
+            HStack {
+                Spacer()
+                Button(action: { showSettings = true }) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.title2)
+                        .foregroundColor(themeManager.accentColor)
+                        .padding(8)
+                        .background(themeManager.cardBackgroundColor)
+                        .clipShape(Circle())
+                        .shadow(radius: 3)
+                }
+            }
+            .padding(.horizontal)
+
+            Button(action: { showAvatarPicker = true }) {
+                Image(selectedAvatar)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 130, height: 130)
+                    .clipShape(Circle())
+                    .overlay(
+                        Circle().stroke(
+                            LinearGradient(colors: [themeManager.accentColor, .purple],
+                                           startPoint: .topLeading,
+                                           endPoint: .bottomTrailing),
+                            lineWidth: 3
+                        )
+                    )
+                    .shadow(radius: 6)
+                    .overlay(
+                        VStack {
+                            Spacer()
+                            Text("Tap to change")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.8))
+                                .padding(.bottom, 6)
+                        }
+                    )
+            }
+
+            Text(user.username)
+                .font(.title2.bold())
+                .foregroundColor(themeManager.primaryTextColor)
+
+            xpProgress(for: user)
+        }
+        .padding(.horizontal)
+    }
+
+    private func xpProgress(for user: User) -> some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("Level \(user.level)")
+                    .font(.headline)
+                    .foregroundColor(themeManager.accentColor)
+                Spacer()
+                Text("\(user.totalXP) XP")
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+            ProgressView(value: user.levelProgress)
+                .progressViewStyle(LinearProgressViewStyle(tint: themeManager.accentColor))
+                .frame(height: 8)
+                .cornerRadius(4)
+        }
+        .padding(.horizontal, 40)
     }
 }
 
-struct ProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        ProfileView()
-            .environmentObject(AuthViewModel())
+// MARK: - Stats Grid
+struct StatsGridView: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    let user: User
+
+    var body: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
+            StatCard(icon: "figure.walk", title: "Total Distance", value: "\(user.activityStats.totalDistance) km")
+            StatCard(icon: "star.fill", title: "Total XP", value: "\(user.totalXP)")
+            StatCard(icon: "flag.fill", title: "Runs Completed", value: "\(user.activityStats.totalRuns)")
+            StatCard(icon: "trophy.fill", title: "Achievements", value: "\(user.myAchievements.count)")
+        }
+        .padding(.horizontal)
+    }
+}
+
+// MARK: - Action Buttons
+struct ActionButtonsView: View {
+    let logoutAction: () -> Void
+
+    var body: some View {
+        Button("Logout", action: logoutAction)
+            .foregroundColor(.white)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.red)
+            .cornerRadius(12)
+            .padding(.horizontal)
+            .padding(.bottom, 20)
+    }
+}
+
+// MARK: - Avatar Selection Popup (bez custom image)
+struct AvatarSelectionPopup: View {
+    @EnvironmentObject var userService: UserService
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeManager: ThemeManager
+
+    @Binding var selectedAvatar: String
+    let predefinedAvatars: [String]
+    let onClose: () -> Void
+
+    @State private var tempSelected: String?
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Select Your Avatar")
+                .font(.headline)
+                .foregroundColor(themeManager.primaryTextColor)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
+                ForEach(predefinedAvatars, id: \.self) { avatar in
+                    Image(avatar)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(tempSelected == avatar ? themeManager.accentColor : .clear, lineWidth: 3)
+                        )
+                        .onTapGesture { tempSelected = avatar }
+                }
+            }
+
+            Button(action: saveAvatar) {
+                Text("Save Avatar")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(tempSelected == nil ? Color.gray : themeManager.accentColor)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+            }
+            .disabled(tempSelected == nil)
+
+            Button("Cancel", action: onClose)
+                .foregroundColor(.white.opacity(0.8))
+        }
+        .padding(24)
+        .background(themeManager.cardBackgroundColor.opacity(0.95))
+        .cornerRadius(20)
+        .padding(.horizontal, 30)
+    }
+
+    private func saveAvatar() {
+        guard let selected = tempSelected,
+              let uid = authViewModel.currentUserUID else { return }
+
+        Task {
+            do {
+                try await userService.updateSelectedAvatar(uid: uid, avatarName: selected)
+                selectedAvatar = selected
+                onClose()
+            } catch {
+                print("❌ Failed to update avatar: \(error.localizedDescription)")
+            }
+        }
     }
 }
