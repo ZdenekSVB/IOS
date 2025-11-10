@@ -140,4 +140,23 @@ class QuestService: ObservableObject {
             try await updateQuestProgress(userId: userId, questId: questId, progress: quest.totalRequired)
         }
     }
+    
+    func fetchAllQuests() async throws -> [Quest] {
+        let snapshot = try await db.collection("quests").getDocuments()
+        return snapshot.documents.compactMap { Quest.fromFirestore($0.data()) }
+    }
+    
+    func generateDailyQuestsFromFirestore() async throws -> [Quest] {
+        let allQuests = try await fetchAllQuests()
+        let selected = Array(allQuests.shuffled().prefix(3))
+        return selected.map { Quest(
+            id: $0.id,
+            title: $0.title,
+            description: $0.description,
+            iconName: $0.iconName,
+            xpReward: $0.xpReward,
+            requirement: $0.requirement,
+            progress: 0
+        )}
+    }
 }

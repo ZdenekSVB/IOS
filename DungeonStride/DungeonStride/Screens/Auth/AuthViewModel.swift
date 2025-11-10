@@ -85,6 +85,8 @@ class AuthViewModel: ObservableObject {
                 // Načíst uživatelská data z Firestore
                 await self.loadUserData(uid: user.uid)
                 
+                await self.assignDailyQuestsIfNeeded(for: user.uid)
+
                 // Aktualizujte Firestore
                 self.updateLastLogin(uid: user.uid)
                 self.setupUserNotifications()
@@ -188,6 +190,8 @@ class AuthViewModel: ObservableObject {
             
             // Ulož nebo aktualizuj data o uživateli ve Firestore - TOTO JE async operace
             await handleGoogleUser(user: user)
+            await self.assignDailyQuestsIfNeeded(for: user.uid)
+
             
         } catch {
             print("❌ Google Sign-In error: \(error.localizedDescription)")
@@ -302,6 +306,8 @@ class AuthViewModel: ObservableObject {
             
             // Načíst uživatelská data
             await loadUserData(uid: user.uid)
+            await self.assignDailyQuestsIfNeeded(for: user.uid)
+
         } else {
             isLoggedIn = false
             print("ℹ️ No user logged in")
@@ -334,6 +340,65 @@ class AuthViewModel: ObservableObject {
             }
         }
     }
+    
+    func assignDailyQuestsIfNeeded(for uid: String) async {
+            let db = getDB()
+            let userRef = db.collection("users").document(uid)
+
+            do {
+                let userDoc = try await userRef.getDocument()
+                let lastDate = (userDoc.data()?["lastDailyQuestDate"] as? Timestamp)?.dateValue()
+                let now = Date()
+
+                // Pokud je poslední login dnes → nic nedělej
+                if let lastDate = lastDate, Calendar.current.isDate(lastDate, inSameDayAs: now) {
+                    print("🟢 Daily quests already assigned for today")
+                    return
+                }
+
+                // Jinak vytvoř 3 nové denní questy
+                let allQuestsSnapshot = try await db.collection("quests").getDocuments()
+                let allQuests = allQuestsSnapshot.documents.compactMap { doc -> [String: Any]? in
+                    doc.data()
+                }
+
+                guard allQuests.count >= 3 else {
+                    print("⚠️ Not enough quests to assign (found \(allQuests.count))")
+                    return
+                }
+
+                let shuffled = allQuests.shuffled().prefix(3)
+                let dailyQuests = shuffled.map { quest -> [String: Any] in
+                    var q = quest
+                    q["isCompleted"] = false
+                    q["progress"] = 0
+                    q["assignedAt"] = FieldValue.serverTimestamp()
+                    return q
+                }
+
+                // Uložit do users/{uid}/dailyQuests
+                let dailyQuestsRef = userRef.collection("dailyQuests")
+
+                // Smazat staré daily questy
+                let oldDocs = try await dailyQuestsRef.getDocuments()
+                for doc in oldDocs.documents {
+                    try await dailyQuestsRef.document(doc.documentID).delete()
+                }
+
+                // Zapsat nové
+                for questData in dailyQuests {
+                    let id = questData["id"] as? String ?? UUID().uuidString
+                    try await dailyQuestsRef.document(id).setData(questData)
+                }
+
+                // Aktualizovat timestamp posledního přiřazení
+                try await userRef.updateData(["lastDailyQuestDate": FieldValue.serverTimestamp()])
+
+                print("✨ Assigned new daily quests for user: \(uid)")
+            } catch {
+                print("❌ Failed to assign daily quests: \(error.localizedDescription)")
+            }
+        }
     
     func logout() {
         do {
