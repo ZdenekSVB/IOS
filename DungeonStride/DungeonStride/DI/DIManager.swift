@@ -1,8 +1,5 @@
 //
-//  DIManager.swift
-//  DungeonStride
-//
-//  Created by Vít Čevelík on 14.10.2025.
+// DIManager.swift
 //
 
 import Foundation
@@ -49,8 +46,8 @@ final class DIContainer {
 
 extension DIContainer {
     func registerDependencies() {
-        /*register(LocationManaging.self, cached: true) {
-            LocationManager()
-        }*/
+        register(ActivityManager.self, cached: true) {
+             ActivityManager()
+        }
     }
 }

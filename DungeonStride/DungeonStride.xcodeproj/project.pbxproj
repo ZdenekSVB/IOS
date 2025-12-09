@@ -28,16 +28,28 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Model/Extensions.swift,
 			);
 			target = C9A1C8502E9E659200EAE666 /* DungeonStride */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		2C5CF2D02EE8A3B800F6712A /* Exceptions for "DungeonStride" folder in "Copy Bundle Resources" phase from "DungeonStride" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = C9A1C84F2E9E659200EAE666 /* Resources */;
+			membershipExceptions = (
+				Model/Extensions.swift,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C9A1C8532E9E659200EAE666 /* DungeonStride */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C98888032EBB6A2D0081A62E /* Exceptions for "DungeonStride" folder in "DungeonStride" target */,
+				2C5CF2D02EE8A3B800F6712A /* Exceptions for "DungeonStride" folder in "Copy Bundle Resources" phase from "DungeonStride" target */,
 			);
 			path = DungeonStride;
 			sourceTree = "<group>";
@@ -304,6 +316,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DungeonStride/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app needs health share usage description allowed";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app neeeds Location always and when in use usage description allowed";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs Location always usage description allowed";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to set a custom profile picture.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -334,6 +349,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DungeonStride/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app needs health share usage description allowed";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "This app neeeds Location always and when in use usage description allowed";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app needs Location always usage description allowed";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to set a custom profile picture.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

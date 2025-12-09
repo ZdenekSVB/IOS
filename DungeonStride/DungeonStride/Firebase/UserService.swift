@@ -1,4 +1,7 @@
+//
 // UserService.swift
+//
+
 import Foundation
 import FirebaseFirestore
 import Combine
@@ -9,7 +12,6 @@ class UserService: ObservableObject {
     
     @Published var currentUser: User?
     private var userListener: ListenerRegistration?
-    
     
     // MARK: - User Management
     
@@ -39,6 +41,39 @@ class UserService: ObservableObject {
         currentUser = newUser
         return newUser
     }
+    
+    // MARK: - Activity Saving
+    
+    /// Uloží aktivitu do subkolekce a aktualizuje statistiky uživatele
+    func saveRunActivity(userId: String, activityData: [String: Any], distanceMeters: Int, calories: Int, steps: Int) async throws {
+        let userRef = db.collection("users").document(userId)
+        
+        // 1. Uložit záznam do historie (users/{uid}/activities/{autoID})
+        try await userRef.collection("activities").addDocument(data: activityData)
+        
+        // 2. Aktualizovat statistiky uživatele (XP, Coins, TotalStats)
+        // Získáme aktuální data, abychom mohli přičíst hodnoty
+        if var user = currentUser {
+            
+            // Logika odměn (např. 1 XP za 100 metrů, 1 Coin za 1 km)
+            let xpEarned = distanceMeters / 100
+            let coinsEarned = distanceMeters / 1000
+            
+            user.addXP(xpEarned)
+            user.addCoins(coinsEarned)
+            
+            // Aktualizace denních a celkových statistik
+            user.updateDailyProgress(steps: steps, distance: distanceMeters, calories: calories)
+            
+            // Uložíme aktualizovaného uživatele zpět do Firestore
+            try await updateUser(user)
+            
+            // Lokální aktualizace
+            self.currentUser = user
+            print("✅ Activity saved and user stats updated.")
+        }
+    }
+    
     // MARK: - Avatar Management
     func updateSelectedAvatar(uid: String, avatarName: String) async throws {
         let updateData: [String: Any] = [
@@ -48,14 +83,12 @@ class UserService: ObservableObject {
         
         try await db.collection("users").document(uid).updateData(updateData)
         
-        // Lokálně aktualizuj currentUser
         if var user = currentUser {
             user.selectedAvatar = avatarName
             user.updatedAt = Date()
             currentUser = user
         }
     }
-
     
     func fetchUser(uid: String) async throws -> User {
         let document = try await db.collection("users").document(uid).getDocument()
@@ -73,10 +106,9 @@ class UserService: ObservableObject {
         return user
     }
     
-    // MARK: - Real-time Updates for Settings
+    // MARK: - Real-time Updates
     
     func startListeningForUserUpdates(uid: String) {
-        // Nejprve odstraníme existující listener
         userListener?.remove()
         
         userListener = db.collection("users").document(uid).addSnapshotListener { [weak self] snapshot, error in
@@ -100,9 +132,7 @@ class UserService: ObservableObject {
                     
                     self.currentUser = user
                     
-                    // Notifikujte o změně dark módu
                     if oldDarkMode != newDarkMode {
-                        print("🎨 Dark mode changed to: \(newDarkMode)")
                         NotificationCenter.default.post(
                             name: .darkModeChanged,
                             object: nil,
@@ -121,17 +151,14 @@ class UserService: ObservableObject {
         }
     }
     
-    // MARK: - Settings Management
+    // MARK: - Settings & Update Helpers
     
     func updateDarkMode(uid: String, isDarkMode: Bool) async throws {
         let updateData: [String: Any] = [
             "settings.isDarkMode": isDarkMode,
             "updatedAt": FieldValue.serverTimestamp()
         ]
-        
         try await db.collection("users").document(uid).updateData(updateData)
-        
-        // Lokálně aktualizujte uživatele
         if var user = currentUser {
             user.settings.isDarkMode = isDarkMode
             user.updatedAt = Date()
@@ -144,10 +171,7 @@ class UserService: ObservableObject {
             "settings": settings.toFirestore(),
             "updatedAt": FieldValue.serverTimestamp()
         ]
-        
         try await db.collection("users").document(uid).updateData(updateData)
-        
-        // Lokálně aktualizujte uživatele
         if var user = currentUser {
             user.settings = settings
             user.updatedAt = Date()
@@ -159,7 +183,6 @@ class UserService: ObservableObject {
         guard let userId = user.id else {
             throw NSError(domain: "UserService", code: 400, userInfo: [NSLocalizedDescriptionKey: "User ID is missing"])
         }
-        
         try await db.collection("users").document(userId).setData(user.toFirestore(), merge: true)
         currentUser = user
     }
@@ -169,9 +192,7 @@ class UserService: ObservableObject {
             "lastActiveAt": FieldValue.serverTimestamp(),
             "updatedAt": FieldValue.serverTimestamp()
         ]
-        
         try await db.collection("users").document(uid).updateData(updateData)
-        
         if var user = currentUser {
             user.lastActiveAt = Date()
             user.updatedAt = Date()
@@ -180,18 +201,16 @@ class UserService: ObservableObject {
     }
     
     deinit {
-            userListener?.remove()
-            userListener = nil
-        
+        userListener?.remove()
+        userListener = nil
     }
 }
 
-// MARK: - Notification Extension
+// MARK: - Extensions
 extension Notification.Name {
     static let darkModeChanged = Notification.Name("darkModeChanged")
 }
 
-// MARK: - UserSettings Extension
 extension UserSettings {
     func toFirestore() -> [String: Any] {
         return [
@@ -210,19 +229,13 @@ extension UserSettings {
             return nil
         }
         
-        // Použijte DistanceUnit místo Units
-        let units: DistanceUnit
-        if let existingUnits = DistanceUnit(rawValue: unitsString) {
-            units = existingUnits
-        } else {
-            units = .metric // výchozí hodnota
-        }
+        let units = DistanceUnit(rawValue: unitsString) ?? .metric
         
         return UserSettings(
             isDarkMode: isDarkMode,
             notificationsEnabled: notificationsEnabled,
             soundEffectsEnabled: soundEffectsEnabled,
-            units: units // ← OPRAVA: použijte instanci 'units', ne typ 'DistanceUnit'
+            units: units
         )
     }
 }
