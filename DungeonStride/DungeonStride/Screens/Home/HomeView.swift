@@ -24,7 +24,7 @@ struct HomeView: View {
                     Group {
                         switch selectedTab {
                         case 0:
-                            DungeonView()
+                            DungeonMapView()
                         case 1:
                             ActivityView()
                         case 2:
