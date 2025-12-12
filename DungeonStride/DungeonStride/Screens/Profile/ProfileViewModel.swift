@@ -2,22 +2,14 @@
 //  ProfileViewModel.swift
 //  DungeonStride
 //
-//  Created by Zdeněk Svoboda on 12.12.2025.
-//
-
-
-//
-//  ProfileViewModel.swift
-//  DungeonStride
-//
 
 import Foundation
 import SwiftUI
 
 @MainActor
 class ProfileViewModel: ObservableObject {
-    private let userService: UserService
-    private let authViewModel: AuthViewModel
+    private var userService: UserService
+    private var authViewModel: AuthViewModel
     
     @Published var selectedAvatar: String = "avatar1"
     @Published var showAvatarPicker = false
@@ -28,7 +20,16 @@ class ProfileViewModel: ObservableObject {
     init(userService: UserService, authViewModel: AuthViewModel) {
         self.userService = userService
         self.authViewModel = authViewModel
-        
+        updateLocalState()
+    }
+    
+    func configure(userService: UserService, authViewModel: AuthViewModel) {
+        self.userService = userService
+        self.authViewModel = authViewModel
+        updateLocalState()
+    }
+    
+    private func updateLocalState() {
         if let avatar = userService.currentUser?.selectedAvatar {
             self.selectedAvatar = avatar
         }
@@ -43,7 +44,7 @@ class ProfileViewModel: ObservableObject {
                 selectedAvatar = newAvatar
                 showAvatarPicker = false
             } catch {
-                print("Failed to update avatar: \(error.localizedDescription)")
+                print(error.localizedDescription)
             }
         }
     }

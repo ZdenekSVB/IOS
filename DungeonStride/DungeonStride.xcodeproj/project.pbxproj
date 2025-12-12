@@ -28,28 +28,16 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				Model/Extensions.swift,
 			);
 			target = C9A1C8502E9E659200EAE666 /* DungeonStride */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		2C5CF2D02EE8A3B800F6712A /* Exceptions for "DungeonStride" folder in "Copy Bundle Resources" phase from "DungeonStride" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = C9A1C84F2E9E659200EAE666 /* Resources */;
-			membershipExceptions = (
-				Model/Extensions.swift,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C9A1C8532E9E659200EAE666 /* DungeonStride */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C98888032EBB6A2D0081A62E /* Exceptions for "DungeonStride" folder in "DungeonStride" target */,
-				2C5CF2D02EE8A3B800F6712A /* Exceptions for "DungeonStride" folder in "Copy Bundle Resources" phase from "DungeonStride" target */,
 			);
 			path = DungeonStride;
 			sourceTree = "<group>";
