@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import CoreData
 
 struct ContentView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
@@ -14,14 +13,10 @@ struct ContentView: View {
     var body: some View {
         Group {
             if authViewModel.isLoggedIn {
-                HomeView()  // ← ZMĚNA: MainAppView na HomeView
+                HomeView()
             } else {
                 WelcomeView()
             }
         }
-        .environmentObject(authViewModel)
     }
-}
-#Preview {
-    //ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }

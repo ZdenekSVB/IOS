@@ -2,17 +2,18 @@
 //  Quest.swift
 //  DungeonStride
 //
+//  Created by Vít Čevelík on 14.10.2025.
+//
 
 import Foundation
 import FirebaseFirestore
 
-// MARK: - Quest Requirement Enum
 enum QuestRequirement: Codable {
-    case steps(Int)           // počet kroků
-    case distance(Int)        // distance v METRECH
-    case calories(Int)        // kalorie
-    case runs(Int)           // počet běhů
-    case dailyLogin(Int)     // dny v řadě
+    case steps(Int)
+    case distance(Int)
+    case calories(Int)
+    case runs(Int)
+    case dailyLogin(Int)
     
     var displayText: String {
         switch self {
@@ -44,7 +45,6 @@ enum QuestRequirement: Codable {
     }
 }
 
-// MARK: - Quest Model
 struct Quest: Codable, Identifiable {
     let id: String
     let title: String
@@ -106,7 +106,6 @@ struct Quest: Codable, Identifiable {
     }
 }
 
-// MARK: - Firestore Helpers
 extension Quest {
     func toFirestore() -> [String: Any] {
         var data: [String: Any] = [
@@ -134,16 +133,11 @@ extension Quest {
     
     private func requirementToString(_ requirement: QuestRequirement) -> String {
         switch requirement {
-        case .steps(let value):
-            return "steps:\(value)"
-        case .distance(let value):
-            return "distance:\(value)"
-        case .calories(let value):
-            return "calories:\(value)"
-        case .runs(let value):
-            return "runs:\(value)"
-        case .dailyLogin(let value):
-            return "dailyLogin:\(value)"
+        case .steps(let value): return "steps:\(value)"
+        case .distance(let value): return "distance:\(value)"
+        case .calories(let value): return "calories:\(value)"
+        case .runs(let value): return "runs:\(value)"
+        case .dailyLogin(let value): return "dailyLogin:\(value)"
         }
     }
     
@@ -154,20 +148,17 @@ extension Quest {
               let iconName = data["iconName"] as? String,
               let xpReward = data["xpReward"] as? Int,
               let requirementString = data["requirement"] as? String,
-              let progress = data["progress"] as? Int,
-              let _ = data["totalRequired"] as? Int else {
+              let progress = data["progress"] as? Int else {
             return nil
         }
         
         let requirement = parseRequirement(from: requirementString)
         
-        // Získat startedAt z dat
         var startedAt = Date()
         if let startedTimestamp = data["startedAt"] as? Timestamp {
             startedAt = startedTimestamp.dateValue()
         }
         
-        // Vytvořit quest
         var quest = Quest(
             id: id,
             title: title,
@@ -179,12 +170,10 @@ extension Quest {
             startedAt: startedAt
         )
         
-        // Nastavit completedAt
         if let completedTimestamp = data["completedAt"] as? Timestamp {
             quest.completedAt = completedTimestamp.dateValue()
         }
         
-        // Nastavit updatedAt
         if let updatedTimestamp = data["updatedAt"] as? Timestamp {
             quest.updatedAt = updatedTimestamp.dateValue()
         }
@@ -200,18 +189,12 @@ extension Quest {
         }
         
         switch components[0] {
-        case "steps":
-            return .steps(value)
-        case "distance":
-            return .distance(value)
-        case "calories":
-            return .calories(value)
-        case "runs":
-            return .runs(value)
-        case "dailyLogin":
-            return .dailyLogin(value)
-        default:
-            return .steps(0)
+        case "steps": return .steps(value)
+        case "distance": return .distance(value)
+        case "calories": return .calories(value)
+        case "runs": return .runs(value)
+        case "dailyLogin": return .dailyLogin(value)
+        default: return .steps(0)
         }
     }
 }

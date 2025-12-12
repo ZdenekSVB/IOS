@@ -31,23 +31,21 @@ enum DistanceUnit: String, Codable, CaseIterable {
         }
     }
     
-    // Přijímá metry a konvertuje na cílové jednotky
     func convertFromMeters(_ meters: Int) -> Double {
         let kilometers = Double(meters) / 1000.0
         
         switch self {
-        case .metric: 
+        case .metric:
             return kilometers
-        case .imperial: 
-            return kilometers * 0.621371 // km to miles
-        case .nautical: 
-            return kilometers * 0.539957 // km to nautical miles
-        case .astronomical: 
-            return kilometers * 6.6846e-9 // km to AU
+        case .imperial:
+            return kilometers * 0.621371
+        case .nautical:
+            return kilometers * 0.539957
+        case .astronomical:
+            return kilometers * 6.6846e-9
         }
     }
     
-    // Přijímá metry
     func formatDistance(_ meters: Int) -> String {
         let converted = convertFromMeters(meters)
         
@@ -63,7 +61,6 @@ enum DistanceUnit: String, Codable, CaseIterable {
         }
     }
     
-    // Formátování pro menší vzdálenosti (např. v questech)
     func formatSmallDistance(_ meters: Int) -> String {
         switch self {
         case .metric:

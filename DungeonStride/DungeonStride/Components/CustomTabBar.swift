@@ -2,7 +2,13 @@
 //  CustomTabBar.swift
 //  DungeonStride
 //
-//  Created by Zdeněk Svoboda on 03.11.2025.
+//  Created by Zdeněk Svoboda on 12.12.2025.
+//
+
+
+//
+//  NavigationComponents.swift
+//  DungeonStride
 //
 
 import SwiftUI
@@ -36,13 +42,5 @@ struct CustomTabBar: View {
         .padding(.horizontal)
         .padding(.vertical, 8)
         .background(themeManager.cardBackgroundColor)
-    }
-}
-
-struct CustomTabBar_Previews: PreviewProvider {
-    static var previews: some View {
-        CustomTabBar(selectedTab: .constant(2))
-            .environmentObject(ThemeManager())
-            .previewLayout(.sizeThatFits)
     }
 }

@@ -5,14 +5,6 @@
 //  Created by Zdeněk Svoboda on 05.11.2025.
 //
 
-
-//
-//  Achievement.swift
-//  DungeonStride
-//
-//  Created by Vít Čevelík on 14.10.2025.
-//
-
 import Foundation
 import FirebaseFirestore
 
@@ -69,7 +61,7 @@ enum AchievementCategory: String, Codable, CaseIterable {
         }
     }
 }
-// MARK: - Firestore Helpers for Achievement
+
 extension Achievement {
     func toFirestore() -> [String: Any] {
         return [

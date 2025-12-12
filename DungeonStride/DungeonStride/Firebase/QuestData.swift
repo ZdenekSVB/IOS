@@ -1,20 +1,14 @@
 //
-//  QuestLibrary.swift
+//  QuestData.swift
 //  DungeonStride
 //
 //  Created by Zdeněk Svoboda on 10.11.2025.
 //
 
-
-//
-//  QuestLibrary.swift
-//  DungeonStride
-//
-
 import Foundation
 
-struct QuestLibrary {
-    static let all: [Quest] = [
+struct QuestData {
+    static let availableQuests: [Quest] = [
         Quest(id: "steps_5000", title: "Morning Mover", description: "Walk 5,000 steps today", iconName: "figure.walk", xpReward: 80, requirement: .steps(5000)),
         Quest(id: "steps_10000", title: "Step Master", description: "Walk 10,000 steps today", iconName: "figure.walk", xpReward: 120, requirement: .steps(10000)),
         Quest(id: "steps_20000", title: "Step Legend", description: "Walk 20,000 steps in a day", iconName: "figure.walk.circle", xpReward: 200, requirement: .steps(20000)),

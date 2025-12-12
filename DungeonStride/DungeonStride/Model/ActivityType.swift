@@ -1,5 +1,8 @@
 //
-// ActivityType.swift
+//  ActivityType.swift
+//  DungeonStride
+//
+//  Created by Zdeněk Svoboda on 05.11.2025.
 //
 
 import Foundation

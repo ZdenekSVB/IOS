@@ -1,0 +1,60 @@
+//
+//  SettingsViewModel.swift
+//  DungeonStride
+//
+
+import Foundation
+import Combine
+
+@MainActor
+class SettingsViewModel: ObservableObject {
+    @Published var notificationsEnabled: Bool = true
+    @Published var soundEffects: Bool = true
+    @Published var selectedUnit: DistanceUnit = .metric
+    
+    private var userService: UserService
+    private var authViewModel: AuthViewModel
+    private var themeManager: ThemeManager
+    
+    init(userService: UserService, authViewModel: AuthViewModel, themeManager: ThemeManager) {
+        self.userService = userService
+        self.authViewModel = authViewModel
+        self.themeManager = themeManager
+    }
+    
+    func synchronize(userService: UserService, authViewModel: AuthViewModel, themeManager: ThemeManager) {
+        self.userService = userService
+        self.authViewModel = authViewModel
+        self.themeManager = themeManager
+        
+        if let user = userService.currentUser {
+            self.notificationsEnabled = user.settings.notificationsEnabled
+            self.soundEffects = user.settings.soundEffectsEnabled
+            self.selectedUnit = user.settings.units
+            
+            if self.themeManager.isDarkMode != user.settings.isDarkMode {
+                self.themeManager.setDarkMode(user.settings.isDarkMode)
+            }
+        }
+    }
+    
+    func updateSettings() {
+        guard let uid = authViewModel.currentUserUID else { return }
+        
+        let newSettings = UserSettings(
+            isDarkMode: themeManager.isDarkMode,
+            notificationsEnabled: notificationsEnabled,
+            soundEffectsEnabled: soundEffects,
+            units: selectedUnit
+        )
+        
+        Task {
+            try? await userService.updateUserSettings(uid: uid, settings: newSettings)
+        }
+    }
+    
+    func toggleDarkMode() {
+        themeManager.toggleDarkMode()
+        updateSettings()
+    }
+}

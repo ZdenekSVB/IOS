@@ -11,6 +11,7 @@ import FirebaseCore
 @main
 struct DungeonStrideApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var userService = UserService()
     @StateObject private var questService = QuestService()
@@ -18,7 +19,6 @@ struct DungeonStrideApp: App {
 
     init() {
         FirebaseApp.configure()
-        print("🚀 Firebase configured")
     }
 
     var body: some Scene {
@@ -30,7 +30,6 @@ struct DungeonStrideApp: App {
                 .environmentObject(questService)
                 .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
                 .onAppear {
-                    // Nastavit závislosti až po inicializaci
                     themeManager.setupDependencies(
                         userService: userService,
                         authViewModel: authViewModel

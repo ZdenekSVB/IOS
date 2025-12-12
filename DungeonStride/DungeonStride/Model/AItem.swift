@@ -15,42 +15,31 @@ struct AItem: Codable, Identifiable {
     let name: String
     let description: String
     let iconName: String
-    let itemType: String        // "Weapon", "Armor", "Spell", "Potion", "Consumable"
-    
-    // Nové pole pro Rarity (uloženo jako String v Firestore)
+    let itemType: String
     let rarity: Rarity
-    
-    // Základní staty (bez aplikovaného multiplikátoru rarity)
     let baseStats: ItemStats
+    let prerequisite: String?
     
-    // Nové pole pro definování předpokladů (zatím prázdné)
-    let prerequisite: String? // Např. "Level 10", "Adept ve spellcastingu"
-    
-    
-    // Cena se skaluje podle rarity
     var finalSellPrice: Int? {
         guard let basePrice = baseStats.sellPrice else { return nil }
         return Int(Double(basePrice) * rarity.multiplier)
     }
     
-    // Útok se skaluje podle rarity
     var finalAttack: Int? {
         guard let baseAttack = baseStats.attack else { return nil }
         return Int(Double(baseAttack) * rarity.multiplier)
     }
     
-    // Obrana se skaluje podle rarity
     var finalDefense: Int? {
         guard let baseDefense = baseStats.defense else { return nil }
         return Int(Double(baseDefense) * rarity.multiplier)
     }
     
-    // --- Pomocná struktura pro Item staty ---
     struct ItemStats: Codable {
-        let attack: Int?     // Útočná síla (pro zbraně a kouzla)
-        let defense: Int?    // Obrana (pro brnění)
-        let healthBonus: Int? // Bonus k životu (pro brnění, lektvary)
-        let sellPrice: Int?   // Základní prodejní cena
+        let attack: Int?
+        let defense: Int?
+        let healthBonus: Int?
+        let sellPrice: Int?
     }
 }
 
@@ -62,7 +51,6 @@ enum Rarity: String, Codable, CaseIterable {
     case legendary = "Legendary"
     case artifact = "Artifact"
     
-    // Zde definujeme skalování statů a barevné schéma
     var multiplier: Double {
         switch self {
         case .common: return 1.0

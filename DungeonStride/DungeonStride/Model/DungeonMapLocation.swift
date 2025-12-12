@@ -15,9 +15,7 @@ struct DungeonMapLocation: Codable, Identifiable {
     let x: Double
     let y: Double
     
-    var position: CGPoint{
+    var position: CGPoint {
         return CGPoint(x: x, y: y)
     }
-    
-    
 }

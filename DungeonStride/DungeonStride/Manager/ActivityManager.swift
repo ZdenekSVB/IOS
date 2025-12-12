@@ -1,5 +1,6 @@
 //
-// ActivityManager.swift
+//  ActivityManager.swift
+//  DungeonStride
 //
 
 import SwiftUI
@@ -10,28 +11,25 @@ import Combine
 import FirebaseFirestore
 import Charts
 
-// Předpokládáme existenci ActivityType a ActivityState v ActivityType.swift
-
 final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
-    // MARK: - Publishers (Data pro View)
+    // MARK: - Publishers
     @Published var selectedActivity: ActivityType = .run
     @Published var activityState: ActivityState = .ready
-    @Published var elapsedTime: TimeInterval = 0.0 // Nyní funguje jako čítač sekund
-    @Published var distance: Double = 0.0 // v metrech
+    @Published var elapsedTime: TimeInterval = 0.0
+    @Published var distance: Double = 0.0
     @Published var pace: String = "0'00\" / km"
     @Published var kcalBurned: Double = 0.0
     @Published var currentPolyline: [CLLocationCoordinate2D] = []
     @Published var currentRegion: MKCoordinateRegion?
     @Published var locationError: String?
     
-    // MARK: - Interní proměnné
+    // MARK: - Internal Properties
     private var locationManager = CLLocationManager()
     private var timer: AnyCancellable?
     private var previousLocation: CLLocation?
-    private var paceHistory: [Double] = [] // km/hod pro interní ukládání
+    private var paceHistory: [Double] = []
     
-    // Vypočítaná proměnná pro Swift Charts (min/km)
     var paceHistoryForChart: [Double] {
         paceHistory.map { speedKmPerHour in
             guard speedKmPerHour > 0 else { return 0.0 }
@@ -39,32 +37,31 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
     
-    // MARK: - Inicializace
+    // MARK: - Initialization
     override init() {
         super.init()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-        
-        // Zde zakomentujte, pokud nemáte Background Modes zapnuté v Capabilities
-        // locationManager.allowsBackgroundLocationUpdates = true
-        
-        locationManager.activityType = .fitness
-        
-        locationManager.requestWhenInUseAuthorization()
+        setupLocationManager()
         requestHealthKitAuthorization()
     }
     
-    // MARK: - Metody pro ovládání aktivity
+    private func setupLocationManager() {
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+        locationManager.activityType = .fitness
+        
+        // Uncomment if Background Modes are enabled in Capabilities
+        // locationManager.allowsBackgroundLocationUpdates = true
+        
+        locationManager.requestWhenInUseAuthorization()
+    }
     
+    // MARK: - Activity Control
     func startActivity() {
         if activityState == .active { return }
         
-        // Pokud startujeme z "ready" nebo "finished", resetujeme data
         if activityState == .ready || activityState == .finished {
             resetActivity()
         }
-        
-        // Pokud jsme byli "paused", pouze pokračujeme (neresetujeme)
         
         activityState = .active
         locationManager.startUpdatingLocation()
@@ -77,7 +74,6 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
     func pauseActivity() {
         activityState = .paused
         locationManager.stopUpdatingLocation()
-        // Zrušíme timer, takže se elapsedTime přestane přičítat
         timer?.cancel()
     }
     
@@ -106,16 +102,13 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     // MARK: - CoreLocation Delegate
-    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard activityState == .active, let newLocation = locations.last else { return }
         
-        // Ignorujeme stará nebo nepřesná data
         if newLocation.horizontalAccuracy < 0 || newLocation.horizontalAccuracy > 50 { return }
         
         currentPolyline.append(newLocation.coordinate)
         
-        // Centrování mapy
         currentRegion = MKCoordinateRegion(
             center: newLocation.coordinate,
             latitudinalMeters: 500,
@@ -130,7 +123,6 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
             if segmentDistance > 0 && timeElapsed > 0 {
                 let speedMetersPerSecond = segmentDistance / timeElapsed
                 let speedKmPerHour = speedMetersPerSecond * 3.6
-                
                 paceHistory.append(speedKmPerHour)
             } else {
                 paceHistory.append(0.0)
@@ -138,17 +130,12 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
         
         previousLocation = newLocation
-        
-        // Aktualizace metrik při každém pohybu
         updateMetrics()
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        switch manager.authorizationStatus {
-        case .denied, .restricted:
+        if manager.authorizationStatus == .denied || manager.authorizationStatus == .restricted {
             locationError = "Povolte prosím přístup k poloze v nastavení."
-        default:
-            break
         }
     }
     
@@ -156,13 +143,9 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         print("Location Error: \(error.localizedDescription)")
     }
     
-    // MARK: - Timer & Metriky
-    
+    // MARK: - Metrics Logic
     private func startTimer() {
-        // Zrušíme předchozí timer pro jistotu
         timer?.cancel()
-        
-        // Timer, který každou sekundu přičte 1 k elapsedTime
         timer = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
@@ -173,7 +156,6 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     private func updateMetrics() {
-        // 1. Tempo
         if distance > 10.0 && elapsedTime > 0 {
             let totalKilometers = distance / 1000.0
             let minutesPerKilometer = (elapsedTime / 60.0) / totalKilometers
@@ -185,26 +167,17 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
             pace = "0'00\" / km"
         }
         
-        // 2. Kalorie
-        // POŽADAVEK: Pokud se nehýbu (distance se nemění), tak 0 kcal.
-        // Jednoduchá logika: Pokud je průměrná rychlost velmi malá nebo vzdálenost 0, kcal = 0.
-        // Nebo: počítat jen za ušlou vzdálenost.
-        
         if distance > 0 {
             let metValue: Double = (selectedActivity == .run) ? 7.0 : 4.0
-            let userWeight: Double = 70.0 // Placeholder
+            let userWeight: Double = 70.0 // Placeholder pro váhu uživatele
             let timeInHours = elapsedTime / 3600.0
-            
-            // Standardní vzorec
-            let calculatedKcal = metValue * userWeight * timeInHours
-            
-            kcalBurned = calculatedKcal
+            kcalBurned = metValue * userWeight * timeInHours
         } else {
             kcalBurned = 0.0
         }
     }
     
-    // MARK: - HealthKit (Placeholder)
+    // MARK: - HealthKit & Saving
     private func requestHealthKitAuthorization() {
         guard HKHealthStore.isHealthDataAvailable() else { return }
         let typesToShare: Set<HKSampleType> = []
@@ -212,17 +185,12 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         HKHealthStore().requestAuthorization(toShare: typesToShare, read: typesToRead) { _, _ in }
     }
     
-    // MARK: - Ukládání dat (Přes UserService)
-    
     private func saveActivityData(userId: String, userService: UserService) {
-        
         let totalKilometers = distance / 1000.0
         let avgPaceMinPerKm = totalKilometers > 0 ? (elapsedTime / 60.0) / totalKilometers : 0.0
         
-        // Převedeme [CLLocationCoordinate2D] na pole slovníků pro Firestore
         let routeData = currentPolyline.map { ["lat": $0.latitude, "lon": $0.longitude] }
         
-        // Data aktivity
         let activityRecord: [String: Any] = [
             "timestamp": FieldValue.serverTimestamp(),
             "type": selectedActivity.rawValue,
@@ -234,7 +202,6 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
             "route_coordinates": routeData
         ]
         
-        // Odhad kroků (přibližně 1250 kroků na 1 km běhu)
         let estimatedSteps = Int(totalKilometers * 1250)
         
         print("💾 Saving activity for user: \(userId)")
