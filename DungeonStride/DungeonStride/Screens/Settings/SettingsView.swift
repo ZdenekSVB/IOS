@@ -1,5 +1,6 @@
 //
 //  SettingsView.swift
+//  DungeonStride
 //
 
 import SwiftUI
@@ -10,7 +11,11 @@ struct SettingsView: View {
     @EnvironmentObject var userService: UserService
     @EnvironmentObject var authViewModel: AuthViewModel
     
-    @StateObject private var viewModel: SettingsViewModel = SettingsViewModel(userService: UserService(), authViewModel: AuthViewModel(), themeManager: ThemeManager())
+    @StateObject private var viewModel: SettingsViewModel
+    
+    init() {
+        _viewModel = StateObject(wrappedValue: SettingsViewModel(userService: UserService(), authViewModel: AuthViewModel(), themeManager: ThemeManager()))
+    }
     
     var body: some View {
         NavigationView {
@@ -36,7 +41,7 @@ struct SettingsView: View {
                             
                             SettingsToggleRow(icon: themeManager.isDarkMode ? "moon.fill" : "sun.max.fill", title: "Dark Mode", isOn: Binding(
                                 get: { themeManager.isDarkMode },
-                                set: { _ in viewModel.toggleDarkMode() } // Voláme ViewModel pro změnu
+                                set: { _ in viewModel.toggleDarkMode() }
                             ), themeManager: themeManager)
                             
                             unitPickerRow

@@ -44,7 +44,7 @@ class ProfileViewModel: ObservableObject {
                 selectedAvatar = newAvatar
                 showAvatarPicker = false
             } catch {
-                print(error.localizedDescription)
+                print("Failed to update avatar: \(error.localizedDescription)")
             }
         }
     }

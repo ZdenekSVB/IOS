@@ -1,8 +1,6 @@
 //
-//  ProfileHeaderView.swift
+//  ProfileComponents.swift
 //  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 12.12.2025.
 //
 
 import SwiftUI
@@ -71,13 +69,33 @@ struct StatsGridView: View {
     
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
-            StatCard(icon: "figure.walk", title: "Total Distance", value: "\(user.activityStats.totalDistance) km")
-            StatCard(icon: "star.fill", title: "Total XP", value: "\(user.totalXP)")
-            StatCard(icon: "flag.fill", title: "Runs", value: "\(user.activityStats.totalRuns)")
-            StatCard(icon: "trophy.fill", title: "Achievements", value: "\(user.myAchievements.count)")
+            
+            // OPRAVENO: Použití user.settings.units.formatDistance() místo natvrdo napsaného "km"
+            StatCard(
+                icon: "figure.walk",
+                title: "Total Distance",
+                value: user.settings.units.formatDistance(user.activityStats.totalDistance)
+            )
+            
+            StatCard(
+                icon: "star.fill",
+                title: "Total XP",
+                value: "\(user.totalXP)"
+            )
+            
+            StatCard(
+                icon: "flag.fill",
+                title: "Runs",
+                value: "\(user.activityStats.totalRuns)"
+            )
+            
+            StatCard(
+                icon: "trophy.fill",
+                title: "Achievements",
+                value: "\(user.myAchievements.count)"
+            )
         }
         .padding(.horizontal)
-        // Předáváme themeManager explicitně do child views přes .environmentObject, pokud StatCard ho vyžaduje
         .environmentObject(themeManager)
     }
 }
@@ -87,11 +105,7 @@ struct ActionButtonsView: View {
     
     var body: some View {
         Button("Logout", action: logoutAction)
-            .foregroundColor(.white)
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(Color.red)
-            .cornerRadius(12)
+            .buttonStyle(PrimaryButtonStyle(backgroundColor: .red))
             .padding(.horizontal)
             .padding(.bottom, 20)
     }
@@ -126,11 +140,7 @@ struct AvatarSelectionPopup: View {
             Button("Save Avatar") {
                 if let avatar = tempSelected { onSave(avatar) }
             }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(tempSelected == nil ? Color.gray : themeManager.accentColor)
-            .foregroundColor(.white)
-            .cornerRadius(12)
+            .buttonStyle(PrimaryButtonStyle(backgroundColor: tempSelected == nil ? Color.gray : themeManager.accentColor))
             .disabled(tempSelected == nil)
             
             Button("Cancel", action: onClose)

@@ -1,12 +1,4 @@
 //
-//  UserProgressCard.swift
-//  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 12.12.2025.
-//
-
-
-//
 //  HomeComponents.swift
 //  DungeonStride
 //
@@ -17,57 +9,76 @@ import SwiftUI
 struct UserProgressCard: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var userService: UserService
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Image(systemName: "person.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(themeManager.accentColor)
+                // Avatar
+                if let avatar = userService.currentUser?.selectedAvatar {
+                    Image(avatar)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 50, height: 50)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(themeManager.accentColor, lineWidth: 2))
+                } else {
+                    Image(systemName: "person.circle.fill")
+                        .font(.system(size: 50))
+                        .foregroundColor(themeManager.accentColor)
+                }
                 
                 VStack(alignment: .leading) {
                     Text("Welcome back!")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
-                    Text(authViewModel.currentUserEmail ?? "User")
+                    // Zobrazujeme Username
+                    Text(userService.currentUser?.username ?? "Adventurer")
                         .font(.headline)
                         .foregroundColor(themeManager.primaryTextColor)
                 }
                 
                 Spacer()
                 
+                // Level Badge
                 VStack {
                     Text("Lvl")
                         .font(.caption2)
                         .foregroundColor(themeManager.secondaryTextColor)
-                    Text("5")
+                    Text("\(userService.currentUser?.level ?? 1)")
                         .font(.title3)
                         .fontWeight(.bold)
                         .foregroundColor(themeManager.accentColor)
                 }
             }
             
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Progress to next level")
-                        .font(.caption)
-                        .foregroundColor(themeManager.secondaryTextColor)
-                    Spacer()
-                    Text("1,250 / 2,000 XP")
-                        .font(.caption)
-                        .foregroundColor(themeManager.primaryTextColor)
-                }
-                
-                ZStack(alignment: .leading) {
-                    Rectangle()
-                        .fill(themeManager.cardBackgroundColor)
-                        .frame(height: 8)
-                        .cornerRadius(4)
+            // XP Progress
+            if let user = userService.currentUser {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Next Level")
+                            .font(.caption)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Spacer()
+                        Text("\(user.totalXP) / \(user.level * 100) XP")
+                            .font(.caption)
+                            .foregroundColor(themeManager.primaryTextColor)
+                    }
                     
-                    Rectangle()
-                        .fill(themeManager.accentColor)
-                        .frame(width: 125, height: 8)
-                        .cornerRadius(4)
+                    GeometryReader { geometry in
+                        ZStack(alignment: .leading) {
+                            Rectangle()
+                                .fill(themeManager.cardBackgroundColor.opacity(0.5))
+                                .frame(height: 8)
+                                .cornerRadius(4)
+                            
+                            Rectangle()
+                                .fill(themeManager.accentColor)
+                                .frame(width: min(geometry.size.width * CGFloat(user.levelProgress), geometry.size.width), height: 8)
+                                .cornerRadius(4)
+                        }
+                    }
+                    .frame(height: 8)
                 }
             }
         }
@@ -80,48 +91,97 @@ struct UserProgressCard: View {
 // MARK: - Last Run Card
 struct LastRunCard: View {
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var userService: UserService
+    
+    // Přijímáme data zvenčí
+    let lastActivity: RunActivity?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Last Run")
+                Text("Last Activity")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
                 Spacer()
-                Text("2 hours ago")
-                    .font(.caption)
-                    .foregroundColor(themeManager.secondaryTextColor)
+                if let activity = lastActivity {
+                    Text(activity.timeAgo)
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
             }
             
-            ZStack {
-                Rectangle()
-                    .fill(themeManager.secondaryTextColor.opacity(0.3))
-                    .frame(height: 120)
-                    .cornerRadius(8)
+            if let activity = lastActivity {
+                ZStack {
+                    Rectangle()
+                        .fill(themeManager.secondaryTextColor.opacity(0.3))
+                        .frame(height: 120)
+                        .cornerRadius(8)
+                    
+                    Image(systemName: "map.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(themeManager.accentColor)
+                    
+                    Text(activity.type.capitalized)
+                        .font(.caption)
+                        .foregroundColor(themeManager.primaryTextColor)
+                        .padding(8)
+                        .background(themeManager.backgroundColor.opacity(0.8))
+                        .cornerRadius(6)
+                        .offset(y: 30)
+                }
                 
-                Image(systemName: "map.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(themeManager.accentColor)
+                let units = userService.currentUser?.settings.units ?? .metric
                 
-                Text("Forest Path")
-                    .font(.caption)
-                    .foregroundColor(themeManager.primaryTextColor)
-                    .padding(8)
-                    .background(themeManager.backgroundColor.opacity(0.8))
-                    .cornerRadius(6)
-                    .offset(y: 30)
-            }
-            
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                StatItem(icon: "figure.walk", title: "Distance", value: "5.2 km")
-                StatItem(icon: "bolt.fill", title: "Energy", value: "85%")
-                StatItem(icon: "star.fill", title: "XP", value: "250")
-                StatItem(icon: "heart.fill", title: "Stamina", value: "72%")
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
+                    StatItem(
+                        icon: "figure.walk",
+                        title: "Distance",
+                        value: units.formatDistance(Int(activity.distanceKm * 1000))
+                    )
+                    StatItem(
+                        icon: "flame.fill",
+                        title: "Calories",
+                        value: "\(activity.calories)"
+                    )
+                    StatItem(
+                        icon: "timer",
+                        title: "Duration",
+                        value: activity.duration.stringFormat()
+                    )
+                    StatItem(
+                        icon: "speedometer",
+                        title: "Pace",
+                        value: formatPace(activity.pace, unit: units)
+                    )
+                }
+            } else {
+                // Empty State
+                VStack(spacing: 10) {
+                    Image(systemName: "figure.run.circle")
+                        .font(.system(size: 40))
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    Text("No activities yet")
+                        .font(.subheadline)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                    Text("Go to Activity tab to start your first run!")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor.opacity(0.7))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 20)
             }
         }
         .padding()
         .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
+    }
+    
+    private func formatPace(_ paceMinKm: Double, unit: DistanceUnit) -> String {
+        if unit == .metric {
+            return String(format: "%.2f min/km", paceMinKm)
+        } else {
+            return String(format: "%.2f min/mi", paceMinKm * 1.60934)
+        }
     }
 }
 
@@ -201,7 +261,6 @@ struct QuestsCard: View {
     }
 }
 
-// MARK: - Quest Row
 struct QuestRow: View {
     @EnvironmentObject var themeManager: ThemeManager
     let quest: Quest
@@ -261,62 +320,5 @@ struct QuestRow: View {
             }
         }
         .padding(.vertical, 4)
-    }
-}
-
-// MARK: - Stat Components
-struct StatCard: View {
-    let icon: String
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(.white.opacity(0.8))
-                .frame(width: 30)
-            VStack(alignment: .leading) {
-                Text(title)
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
-                Text(value)
-                    .font(.headline)
-                    .foregroundColor(.white)
-            }
-            Spacer()
-        }
-        .padding()
-        .background(Color("Paleta5"))
-        .cornerRadius(12)
-    }
-}
-
-struct StatItem: View {
-    @EnvironmentObject var themeManager: ThemeManager
-    let icon: String
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.system(size: 14))
-                .foregroundColor(themeManager.accentColor)
-                .frame(width: 20)
-            
-            VStack(alignment: .leading) {
-                Text(title)
-                    .font(.caption2)
-                    .foregroundColor(themeManager.secondaryTextColor)
-                Text(value)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(themeManager.primaryTextColor)
-            }
-            Spacer()
-        }
-        .padding(8)
-        .background(themeManager.backgroundColor)
-        .cornerRadius(8)
     }
 }

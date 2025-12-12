@@ -8,6 +8,25 @@ import MapKit
 import Charts
 import CoreLocation
 
+// MARK: - Terrain Toggle Button
+struct TerrainToggleButton: View {
+    let isNautical: Bool
+    let themeManager: ThemeManager
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: isNautical ? "sailboat.fill" : "figure.run")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 40, height: 32) // Stejná výška jako segment picker
+                .background(isNautical ? Color.blue : Color.green)
+                .cornerRadius(8)
+        }
+    }
+}
+
+// MARK: - Map View
 struct ActivityMapView: UIViewRepresentable {
     @Binding var polylineCoordinates: [CLLocationCoordinate2D]
     @Binding var region: MKCoordinateRegion?
@@ -16,6 +35,7 @@ struct ActivityMapView: UIViewRepresentable {
         let mapView = MKMapView()
         mapView.delegate = context.coordinator
         mapView.showsUserLocation = true
+        mapView.userTrackingMode = .follow
         return mapView
     }
     
@@ -43,7 +63,7 @@ struct ActivityMapView: UIViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
             if let polyline = overlay as? MKPolyline {
                 let renderer = MKPolylineRenderer(polyline: polyline)
-                renderer.strokeColor = .red
+                renderer.strokeColor = .systemBlue
                 renderer.lineWidth = 5
                 return renderer
             }
@@ -52,66 +72,147 @@ struct ActivityMapView: UIViewRepresentable {
     }
 }
 
+// MARK: - Charts
 struct PaceChart: View {
     @ObservedObject var activityManager: ActivityManager
     let themeManager: ThemeManager
+    let units: DistanceUnit
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Tempo (min/km)")
-                .font(.headline)
-                .foregroundColor(themeManager.primaryTextColor)
+            Text(units == .metric ? "Pace (min/km)" : "Pace (min/mi)")
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .foregroundColor(themeManager.secondaryTextColor)
             
-            Chart {
-                ForEach(Array(activityManager.paceHistoryForChart.enumerated()), id: \.offset) { index, paceInMinPerKm in
-                    if paceInMinPerKm > 0 {
-                        LineMark(
-                            x: .value("Segment", index + 1),
-                            y: .value("Tempo", paceInMinPerKm)
-                        )
-                        .interpolationMethod(.monotone)
-                        .foregroundStyle(Color.yellow)
+            if activityManager.paceHistoryForChart.isEmpty {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.clear)
+                        .frame(height: 120)
+                    Text("Start activity to see data")
+                        .font(.caption)
+                        .foregroundColor(themeManager.secondaryTextColor)
+                }
+            } else {
+                Chart {
+                    ForEach(Array(activityManager.paceHistoryForChart.enumerated()), id: \.offset) { index, paceInMinPerKm in
+                        let displayedPace = units == .metric ? paceInMinPerKm : paceInMinPerKm * 1.60934
+                        
+                        if displayedPace > 0 {
+                            LineMark(
+                                x: .value("Segment", index + 1),
+                                y: .value("Pace", displayedPace)
+                            )
+                            .interpolationMethod(.catmullRom)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [themeManager.accentColor, themeManager.accentColor.opacity(0.3)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                        }
                     }
                 }
+                .chartYAxisLabel(units == .metric ? "min/km" : "min/mi")
+                .chartYScale(domain: .automatic(includesZero: false))
             }
-            .chartYAxisLabel("min/km")
-            .chartXAxisLabel("Úsek")
-            .chartYScale(domain: .automatic(includesZero: false))
         }
-        .padding()
-        .background(themeManager.cardBackgroundColor)
-        .cornerRadius(10)
     }
 }
 
+// MARK: - Metrics Grid
 struct MetricsView: View {
     @ObservedObject var activityManager: ActivityManager
     let themeManager: ThemeManager
+    let units: DistanceUnit
     
     var body: some View {
-        VStack(spacing: 15) {
-            HStack {
-                MetricItem(title: "Čas", value: activityManager.elapsedTime.stringFormat(), themeManager: themeManager)
-                Spacer()
-                MetricItem(title: "Vzdálenost", value: String(format: "%.2f km", activityManager.distance / 1000.0), themeManager: themeManager)
-            }
-            HStack {
-                MetricItem(title: "Tempo", value: activityManager.pace, themeManager: themeManager)
-                Spacer()
-                MetricItem(title: "Kcal", value: String(format: "%.0f kcal", activityManager.kcalBurned), themeManager: themeManager)
-            }
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 20) {
+            MetricItem(
+                title: "Duration",
+                value: activityManager.elapsedTime.stringFormat(),
+                themeManager: themeManager
+            )
+            
+            MetricItem(
+                title: "Distance",
+                value: units.formatDistance(Int(activityManager.distance)),
+                themeManager: themeManager
+            )
+            
+            MetricItem(
+                title: "Pace",
+                value: calculatePaceString(),
+                themeManager: themeManager
+            )
+            
+            MetricItem(
+                title: "Energy",
+                value: String(format: "%.0f kcal", activityManager.kcalBurned),
+                themeManager: themeManager
+            )
         }
-        .padding(.horizontal)
+    }
+    
+    private func calculatePaceString() -> String {
+        guard activityManager.distance > 10, activityManager.elapsedTime > 0 else {
+            return units == .metric ? "0'00\" / km" : "0'00\" / mi"
+        }
+        
+        let distanceVal: Double
+        let unitLabel: String
+        
+        if units == .metric {
+            distanceVal = activityManager.distance / 1000.0
+            unitLabel = "/ km"
+        } else {
+            distanceVal = activityManager.distance * 0.000621371
+            unitLabel = "/ mi"
+        }
+        
+        let minutesPerUnit = (activityManager.elapsedTime / 60.0) / distanceVal
+        let minutes = Int(minutesPerUnit)
+        let seconds = Int((minutesPerUnit - Double(minutes)) * 60)
+        
+        return String(format: "%d'%02d\" %@", minutes, seconds, unitLabel)
     }
 }
 
+// MARK: - Metric Item Component
+struct MetricItem: View {
+    let title: String
+    let value: String
+    let themeManager: ThemeManager
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title.uppercased())
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(themeManager.secondaryTextColor)
+            
+            Text(value)
+                .font(.title2)
+                .fontWeight(.heavy)
+                .foregroundColor(themeManager.primaryTextColor)
+                .minimumScaleFactor(0.8)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Control Buttons
 struct ActivityActionButtons: View {
     @ObservedObject var activityManager: ActivityManager
     var authViewModel: AuthViewModel
     var userService: UserService
     
     var body: some View {
-        HStack(spacing: 30) {
+        HStack(spacing: 20) {
+            // START / PAUSE Button
             Button {
                 if activityManager.activityState == .active {
                     activityManager.pauseActivity()
@@ -119,10 +220,16 @@ struct ActivityActionButtons: View {
                     activityManager.startActivity()
                 }
             } label: {
-                Text(activityManager.activityState == .active ? "PAUZA" : (activityManager.activityState == .paused ? "POKRAČOVAT" : "START"))
-                    .buttonStyle(state: activityManager.activityState == .active ? .pause : .start)
+                Image(systemName: activityManager.activityState == .active ? "pause.fill" : "play.fill")
+                    .font(.title2)
+                    .foregroundColor(.white)
+                    .frame(width: 80, height: 80)
+                    .background(activityManager.activityState == .active ? Color.orange : Color.green)
+                    .clipShape(Circle())
+                    .shadow(radius: 5)
             }
             
+            // STOP Button
             if activityManager.activityState == .active || activityManager.activityState == .paused {
                 Button {
                     activityManager.finishActivity(
@@ -130,41 +237,41 @@ struct ActivityActionButtons: View {
                         userService: userService
                     )
                 } label: {
-                    Text("STOP")
-                        .buttonStyle(state: .stop)
+                    Image(systemName: "stop.fill")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 80, height: 80)
+                        .background(Color.red)
+                        .clipShape(Circle())
+                        .shadow(radius: 5)
                 }
+                .transition(.scale.combined(with: .opacity))
             }
             
             if activityManager.activityState == .finished {
                 Button {
                     activityManager.resetActivity()
                 } label: {
-                    Text("RESET")
-                        .buttonStyle(state: .stop)
+                    VStack {
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Reset")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                    }
+                    .foregroundColor(.white)
+                    .frame(width: 80, height: 80)
+                    .background(Color.gray)
+                    .clipShape(Circle())
+                    .shadow(radius: 5)
                 }
+                .transition(.scale.combined(with: .opacity))
             }
         }
+        .animation(.spring(), value: activityManager.activityState)
     }
 }
 
-struct MetricItem: View {
-    let title: String
-    let value: String
-    let themeManager: ThemeManager
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(value)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(themeManager.primaryTextColor)
-            Text(title)
-                .font(.caption)
-                .foregroundColor(themeManager.secondaryTextColor)
-        }
-    }
-}
-
+// MARK: - Overlay
 struct ErrorOverlay: View {
     let message: String
     var body: some View {
@@ -177,52 +284,7 @@ struct ErrorOverlay: View {
                 .cornerRadius(10)
                 .padding(.bottom, 50)
         }
-    }
-}
-
-enum ActivityButtonState {
-    case start, pause, stop
-}
-
-struct ActivityButtonStyle: ViewModifier {
-    let state: ActivityButtonState
-    
-    func body(content: Content) -> some View {
-        content
-            .font(.headline)
-            .frame(width: 100, height: 100)
-            .background(backgroundColor)
-            .foregroundColor(foregroundColor)
-            .clipShape(Circle())
-            .overlay(Circle().stroke(lineWidth: 3).foregroundColor(foregroundColor))
-    }
-    
-    var backgroundColor: Color {
-        switch state {
-        case .start: return .green
-        case .pause: return .orange
-        case .stop: return .red
-        }
-    }
-    
-    var foregroundColor: Color {
-        switch state {
-        case .start, .pause, .stop: return .white
-        }
-    }
-}
-
-extension View {
-    func buttonStyle(state: ActivityButtonState) -> some View {
-        modifier(ActivityButtonStyle(state: state))
-    }
-}
-extension TimeInterval {
-    func stringFormat() -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute, .second]
-        formatter.unitsStyle = .positional
-        formatter.zeroFormattingBehavior = .pad
-        return formatter.string(from: self) ?? "00:00:00"
+        .transition(.move(edge: .bottom))
+        .zIndex(2)
     }
 }

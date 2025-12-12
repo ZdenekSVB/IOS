@@ -38,15 +38,31 @@ struct HomeView: View {
 
 struct HomeContentView: View {
     @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var userService: UserService
+    @EnvironmentObject var authViewModel: AuthViewModel
+    
+    @State private var lastActivity: RunActivity?
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 UserProgressCard()
-                LastRunCard()
+                
+                LastRunCard(lastActivity: lastActivity)
+                
                 QuestsCard()
             }
             .padding()
+        }
+        .onAppear {
+            fetchLastRun()
+        }
+    }
+    
+    private func fetchLastRun() {
+        guard let uid = authViewModel.currentUserUID else { return }
+        Task {
+            lastActivity = await userService.fetchLastActivity(userId: uid)
         }
     }
 }

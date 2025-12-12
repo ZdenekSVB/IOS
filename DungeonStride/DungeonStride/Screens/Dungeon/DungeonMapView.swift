@@ -39,8 +39,6 @@ struct DungeonMapView: View {
     }
 }
 
-// MARK: - Internal Components
-
 private struct UIKitMapWrapper: UIViewRepresentable {
     var viewModel: DungeonMapViewModel
     @Binding var showBottomSheet: Bool

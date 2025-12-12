@@ -13,7 +13,6 @@ import Charts
 
 final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
-    // MARK: - Publishers
     @Published var selectedActivity: ActivityType = .run
     @Published var activityState: ActivityState = .ready
     @Published var elapsedTime: TimeInterval = 0.0
@@ -24,11 +23,12 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
     @Published var currentRegion: MKCoordinateRegion?
     @Published var locationError: String?
     
-    // MARK: - Internal Properties
     private var locationManager = CLLocationManager()
     private var timer: AnyCancellable?
     private var previousLocation: CLLocation?
     private var paceHistory: [Double] = []
+    
+    private let firestore = Firestore.firestore()
     
     var paceHistoryForChart: [Double] {
         paceHistory.map { speedKmPerHour in
@@ -37,29 +37,21 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
     }
     
-    // MARK: - Initialization
     override init() {
         super.init()
-        setupLocationManager()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+        locationManager.allowsBackgroundLocationUpdates = true
+        locationManager.activityType = .fitness
+        
+        locationManager.requestWhenInUseAuthorization()
         requestHealthKitAuthorization()
     }
     
-    private func setupLocationManager() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
-        locationManager.activityType = .fitness
-        
-        // Uncomment if Background Modes are enabled in Capabilities
-        // locationManager.allowsBackgroundLocationUpdates = true
-        
-        locationManager.requestWhenInUseAuthorization()
-    }
-    
-    // MARK: - Activity Control
     func startActivity() {
-        if activityState == .active { return }
+        guard activityState != .active else { return }
         
-        if activityState == .ready || activityState == .finished {
+        if activityState != .paused {
             resetActivity()
         }
         
@@ -101,7 +93,18 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         paceHistory = []
     }
     
-    // MARK: - CoreLocation Delegate
+    func validateActivityType(for unit: DistanceUnit) {
+        if unit == .nautical {
+            if !ActivityType.waterActivities.contains(selectedActivity) {
+                selectedActivity = .swim
+            }
+        } else {
+            if !ActivityType.landActivities.contains(selectedActivity) {
+                selectedActivity = .run
+            }
+        }
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard activityState == .active, let newLocation = locations.last else { return }
         
@@ -123,6 +126,7 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
             if segmentDistance > 0 && timeElapsed > 0 {
                 let speedMetersPerSecond = segmentDistance / timeElapsed
                 let speedKmPerHour = speedMetersPerSecond * 3.6
+                
                 paceHistory.append(speedKmPerHour)
             } else {
                 paceHistory.append(0.0)
@@ -130,12 +134,16 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
         
         previousLocation = newLocation
+        
         updateMetrics()
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        if manager.authorizationStatus == .denied || manager.authorizationStatus == .restricted {
-            locationError = "Povolte prosím přístup k poloze v nastavení."
+        switch manager.authorizationStatus {
+        case .denied, .restricted:
+            locationError = "Please enable location access in settings."
+        default:
+            break
         }
     }
     
@@ -143,9 +151,7 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         print("Location Error: \(error.localizedDescription)")
     }
     
-    // MARK: - Metrics Logic
     private func startTimer() {
-        timer?.cancel()
         timer = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
@@ -168,16 +174,15 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         }
         
         if distance > 0 {
-            let metValue: Double = (selectedActivity == .run) ? 7.0 : 4.0
-            let userWeight: Double = 70.0 // Placeholder pro váhu uživatele
+            let userWeight: Double = 75.0
             let timeInHours = elapsedTime / 3600.0
-            kcalBurned = metValue * userWeight * timeInHours
+            
+            kcalBurned = selectedActivity.metValue * userWeight * timeInHours
         } else {
             kcalBurned = 0.0
         }
     }
     
-    // MARK: - HealthKit & Saving
     private func requestHealthKitAuthorization() {
         guard HKHealthStore.isHealthDataAvailable() else { return }
         let typesToShare: Set<HKSampleType> = []
@@ -202,22 +207,16 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
             "route_coordinates": routeData
         ]
         
-        let estimatedSteps = Int(totalKilometers * 1250)
-        
-        print("💾 Saving activity for user: \(userId)")
+        let estimatedSteps = selectedActivity == .run ? Int(totalKilometers * 1250) : 0
         
         Task {
-            do {
-                try await userService.saveRunActivity(
-                    userId: userId,
-                    activityData: activityRecord,
-                    distanceMeters: Int(distance),
-                    calories: Int(kcalBurned),
-                    steps: estimatedSteps
-                )
-            } catch {
-                print("❌ Failed to save activity: \(error.localizedDescription)")
-            }
+            try? await userService.saveRunActivity(
+                userId: userId,
+                activityData: activityRecord,
+                distanceMeters: Int(distance),
+                calories: Int(kcalBurned),
+                steps: estimatedSteps
+            )
         }
     }
 }

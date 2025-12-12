@@ -1,8 +1,6 @@
 //
-//  SettingsSection.swift
+//  SettingsComponents.swift
 //  DungeonStride
-//
-//  Created by Zdeněk Svoboda on 12.12.2025.
 //
 
 import SwiftUI

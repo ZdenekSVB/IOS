@@ -59,23 +59,57 @@ class UserService: ObservableObject {
 
 // MARK: - Activity Logic
 extension UserService {
+    
     func saveRunActivity(userId: String, activityData: [String: Any], distanceMeters: Int, calories: Int, steps: Int) async throws {
         let userRef = db.collection("users").document(userId)
         
         try await userRef.collection("activities").addDocument(data: activityData)
         
-        if var user = currentUser {
-            let xpEarned = distanceMeters / 100
-            let coinsEarned = distanceMeters / 1000
+        try await recalculateUserStats(userId: userId, currentNewSteps: steps, currentNewDistance: distanceMeters, currentNewCalories: calories)
+    }
+    
+    func fetchLastActivity(userId: String) async -> RunActivity? {
+        do {
+            let snapshot = try await db.collection("users").document(userId)
+                .collection("activities")
+                .order(by: "timestamp", descending: true)
+                .limit(to: 1)
+                .getDocuments()
             
-            user.addXP(xpEarned)
-            user.addCoins(coinsEarned)
-            user.updateDailyProgress(steps: steps, distance: distanceMeters, calories: calories)
-            
-            try await updateUser(user)
-            self.currentUser = user
-            print("✅ Activity saved and user stats updated.")
+            return snapshot.documents.compactMap { try? $0.data(as: RunActivity.self) }.first
+        } catch {
+            print("Failed to fetch last activity: \(error.localizedDescription)")
+            return nil
         }
+    }
+    
+    private func recalculateUserStats(userId: String, currentNewSteps: Int, currentNewDistance: Int, currentNewCalories: Int) async throws {
+        guard var user = currentUser else { return }
+        
+        let snapshot = try await db.collection("users").document(userId).collection("activities").getDocuments()
+        let activities = snapshot.documents.compactMap { try? $0.data(as: RunActivity.self) }
+        
+        let totalRuns = activities.count
+        let totalDistanceKm = activities.reduce(0) { $0 + $1.distanceKm }
+        let totalCalories = activities.reduce(0) { $0 + $1.calories }
+        
+        user.activityStats.totalRuns = totalRuns
+        user.activityStats.totalDistance = Int(totalDistanceKm * 1000)
+        user.activityStats.totalCaloriesBurned = totalCalories
+        user.activityStats.totalSteps += currentNewSteps
+        
+        user.dailyActivity.dailySteps += currentNewSteps
+        user.dailyActivity.dailyDistance += currentNewDistance
+        user.dailyActivity.dailyCaloriesBurned += currentNewCalories
+        
+        let xpEarned = currentNewDistance / 100
+        let coinsEarned = currentNewDistance / 1000
+        
+        user.addXP(xpEarned)
+        user.addCoins(coinsEarned)
+        
+        try await updateUser(user)
+        self.currentUser = user
     }
     
     func updateLastActive(uid: String) async throws {

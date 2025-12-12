@@ -29,17 +29,3 @@ struct TabBarButton: View {
         }
     }
 }
-
-struct TabBarButton_Previews: PreviewProvider {
-    static var previews: some View {
-        TabBarButton(
-            icon: "house.fill",
-            title: "Home",
-            isSelected: true,
-            themeManager: ThemeManager(),
-            action: {}
-        )
-        .previewLayout(.sizeThatFits)
-        .padding()
-    }
-}
