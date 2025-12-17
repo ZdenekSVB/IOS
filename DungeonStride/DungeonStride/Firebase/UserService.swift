@@ -70,18 +70,44 @@ extension UserService {
     
     func fetchLastActivity(userId: String) async -> RunActivity? {
         do {
-            let snapshot = try await db.collection("users").document(userId)
+            let snapshot = try await db
+                .collection("users")
+                .document(userId)
                 .collection("activities")
                 .order(by: "timestamp", descending: true)
                 .limit(to: 1)
                 .getDocuments()
             
-            return snapshot.documents.compactMap { try? $0.data(as: RunActivity.self) }.first
+            guard let doc = snapshot.documents.first else { return nil }
+            let data = doc.data()
+            
+            guard
+                let type = data["type"] as? String,
+                let distanceKm = data["distance_km"] as? Double,
+                let duration = data["duration"] as? Double,
+                let calories = data["calories_kcal"] as? Double,
+                let pace = data["avg_pace_min_km"] as? Double,
+                let timestamp = (data["timestamp"] as? Timestamp)?.dateValue()
+            else {
+                return nil
+            }
+            
+            return RunActivity(
+                id: doc.documentID,
+                type: type,
+                distanceKm: distanceKm,
+                duration: duration,
+                calories: Int(calories),
+                pace: pace,
+                timestamp: timestamp
+            )
+            
         } catch {
-            print("Failed to fetch last activity: \(error.localizedDescription)")
+            print("Failed to fetch last activity:", error)
             return nil
         }
     }
+
     
     private func recalculateUserStats(userId: String, currentNewSteps: Int, currentNewDistance: Int, currentNewCalories: Int) async throws {
         guard var user = currentUser else { return }

@@ -222,9 +222,12 @@ struct QuestsCard: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(questService.dailyQuests) { quest in
-                        QuestRow(quest: quest, onComplete: {
-                            Task { await completeQuest(quest.id) }
-                        })
+                        QuestRow(
+                            quest: quest,
+                            onComplete: {
+                                Task { await completeQuest(quest.id) }
+                            }
+                        )
                     }
                 }
             }
@@ -232,14 +235,15 @@ struct QuestsCard: View {
         .padding()
         .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
-        .onAppear { loadQuests() }
+        .onChange(of: userService.currentUser?.uid) { _ in
+            loadQuests()
+        }
     }
     
     private func loadQuests() {
+        guard let userId = userService.currentUser?.uid else { return }
         Task {
-            if let userId = userService.currentUser?.uid {
-                try? await questService.loadDailyQuests(for: userId)
-            }
+            try? await questService.loadDailyQuests(for: userId)
         }
     }
     
@@ -256,7 +260,7 @@ struct QuestsCard: View {
                 try await userService.updateUser(user)
             }
         } catch {
-            print("Error completing quest: \(error)")
+            print("Error completing quest:", error)
         }
     }
 }

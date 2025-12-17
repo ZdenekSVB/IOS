@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var themeManager: ThemeManager
     @State private var selectedTab = 2
+    @State private var homeReloadID = UUID()
     
     var body: some View {
         NavigationView {
@@ -21,14 +22,23 @@ struct HomeView: View {
                         switch selectedTab {
                         case 0: DungeonMapView()
                         case 1: ActivityView()
-                        case 2: HomeContentView()
+                        case 2:
+                            HomeContentView()
+                                .id(homeReloadID)
                         case 3: ShopView()
                         case 4: ProfileView()
-                        default: HomeContentView()
+                        default:
+                            HomeContentView()
+                                .id(homeReloadID)
                         }
                     }
                     
                     CustomTabBar(selectedTab: $selectedTab)
+                }
+            }
+            .onChange(of: selectedTab) { newValue in
+                if newValue == 2 {
+                    homeReloadID = UUID()
                 }
             }
             .navigationBarHidden(true)
@@ -47,22 +57,18 @@ struct HomeContentView: View {
         ScrollView {
             VStack(spacing: 20) {
                 UserProgressCard()
-                
                 LastRunCard(lastActivity: lastActivity)
-                
                 QuestsCard()
             }
             .padding()
         }
-        .onAppear {
-            fetchLastRun()
+        .task {
+            await loadData()
         }
     }
     
-    private func fetchLastRun() {
+    private func loadData() async {
         guard let uid = authViewModel.currentUserUID else { return }
-        Task {
-            lastActivity = await userService.fetchLastActivity(userId: uid)
-        }
+        lastActivity = await userService.fetchLastActivity(userId: uid)
     }
 }
