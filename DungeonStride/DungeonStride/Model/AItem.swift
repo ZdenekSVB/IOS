@@ -16,24 +16,29 @@ struct AItem: Codable, Identifiable {
     let description: String
     let iconName: String
     let itemType: String
-    let rarity: Rarity
+    let rarity: Rarity?
     let baseStats: ItemStats
     let prerequisite: String?
+    let costs: CostStats
+    
+    private var effectiveMultiplier: Double {
+        return rarity?.multiplier ?? 1
+        }
     
     var finalSellPrice: Int? {
-        guard let basePrice = baseStats.sellPrice else { return nil }
-        return Int(Double(basePrice) * rarity.multiplier)
-    }
+            guard let basePrice = baseStats.sellPrice else { return nil }
+            return Int(Double(basePrice) * effectiveMultiplier)
+        }
     
     var finalAttack: Int? {
-        guard let baseAttack = baseStats.attack else { return nil }
-        return Int(Double(baseAttack) * rarity.multiplier)
-    }
+           guard let baseAttack = baseStats.attack else { return nil }
+           return Int(Double(baseAttack) * effectiveMultiplier)
+       }
     
     var finalDefense: Int? {
-        guard let baseDefense = baseStats.defense else { return nil }
-        return Int(Double(baseDefense) * rarity.multiplier)
-    }
+            guard let baseDefense = baseStats.defense else { return nil }
+            return Int(Double(baseDefense) * effectiveMultiplier)
+        }
     
     struct ItemStats: Codable {
         let attack: Int?
@@ -41,6 +46,13 @@ struct AItem: Codable, Identifiable {
         let healthBonus: Int?
         let sellPrice: Int?
     }
+    
+    struct CostStats: Codable {
+           let practiceType: String?
+           let requiredPractice: Int?
+           let energyCost: Int?
+           let manaCost: Int?
+       }
 }
 
 enum Rarity: String, Codable, CaseIterable {

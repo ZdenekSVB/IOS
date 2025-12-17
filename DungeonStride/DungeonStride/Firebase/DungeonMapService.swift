@@ -12,11 +12,11 @@ class DungeonMapService: ObservableObject {
     private let db = Firestore.firestore()
     private let collectionPath = "dungeon_locations" // Doplněn název kolekce
     
-    func fetchLocations() async throws -> [DungeonMapLocation] {
+    func fetchLocations() async throws -> [GameMapLocation] {
         let snapshot = try await db.collection(collectionPath).getDocuments()
         
         return snapshot.documents.compactMap { document in
-            try? document.data(as: DungeonMapLocation.self)
+            try? document.data(as: GameMapLocation.self)
         }
     }
 }
