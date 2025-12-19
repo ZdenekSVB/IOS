@@ -32,35 +32,35 @@
   
   
   {
-    "name": "Basic Helmet", "description": "Protects against minor head injuries.", "iconName": "icon_helmet_common", "itemType": "Armor", "rarity": "Common", "prerequisite": null, 
+    "name": "Basic Helmet", "description": "Protects against minor head injuries.", "iconName": "icon_helmet_common", "itemType": "Head", "rarity": "Common", "prerequisite": null,
     "baseStats": {"attack": null, "defense": 5, "healthBonus": 5, "sellPrice": 30},
     "costs": {"practiceType": "PushUp", "requiredPractice": 2, "energyCost": 0, "manaCost": 0}
   },
   {
-    "name": "Gloves of Strength", "description": "A slight bonus to physical attack.", "iconName": "icon_gloves_uncommon", "itemType": "Armor", "rarity": "Uncommon", "prerequisite": null, 
+    "name": "Gloves of Strength", "description": "A slight bonus to physical attack.", "iconName": "icon_gloves_uncommon", "itemType": "Arms", "rarity": "Uncommon", "prerequisite": null,
     "baseStats": {"attack": 5, "defense": 7, "healthBonus": 0, "sellPrice": 150},
     "costs": {"practiceType": "PushUp", "requiredPractice": 3, "energyCost": 0, "manaCost": 0}
   },
   {
-    "name": "Chainmail Armor", "description": "Good protection against slashing weapons.", "iconName": "icon_chain_rare", "itemType": "Armor", "rarity": "Rare", "prerequisite": "Strength 10+", 
+    "name": "Chainmail Armor", "description": "Good protection against slashing weapons.", "iconName": "icon_chain_rare", "itemType": "Chest", "rarity": "Rare", "prerequisite": "Strength 10+",
     "baseStats": {"attack": null, "defense": 18, "healthBonus": 15, "sellPrice": 400},
     "costs": {"practiceType": "PushUp", "requiredPractice": 4, "energyCost": 0, "manaCost": 0}
   },
   {
-    "name": "Mantle of Resilience", "description": "Protects against elemental damage.", "iconName": "icon_cloak_epic", "itemType": "Armor", "rarity": "Epic", "prerequisite": "Intelligence 20+", 
+    "name": "Mantle of Resilience", "description": "Protects against elemental damage.", "iconName": "icon_cloak_epic", "itemType": "Chest", "rarity": "Epic", "prerequisite": "Intelligence 20+",
     "baseStats": {"attack": null, "defense": 25, "healthBonus": 25, "sellPrice": 1800},
     "costs": {"practiceType": "PushUp", "requiredPractice": 5, "energyCost": 0, "manaCost": 0}
   },
   {
-    "name": "Golden Shield", "description": "Almost impenetrable, very heavy.", "iconName": "icon_shield_legendary", "itemType": "Armor", "rarity": "Legendary", "prerequisite": "Strength 30+", 
+    "name": "Golden Shield", "description": "Almost impenetrable, very heavy.", "iconName": "icon_shield_legendary", "itemType": "Shield", "rarity": "Legendary", "prerequisite": "Strength 30+",
     "baseStats": {"attack": null, "defense": 45, "healthBonus": 45, "sellPrice": 6000},
     "costs": {"practiceType": "PushUp", "requiredPractice": 6, "energyCost": 0, "manaCost": 0}
   },
-  { "name": "Leather Boots", "description": "Basic footwear for adventurers.", "iconName": "icon_boots_uncommon", "itemType": "Armor", "rarity": "Uncommon", "prerequisite": null, "baseStats": {"attack": null, "defense": 8, "healthBonus": 5, "sellPrice": 100}, "costs": {"practiceType": "PushUp", "requiredPractice": 3, "energyCost": 0, "manaCost": 0} },
-  { "name": "Belt of Knowledge", "description": "Gives a bonus to magic.", "iconName": "icon_belt_rare", "itemType": "Armor", "rarity": "Rare", "prerequisite": "Intelligence 15+", "baseStats": {"attack": 10, "defense": 5, "healthBonus": 0, "sellPrice": 350}, "costs": {"practiceType": "PushUp", "requiredPractice": 4, "energyCost": 0, "manaCost": 0} },
-  { "name": "Crown of Enlightenment", "description": "Provides protection from dark magic.", "iconName": "icon_crown_artifact", "itemType": "Armor", "rarity": "Artifact", "prerequisite": "Intelligence 40+", "baseStats": {"attack": null, "defense": 60, "healthBonus": 60, "sellPrice": 0}, "costs": {"practiceType": "PushUp", "requiredPractice": 8, "energyCost": 0, "manaCost": 0} },
-  { "name": "Cotton Cloak", "description": "Very weak protection, cheap.", "iconName": "icon_robe_common", "itemType": "Armor", "rarity": "Common", "prerequisite": null, "baseStats": {"attack": null, "defense": 3, "healthBonus": 2, "sellPrice": 20}, "costs": {"practiceType": "PushUp", "requiredPractice": 2, "energyCost": 0, "manaCost": 0} },
-  { "name": "Nature's Hide", "description": "Special hide from tree creatures.", "iconName": "icon_nature_legendary", "itemType": "Armor", "rarity": "Legendary", "prerequisite": "Dexterity 30+", "baseStats": {"attack": null, "defense": 35, "healthBonus": 55, "sellPrice": 4500}, "costs": {"practiceType": "PushUp", "requiredPractice": 7, "energyCost": 0, "manaCost": 0} },
+  { "name": "Leather Boots", "description": "Basic footwear for adventurers.", "iconName": "icon_boots_uncommon", "itemType": "Feet", "rarity": "Uncommon", "prerequisite": null, "baseStats": {"attack": null, "defense": 8, "healthBonus": 5, "sellPrice": 100}, "costs": {"practiceType": "PushUp", "requiredPractice": 3, "energyCost": 0, "manaCost": 0} },
+  { "name": "Belt of Knowledge", "description": "Gives a bonus to magic.", "iconName": "icon_belt_rare", "itemType": "Legs", "rarity": "Rare", "prerequisite": "Intelligence 15+", "baseStats": {"attack": 10, "defense": 5, "healthBonus": 0, "sellPrice": 350}, "costs": {"practiceType": "PushUp", "requiredPractice": 4, "energyCost": 0, "manaCost": 0} },
+  { "name": "Crown of Enlightenment", "description": "Provides protection from dark magic.", "iconName": "icon_crown_artifact", "itemType": "Head", "rarity": "Artifact", "prerequisite": "Intelligence 40+", "baseStats": {"attack": null, "defense": 60, "healthBonus": 60, "sellPrice": 0}, "costs": {"practiceType": "PushUp", "requiredPractice": 8, "energyCost": 0, "manaCost": 0} },
+  { "name": "Cotton Cloak", "description": "Very weak protection, cheap.", "iconName": "icon_robe_common", "itemType": "Chest", "rarity": "Common", "prerequisite": null, "baseStats": {"attack": null, "defense": 3, "healthBonus": 2, "sellPrice": 20}, "costs": {"practiceType": "PushUp", "requiredPractice": 2, "energyCost": 0, "manaCost": 0} },
+  { "name": "Nature's Hide", "description": "Special hide from tree creatures.", "iconName": "icon_nature_legendary", "itemType": "Legs", "rarity": "Legendary", "prerequisite": "Dexterity 30+", "baseStats": {"attack": null, "defense": 35, "healthBonus": 55, "sellPrice": 4500}, "costs": {"practiceType": "PushUp", "requiredPractice": 7, "energyCost": 0, "manaCost": 0} },
 
    {
     "name": "Fireball", "description": "Hits a single enemy with massive damage.", "iconName": "icon_spell_fireball", "itemType": "Spell", "rarity": "Epic", "prerequisite": "Adept Spellcaster", 
