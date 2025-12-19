@@ -58,20 +58,18 @@ class UserService: ObservableObject {
     
     // MARK: - Daily Reset Logic
     
-    func checkAndResetDailyStats(userId: String) async throws {
-        // 1. Načteme aktuální stav uživatele
+    func checkAndResetDailyStats(userId: String) async throws -> Bool {
         let user = try await fetchUser(uid: userId)
         var updatedUser = user
         
-        // 2. Zkontrolujeme, zda poslední aktivita byla "dnes"
         if !Calendar.current.isDateInToday(user.lastActiveAt) {
             print("🔄 Resetting daily stats for user: \(userId)")
             updatedUser.resetDaily()
-            
-            // 3. Aktualizujeme uživatele v DB
             try await updateUser(updatedUser)
+            return true
         } else {
             print("✅ Daily stats are current.")
+            return false
         }
     }
 }
@@ -79,14 +77,15 @@ class UserService: ObservableObject {
 // MARK: - Activity Logic
 extension UserService {
     
-    func saveRunActivity(userId: String, activityData: [String: Any], distanceMeters: Int, calories: Int, steps: Int) async throws {
+    /// Uloží aktivitu a vrátí aktualizovaného uživatele (pro potřeby questů)
+    func saveRunActivity(userId: String, activityData: [String: Any], distanceMeters: Int, calories: Int, steps: Int) async throws -> User? {
         let userRef = db.collection("users").document(userId)
         
-        // 1. Uložit záznam aktivity do sub-kolekce
+        // 1. Uložit záznam aktivity
         try await userRef.collection("activities").addDocument(data: activityData)
         
-        // 2. Aktualizovat statistiky uživatele (Total a Daily)
-        try await updateStatsAfterActivity(
+        // 2. Aktualizovat statistiky
+        return try await updateStatsAfterActivity(
             userId: userId,
             steps: steps,
             distance: distanceMeters,
@@ -114,9 +113,7 @@ extension UserService {
                 let calories = data["calories_kcal"] as? Double,
                 let pace = data["avg_pace_min_km"] as? Double,
                 let timestamp = (data["timestamp"] as? Timestamp)?.dateValue()
-            else {
-                return nil
-            }
+            else { return nil }
             
             return RunActivity(
                 id: doc.documentID,
@@ -134,20 +131,15 @@ extension UserService {
         }
     }
 
-    private func updateStatsAfterActivity(userId: String, steps: Int, distance: Int, calories: Int) async throws {
-        // FIX: Správná deklarace proměnné 'user' před použitím
+    private func updateStatsAfterActivity(userId: String, steps: Int, distance: Int, calories: Int) async throws -> User {
         var user: User
         
-        // Pokud máme uživatele v paměti, použijeme ho. Jinak ho stáhneme.
         if let current = currentUser {
             user = current
         } else {
             user = try await fetchUser(uid: userId)
         }
         
-        
-
-        // Nyní máme jistotu, že 'user' existuje a můžeme ho upravovat
         user.updateActivity(
             steps: steps,
             distance: distance,
@@ -155,15 +147,14 @@ extension UserService {
             isRun: true
         )
         
-        // Výpočet odměn
         let xpEarned = distance / 100
         let coinsEarned = distance / 1000
         
         user.addXP(xpEarned)
         user.addCoins(coinsEarned)
         
-        // Uložení do Firebase
         try await updateUser(user)
+        return user
     }
     
     func updateLastActive(uid: String) async throws {
@@ -181,84 +172,36 @@ extension UserService {
     }
 }
 
-// MARK: - Settings & Customization
+// MARK: - Settings & Listeners
 extension UserService {
     func updateSelectedAvatar(uid: String, avatarName: String) async throws {
-        let updateData: [String: Any] = [
-            "selectedAvatar": avatarName,
-            "updatedAt": FieldValue.serverTimestamp()
-        ]
-        
+        let updateData: [String: Any] = [ "selectedAvatar": avatarName, "updatedAt": FieldValue.serverTimestamp() ]
         try await db.collection("users").document(uid).updateData(updateData)
-        
-        if var user = currentUser {
-            user.selectedAvatar = avatarName
-            user.updatedAt = Date()
-            currentUser = user
-        }
+        if var user = currentUser { user.selectedAvatar = avatarName; user.updatedAt = Date(); currentUser = user }
     }
     
     func updateDarkMode(uid: String, isDarkMode: Bool) async throws {
-        let updateData: [String: Any] = [
-            "settings.isDarkMode": isDarkMode,
-            "updatedAt": FieldValue.serverTimestamp()
-        ]
-        
+        let updateData: [String: Any] = [ "settings.isDarkMode": isDarkMode, "updatedAt": FieldValue.serverTimestamp() ]
         try await db.collection("users").document(uid).updateData(updateData)
-        
-        if var user = currentUser {
-            user.settings.isDarkMode = isDarkMode
-            user.updatedAt = Date()
-            currentUser = user
-        }
+        if var user = currentUser { user.settings.isDarkMode = isDarkMode; user.updatedAt = Date(); currentUser = user }
     }
     
     func updateUserSettings(uid: String, settings: UserSettings) async throws {
-        let updateData: [String: Any] = [
-            "settings": settings.toFirestore(),
-            "updatedAt": FieldValue.serverTimestamp()
-        ]
-        
+        let updateData: [String: Any] = [ "settings": settings.toFirestore(), "updatedAt": FieldValue.serverTimestamp() ]
         try await db.collection("users").document(uid).updateData(updateData)
-        
-        if var user = currentUser {
-            user.settings = settings
-            user.updatedAt = Date()
-            currentUser = user
-        }
+        if var user = currentUser { user.settings = settings; user.updatedAt = Date(); currentUser = user }
     }
-}
-
-// MARK: - Listeners
-extension UserService {
+    
     func startListeningForUserUpdates(uid: String) {
         userListener?.remove()
-        
         userListener = db.collection("users").document(uid).addSnapshotListener { [weak self] snapshot, error in
-            guard let self = self else { return }
-            
-            if let error = error {
-                print("❌ Error listening to user updates: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
-                return
-            }
-            
+            guard let self = self, let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else { return }
             Task { @MainActor in
                 if let user = User.fromFirestore(documentId: snapshot.documentID, data: data) {
-                    let oldDarkMode = self.currentUser?.settings.isDarkMode
-                    let newDarkMode = user.settings.isDarkMode
-                    
+                    let oldDM = self.currentUser?.settings.isDarkMode
                     self.currentUser = user
-                    
-                    if oldDarkMode != newDarkMode {
-                        NotificationCenter.default.post(
-                            name: .darkModeChanged,
-                            object: nil,
-                            userInfo: ["isDarkMode": newDarkMode]
-                        )
+                    if oldDM != user.settings.isDarkMode {
+                        NotificationCenter.default.post(name: .darkModeChanged, object: nil, userInfo: ["isDarkMode": user.settings.isDarkMode])
                     }
                 }
             }
@@ -266,10 +209,7 @@ extension UserService {
     }
     
     func stopListeningForUserUpdates() {
-        Task { @MainActor in
-            userListener?.remove()
-            userListener = nil
-        }
+        Task { @MainActor in userListener?.remove(); userListener = nil }
     }
 }
 

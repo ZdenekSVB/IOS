@@ -8,15 +8,14 @@ import CoreLocation
 
 struct ActivityView: View {
     
-    @StateObject private var activityManager: ActivityManager
+    // Používáme standardní StateObject pro instanci
+    @StateObject private var activityManager = ActivityManager()
     
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var userService: UserService
-    
-    init() {
-        _activityManager = StateObject(wrappedValue: DIContainer.shared.resolve())
-    }
+    // Přidáno QuestService, aby bylo dostupné pro ActivityActionButtons
+    @EnvironmentObject var questService: QuestService
     
     var body: some View {
         let currentUnits = userService.currentUser?.settings.units ?? .metric

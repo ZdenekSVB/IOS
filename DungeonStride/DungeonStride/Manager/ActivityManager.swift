@@ -69,13 +69,14 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         timer?.cancel()
     }
     
-    func finishActivity(userId: String?, userService: UserService?) {
+    // Zde přijímáme questService
+    func finishActivity(userId: String?, userService: UserService?, questService: QuestService?) {
         activityState = .finished
         locationManager.stopUpdatingLocation()
         timer?.cancel()
         
         if let uid = userId, let service = userService {
-            saveActivityData(userId: uid, userService: service)
+            saveActivityData(userId: uid, userService: service, questService: questService)
         }
     }
     
@@ -190,7 +191,7 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         HKHealthStore().requestAuthorization(toShare: typesToShare, read: typesToRead) { _, _ in }
     }
     
-    private func saveActivityData(userId: String, userService: UserService) {
+    private func saveActivityData(userId: String, userService: UserService, questService: QuestService?) {
         let totalKilometers = distance / 1000.0
         let avgPaceMinPerKm = totalKilometers > 0 ? (elapsedTime / 60.0) / totalKilometers : 0.0
         
@@ -210,13 +211,17 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
         let estimatedSteps = selectedActivity == .run ? Int(totalKilometers * 1250) : 0
         
         Task {
-            try? await userService.saveRunActivity(
+            // 1. Uložit aktivitu a získat aktualizovaného uživatele (s novým dailyActivity)
+            if let updatedUser = try? await userService.saveRunActivity(
                 userId: userId,
                 activityData: activityRecord,
                 distanceMeters: Int(distance),
                 calories: Int(kcalBurned),
                 steps: estimatedSteps
-            )
+            ) {
+                // 2. Aktualizovat questy podle nových denních statistik z Firestore/User modelu
+                await questService?.updateQuestsFromDailyStats(user: updatedUser)
+            }
         }
     }
 }

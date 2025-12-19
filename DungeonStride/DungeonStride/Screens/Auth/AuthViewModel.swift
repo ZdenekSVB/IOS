@@ -15,6 +15,7 @@ class AuthViewModel: ObservableObject {
     
     private let db = Firestore.firestore()
     private let userService = UserService()
+    private var questService: QuestService?
     private var themeManager: ThemeManager?
     
     @Published var email = ""
@@ -37,6 +38,10 @@ class AuthViewModel: ObservableObject {
     
     func setupThemeManager(_ themeManager: ThemeManager) {
         self.themeManager = themeManager
+    }
+    
+    func setupQuestService(_ questService: QuestService) {
+        self.questService = questService
     }
     
     func login() {
@@ -147,13 +152,19 @@ class AuthViewModel: ObservableObject {
             // 1. Načíst data uživatele
             await loadUserData(uid: user.uid)
             
-            // 2. Zkontrolovat a případně vynulovat Daily Activity (pokud je nový den)
-            try? await userService.checkAndResetDailyStats(userId: user.uid)
+            // 2. Zkontrolovat reset dne (vrací Bool)
+            let isNewDay = (try? await userService.checkAndResetDailyStats(userId: user.uid)) ?? false
             
-            // 3. Přiřadit Daily Quests
-            await assignDailyQuestsIfNeeded(for: user.uid)
+            // 3. Spravovat Questy
+            if isNewDay {
+                // Je nový den -> SMAZAT staré a STÁHNOUT nové šablony z DB
+                try? await questService?.regenerateDailyQuests(for: user.uid)
+            } else {
+                // Stejný den -> Jen načíst existující (nebo stáhnout, pokud chybí)
+                try? await questService?.loadDailyQuests(for: user.uid)
+            }
             
-            // 4. Aktualizovat Last Login (lastActiveAt)
+            // 4. Update Last Active
             await updateLastLogin(uid: user.uid)
         }
     }
@@ -180,8 +191,10 @@ class AuthViewModel: ObservableObject {
                 let googleUsername = user.displayName ?? user.email?.components(separatedBy: "@").first ?? "GoogleUser"
                 let _ = try await userService.createUser(uid: user.uid, email: user.email ?? "", username: googleUsername)
             } else {
-                // Check reset daily i pro Google Usera
-                try? await userService.checkAndResetDailyStats(userId: user.uid)
+                let isNewDay = (try? await userService.checkAndResetDailyStats(userId: user.uid)) ?? false
+                if isNewDay {
+                    try? await questService?.regenerateDailyQuests(for: user.uid)
+                }
                 try await userService.updateLastActive(uid: user.uid)
             }
             isLoading = false
@@ -213,47 +226,6 @@ class AuthViewModel: ObservableObject {
             try await userService.updateLastActive(uid: uid)
         } catch {
             print("Failed to update last login: \(error.localizedDescription)")
-        }
-    }
-    
-    private func assignDailyQuestsIfNeeded(for uid: String) async {
-        let userRef = db.collection("users").document(uid)
-        
-        do {
-            let userDoc = try await userRef.getDocument()
-            let lastDate = (userDoc.data()?["lastDailyQuestDate"] as? Timestamp)?.dateValue()
-            let now = Date()
-            
-            if let lastDate = lastDate, Calendar.current.isDate(lastDate, inSameDayAs: now) {
-                return
-            }
-            
-            let allQuestsSnapshot = try await db.collection("quests").getDocuments()
-            let allQuests = allQuestsSnapshot.documents.compactMap { $0.data() }
-            
-            guard allQuests.count >= 3 else { return }
-            
-            let shuffled = allQuests.shuffled().prefix(3)
-            let dailyQuestsRef = userRef.collection("dailyQuests")
-            
-            let oldDocs = try await dailyQuestsRef.getDocuments()
-            for doc in oldDocs.documents {
-                try await dailyQuestsRef.document(doc.documentID).delete()
-            }
-            
-            for var questData in shuffled {
-                questData["isCompleted"] = false
-                questData["progress"] = 0
-                questData["assignedAt"] = FieldValue.serverTimestamp()
-                
-                let id = questData["id"] as? String ?? UUID().uuidString
-                try await dailyQuestsRef.document(id).setData(questData)
-            }
-            
-            try await userRef.updateData(["lastDailyQuestDate": FieldValue.serverTimestamp()])
-            
-        } catch {
-            print(error.localizedDescription)
         }
     }
 }

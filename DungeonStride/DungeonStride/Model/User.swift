@@ -177,6 +177,7 @@ struct User: Identifiable, Codable {
         return user
     }
 }
+
 //
 // MARK: - Supporting Models
 //

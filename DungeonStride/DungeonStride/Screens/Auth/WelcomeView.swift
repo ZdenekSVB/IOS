@@ -11,8 +11,6 @@ struct WelcomeView: View {
     
     @State private var showLogin = false
     @State private var showRegister = false
-    @State private var debugClickCount = 0
-    @State private var showDebugButton = false
     
     var body: some View {
         NavigationView {
@@ -48,8 +46,6 @@ struct WelcomeView: View {
                     }
                     
                     Spacer()
-                    
-                    debugSection
                 }
             }
             .navigationBarHidden(true)
@@ -61,45 +57,5 @@ struct WelcomeView: View {
                 })
             }
         }
-    }
-    
-    private var debugSection: some View {
-        VStack {
-            Text("Embark on your adventure")
-                .font(.caption)
-                .foregroundColor(Color("Paleta4"))
-                .padding(.bottom, 10)
-                .onTapGesture {
-                    debugClickCount += 1
-                    if debugClickCount >= 5 {
-                        withAnimation { showDebugButton = true }
-                    }
-                }
-            
-            if showDebugButton {
-                Button {
-                    Task { await viewModel.uploadQuestTemplates() }
-                } label: {
-                    HStack {
-                        Image(systemName: "arrow.up.doc")
-                        Text("Upload Quests")
-                    }
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.red)
-                    .cornerRadius(10)
-                    .padding(.horizontal, 40)
-                }
-                
-                if let message = viewModel.uploadMessage {
-                    Text(message)
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(.top, 5)
-                }
-            }
-        }
-        .padding(.bottom, 20)
     }
 }

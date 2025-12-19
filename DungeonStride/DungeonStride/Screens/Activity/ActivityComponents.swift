@@ -19,7 +19,7 @@ struct TerrainToggleButton: View {
             Image(systemName: isNautical ? "sailboat.fill" : "figure.run")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.white)
-                .frame(width: 40, height: 32) // Stejná výška jako segment picker
+                .frame(width: 40, height: 32)
                 .background(isNautical ? Color.blue : Color.green)
                 .cornerRadius(8)
         }
@@ -209,6 +209,8 @@ struct ActivityActionButtons: View {
     @ObservedObject var activityManager: ActivityManager
     var authViewModel: AuthViewModel
     var userService: UserService
+    // Změna: Přidána environment object pro QuestService
+    @EnvironmentObject var questService: QuestService
     
     var body: some View {
         HStack(spacing: 20) {
@@ -234,7 +236,8 @@ struct ActivityActionButtons: View {
                 Button {
                     activityManager.finishActivity(
                         userId: authViewModel.currentUserUID,
-                        userService: userService
+                        userService: userService,
+                        questService: questService // Předáváme službu
                     )
                 } label: {
                     Image(systemName: "stop.fill")
