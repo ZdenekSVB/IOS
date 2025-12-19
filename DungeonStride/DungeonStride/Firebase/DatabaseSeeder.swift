@@ -59,4 +59,37 @@ class DatabaseSeeder {
             print(error)
         }
     }
+    
+    func giveStarterGear(to userId: String) {
+        let db = Firestore.firestore()
+        
+        // 1. Přidat itemy do batohu (Inventory Subcollection)
+        let inventoryRef = db.collection("users").document(userId).collection("inventory")
+        
+        let starterItems = [
+            ["itemId": "knights_sword", "quantity": 1],
+            ["itemId": "basic_helmet", "quantity": 1],
+            ["itemId": "health_potion", "quantity": 3]
+        ]
+        
+        for item in starterItems {
+            inventoryRef.addDocument(data: item)
+        }
+        
+        // 2. Nastavit equip (User Document)
+        // Tady předstíráme, že už má meč v ruce
+        let equippedData: [String: String] = [
+            "Zbraň": "knights_sword" // Klíč musí sedět s EquipSlot.mainHand.rawValue
+        ]
+        
+        db.collection("users").document(userId).updateData([
+            "equippedIds": equippedData
+        ]) { err in
+            if let err = err {
+                print("Chyba: \(err)")
+            } else {
+                print("Starter pack doručen!")
+            }
+        }
+    }
 }
