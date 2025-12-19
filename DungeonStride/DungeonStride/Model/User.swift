@@ -34,6 +34,8 @@ struct User: Codable, Identifiable {
     var updatedAt: Date
     var lastActiveAt: Date
     
+    var equippedIds: [String : String]
+    
     var level: Int {
         return (totalXP / 100) + 1
     }
@@ -69,7 +71,8 @@ struct User: Codable, Identifiable {
         completedQuests: [Quest] = [],
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
-        lastActiveAt: Date = Date()
+        lastActiveAt: Date = Date(),
+        equippedIds: [String: String] = [:]
     ) {
         self.id = id
         self.email = email
@@ -89,6 +92,7 @@ struct User: Codable, Identifiable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.lastActiveAt = lastActiveAt
+        self.equippedIds = equippedIds
     }
     
     mutating func addXP(_ amount: Int) {
@@ -174,7 +178,8 @@ extension User {
             "completedQuests": completedQuests.map { $0.toFirestore() },
             "createdAt": Timestamp(date: createdAt),
             "updatedAt": Timestamp(date: updatedAt),
-            "lastActiveAt": Timestamp(date: lastActiveAt)
+            "lastActiveAt": Timestamp(date: lastActiveAt),
+            "equippedIds": equippedIds
         ]
     }
     
@@ -239,6 +244,8 @@ extension User {
         let updatedAt = (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date()
         let lastActiveAt = (data["lastActiveAt"] as? Timestamp)?.dateValue() ?? Date()
         
+        let equippedIds = data["equippedIds"] as? [String: String] ?? [:]
+        
         return User(
             id: documentId,
             email: email,
@@ -257,7 +264,8 @@ extension User {
             completedQuests: completedQuests,
             createdAt: createdAt,
             updatedAt: updatedAt,
-            lastActiveAt: lastActiveAt
+            lastActiveAt: lastActiveAt,
+            equippedIds: equippedIds
         )
     }
 }
