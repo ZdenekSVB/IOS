@@ -5,6 +5,7 @@
 
 import Foundation
 import FirebaseFirestore
+import CoreLocation
 
 struct RunActivity: Codable, Identifiable {
     @DocumentID var id: String?
@@ -14,6 +15,9 @@ struct RunActivity: Codable, Identifiable {
     let calories: Int
     let pace: Double
     let timestamp: Date
+    
+    // Nové pole pro souřadnice (ignorováno při automatickém Codable, plněno manuálně)
+    var routeCoordinates: [CLLocationCoordinate2D]? = nil
     
     enum CodingKeys: String, CodingKey {
         case id

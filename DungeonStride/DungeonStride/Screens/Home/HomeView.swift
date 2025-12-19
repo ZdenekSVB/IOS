@@ -18,31 +18,49 @@ struct HomeView: View {
                 themeManager.backgroundColor.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    Group {
-                        switch selectedTab {
-                        case 0: DungeonMapView()
-                        case 1: ActivityView()
-                        case 2:
-                            HomeContentView()
-                                .id(homeReloadID)
-                        case 3: CharacterView()
-                        case 4: ProfileView()
-                        default:
-                            HomeContentView()
-                                .id(homeReloadID)
-                        }
-                    }
+                    // Inteligentní kontejner pro obsah (oddělený switch)
+                    TabContentView(selectedTab: $selectedTab, homeReloadID: $homeReloadID)
                     
                     CustomTabBar(selectedTab: $selectedTab)
                 }
             }
-            .onChange(of: selectedTab) { newValue in
+            // OPRAVA: onChange s dvěma parametry (oldValue, newValue) pro iOS 17+
+            .onChange(of: selectedTab) { _, newValue in
                 if newValue == 2 {
                     homeReloadID = UUID()
                 }
             }
             .navigationBarHidden(true)
         }
+    }
+}
+
+// Toto můžeš dát do samostatného souboru, např. TabContentView.swift,
+// nebo nechat zde, pokud chceš mít vše v jednom.
+struct TabContentView: View {
+    @Binding var selectedTab: Int
+    @Binding var homeReloadID: UUID
+    
+    var body: some View {
+        Group {
+            switch selectedTab {
+            case 0:
+                DungeonMapView()
+            case 1:
+                ActivityView()
+            case 2:
+                HomeContentView()
+                    .id(homeReloadID)
+            case 3:
+                ShopView() // Nebo CharacterView, dle tvé preference
+            case 4:
+                ProfileView()
+            default:
+                HomeContentView()
+                    .id(homeReloadID)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 // MARK: - User Progress Card
 struct UserProgressCard: View {
@@ -112,23 +113,47 @@ struct LastRunCard: View {
             
             if let activity = lastActivity {
                 ZStack {
-                    Rectangle()
-                        .fill(themeManager.secondaryTextColor.opacity(0.3))
-                        .frame(height: 120)
+                    // --- ZOBRAZENÍ MAPY ---
+                    if let coords = activity.routeCoordinates, !coords.isEmpty {
+                        // Zobrazíme mapu s vypočítaným regionem
+                        ActivityMapView(
+                            polylineCoordinates: .constant(coords),
+                            region: .constant(calculateRegion(for: coords))
+                        )
+                        .frame(height: 150)
                         .cornerRadius(8)
+                        .disabled(true) // Aby mapa nebrala dotyky (byla jen jako obrázek)
+                        
+                    } else {
+                        // Fallback, pokud nejsou souřadnice
+                        Rectangle()
+                            .fill(themeManager.secondaryTextColor.opacity(0.3))
+                            .frame(height: 150)
+                            .cornerRadius(8)
+                        
+                        Image(systemName: "map.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(themeManager.accentColor)
+                    }
                     
-                    Image(systemName: "map.fill")
-                        .font(.system(size: 40))
-                        .foregroundColor(themeManager.accentColor)
-                    
-                    Text(activity.type.capitalized)
-                        .font(.caption)
-                        .foregroundColor(themeManager.primaryTextColor)
+                    // Štítek typu aktivity
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Text(activity.type.capitalized)
+                                .font(.caption)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.black.opacity(0.6))
+                                .cornerRadius(6)
+                            Spacer()
+                        }
                         .padding(8)
-                        .background(themeManager.backgroundColor.opacity(0.8))
-                        .cornerRadius(6)
-                        .offset(y: 30)
+                    }
                 }
+                .frame(height: 150) // Fixní výška
                 
                 let units = userService.currentUser?.settings.units ?? .metric
                 
@@ -183,6 +208,33 @@ struct LastRunCard: View {
             return String(format: "%.2f min/mi", paceMinKm * 1.60934)
         }
     }
+    
+    /// Vypočítá střed a zoom mapy tak, aby byla vidět celá trasa
+    private func calculateRegion(for coordinates: [CLLocationCoordinate2D]) -> MKCoordinateRegion {
+        guard !coordinates.isEmpty else {
+            return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0, longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+        }
+        
+        let latitudes = coordinates.map { $0.latitude }
+        let longitudes = coordinates.map { $0.longitude }
+        
+        let minLat = latitudes.min()!
+        let maxLat = latitudes.max()!
+        let minLon = longitudes.min()!
+        let maxLon = longitudes.max()!
+        
+        let center = CLLocationCoordinate2D(
+            latitude: (minLat + maxLat) / 2,
+            longitude: (minLon + maxLon) / 2
+        )
+        
+        let span = MKCoordinateSpan(
+            latitudeDelta: (maxLat - minLat) * 1.4, // Trochu bufferu
+            longitudeDelta: (maxLon - minLon) * 1.4
+        )
+        
+        return MKCoordinateRegion(center: center, span: span)
+    }
 }
 
 // MARK: - Quests Card
@@ -222,12 +274,8 @@ struct QuestsCard: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(questService.dailyQuests) { quest in
-                        QuestRow(
-                            quest: quest,
-                            onComplete: {
-                                Task { await completeQuest(quest.id) }
-                            }
-                        )
+                        // Pouze zobrazujeme, žádná akce onComplete z UI
+                        QuestRow(quest: quest)
                     }
                 }
             }
@@ -235,7 +283,7 @@ struct QuestsCard: View {
         .padding()
         .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
-        .onChange(of: userService.currentUser?.uid) { _ in
+        .onChange(of: userService.currentUser?.uid) { _, _ in
             loadQuests()
         }
     }
@@ -246,29 +294,11 @@ struct QuestsCard: View {
             try? await questService.loadDailyQuests(for: userId)
         }
     }
-    
-    private func completeQuest(_ questId: String) async {
-        guard let userId = userService.currentUser?.uid else { return }
-        
-        do {
-            try await questService.completeQuest(userId: userId, questId: questId)
-            
-            if let quest = questService.dailyQuests.first(where: { $0.id == questId }),
-               var user = userService.currentUser {
-                user.addXP(quest.xpReward)
-                user.addCoins(quest.xpReward / 10)
-                try await userService.updateUser(user)
-            }
-        } catch {
-            print("Error completing quest:", error)
-        }
-    }
 }
 
 struct QuestRow: View {
     @EnvironmentObject var themeManager: ThemeManager
     let quest: Quest
-    let onComplete: () -> Void
     
     var body: some View {
         HStack(spacing: 12) {
@@ -284,6 +314,7 @@ struct QuestRow: View {
                         .fontWeight(.medium)
                         .foregroundColor(themeManager.primaryTextColor)
                     Spacer()
+                    
                     if quest.isCompleted {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
@@ -310,19 +341,36 @@ struct QuestRow: View {
                         .foregroundColor(.orange)
                 }
             }
-            
-            if !quest.isCompleted {
-                Button(action: onComplete) {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(width: 28, height: 28)
-                        .background(themeManager.accentColor)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
         }
         .padding(.vertical, 4)
+    }
+}
+
+// Helper pro statistiky v LastRunCard (aby se kód neopakoval)
+struct StatItem: View {
+    let icon: String
+    let title: String
+    let value: String
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundColor(themeManager.accentColor)
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(themeManager.primaryTextColor)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(themeManager.backgroundColor.opacity(0.5))
+        .cornerRadius(8)
     }
 }

@@ -8,13 +8,11 @@ import CoreLocation
 
 struct ActivityView: View {
     
-    // Používáme standardní StateObject pro instanci
     @StateObject private var activityManager = ActivityManager()
     
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var userService: UserService
-    // Přidáno QuestService, aby bylo dostupné pro ActivityActionButtons
     @EnvironmentObject var questService: QuestService
     
     var body: some View {
@@ -25,7 +23,6 @@ struct ActivityView: View {
             themeManager.backgroundColor.ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // MARK: - Header (Toggle & Picker)
                 HStack(spacing: 12) {
                     TerrainToggleButton(isNautical: isNautical, themeManager: themeManager) {
                         toggleTerrain(current: currentUnits)
@@ -50,7 +47,6 @@ struct ActivityView: View {
                 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // MARK: - Map
                         ActivityMapView(polylineCoordinates: $activityManager.currentPolyline, region: $activityManager.currentRegion)
                             .frame(height: 250)
                             .cornerRadius(16)
@@ -60,7 +56,6 @@ struct ActivityView: View {
                                     .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
                             )
                         
-                        // MARK: - Metrics & Chart
                         VStack(spacing: 20) {
                             MetricsView(
                                 activityManager: activityManager,
@@ -85,7 +80,6 @@ struct ActivityView: View {
                     .padding()
                 }
                 
-                // MARK: - Bottom Controls
                 VStack {
                     ActivityActionButtons(
                         activityManager: activityManager,
@@ -109,7 +103,8 @@ struct ActivityView: View {
         .onAppear {
             activityManager.validateActivityType(for: currentUnits)
         }
-        .onChange(of: currentUnits) { newUnit, _ in
+        // OPRAVA: Nová syntaxe onChange
+        .onChange(of: currentUnits) { _, newUnit in
             activityManager.validateActivityType(for: newUnit)
         }
     }

@@ -6,6 +6,7 @@
 import Foundation
 import FirebaseFirestore
 import Combine
+import CoreLocation
 
 @MainActor
 class UserService: ObservableObject {
@@ -77,14 +78,11 @@ class UserService: ObservableObject {
 // MARK: - Activity Logic
 extension UserService {
     
-    /// Uloží aktivitu a vrátí aktualizovaného uživatele (pro potřeby questů)
     func saveRunActivity(userId: String, activityData: [String: Any], distanceMeters: Int, calories: Int, steps: Int) async throws -> User? {
         let userRef = db.collection("users").document(userId)
         
-        // 1. Uložit záznam aktivity
         try await userRef.collection("activities").addDocument(data: activityData)
         
-        // 2. Aktualizovat statistiky
         return try await updateStatsAfterActivity(
             userId: userId,
             steps: steps,
@@ -115,6 +113,17 @@ extension UserService {
                 let timestamp = (data["timestamp"] as? Timestamp)?.dateValue()
             else { return nil }
             
+            // --- NOVÉ: Načítání souřadnic pro mapu ---
+            var parsedCoordinates: [CLLocationCoordinate2D]? = nil
+            
+            if let rawCoordinates = data["route_coordinates"] as? [[String: Double]] {
+                parsedCoordinates = rawCoordinates.compactMap { point in
+                    guard let lat = point["lat"], let lon = point["lon"] else { return nil }
+                    return CLLocationCoordinate2D(latitude: lat, longitude: lon)
+                }
+            }
+            // ------------------------------------------
+            
             return RunActivity(
                 id: doc.documentID,
                 type: type,
@@ -122,7 +131,8 @@ extension UserService {
                 duration: duration,
                 calories: Int(calories),
                 pace: pace,
-                timestamp: timestamp
+                timestamp: timestamp,
+                routeCoordinates: parsedCoordinates // Předáváme souřadnice
             )
             
         } catch {
