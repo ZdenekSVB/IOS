@@ -25,7 +25,7 @@ struct HomeView: View {
                         case 2:
                             HomeContentView()
                                 .id(homeReloadID)
-                        case 3: ShopView()
+                        case 3: CharacterView()
                         case 4: ProfileView()
                         default:
                             HomeContentView()

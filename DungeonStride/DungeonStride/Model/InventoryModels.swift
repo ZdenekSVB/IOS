@@ -72,4 +72,10 @@ struct UserInventorySlot: Codable, Identifiable {
     @DocumentID var id: String?
     let itemId: String
     var quantity: Int
+    
+    enum CodingKeys: String, CodingKey {
+            case id
+            case itemId = "item_id" 
+            case quantity
+        }
 }
