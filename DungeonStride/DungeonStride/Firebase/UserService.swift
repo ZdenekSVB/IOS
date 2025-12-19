@@ -55,6 +55,25 @@ class UserService: ObservableObject {
         try await db.collection("users").document(userId).setData(user.toFirestore(), merge: true)
         currentUser = user
     }
+    
+    // MARK: - Daily Reset Logic
+    
+    func checkAndResetDailyStats(userId: String) async throws {
+        // 1. Načteme aktuální stav uživatele
+        let user = try await fetchUser(uid: userId)
+        var updatedUser = user
+        
+        // 2. Zkontrolujeme, zda poslední aktivita byla "dnes"
+        if !Calendar.current.isDateInToday(user.lastActiveAt) {
+            print("🔄 Resetting daily stats for user: \(userId)")
+            updatedUser.resetDaily()
+            
+            // 3. Aktualizujeme uživatele v DB
+            try await updateUser(updatedUser)
+        } else {
+            print("✅ Daily stats are current.")
+        }
+    }
 }
 
 // MARK: - Activity Logic
@@ -63,9 +82,16 @@ extension UserService {
     func saveRunActivity(userId: String, activityData: [String: Any], distanceMeters: Int, calories: Int, steps: Int) async throws {
         let userRef = db.collection("users").document(userId)
         
+        // 1. Uložit záznam aktivity do sub-kolekce
         try await userRef.collection("activities").addDocument(data: activityData)
         
-        try await recalculateUserStats(userId: userId, currentNewSteps: steps, currentNewDistance: distanceMeters, currentNewCalories: calories)
+        // 2. Aktualizovat statistiky uživatele (Total a Daily)
+        try await updateStatsAfterActivity(
+            userId: userId,
+            steps: steps,
+            distance: distanceMeters,
+            calories: calories
+        )
     }
     
     func fetchLastActivity(userId: String) async -> RunActivity? {
@@ -108,34 +134,36 @@ extension UserService {
         }
     }
 
-    
-    private func recalculateUserStats(userId: String, currentNewSteps: Int, currentNewDistance: Int, currentNewCalories: Int) async throws {
-        guard var user = currentUser else { return }
+    private func updateStatsAfterActivity(userId: String, steps: Int, distance: Int, calories: Int) async throws {
+        // FIX: Správná deklarace proměnné 'user' před použitím
+        var user: User
         
-        let snapshot = try await db.collection("users").document(userId).collection("activities").getDocuments()
-        let activities = snapshot.documents.compactMap { try? $0.data(as: RunActivity.self) }
+        // Pokud máme uživatele v paměti, použijeme ho. Jinak ho stáhneme.
+        if let current = currentUser {
+            user = current
+        } else {
+            user = try await fetchUser(uid: userId)
+        }
         
-        let totalRuns = activities.count
-        let totalDistanceKm = activities.reduce(0) { $0 + $1.distanceKm }
-        let totalCalories = activities.reduce(0) { $0 + $1.calories }
         
-        user.activityStats.totalRuns = totalRuns
-        user.activityStats.totalDistance = Int(totalDistanceKm * 1000)
-        user.activityStats.totalCaloriesBurned = totalCalories
-        user.activityStats.totalSteps += currentNewSteps
+
+        // Nyní máme jistotu, že 'user' existuje a můžeme ho upravovat
+        user.updateActivity(
+            steps: steps,
+            distance: distance,
+            calories: calories,
+            isRun: true
+        )
         
-        user.dailyActivity.dailySteps += currentNewSteps
-        user.dailyActivity.dailyDistance += currentNewDistance
-        user.dailyActivity.dailyCaloriesBurned += currentNewCalories
-        
-        let xpEarned = currentNewDistance / 100
-        let coinsEarned = currentNewDistance / 1000
+        // Výpočet odměn
+        let xpEarned = distance / 100
+        let coinsEarned = distance / 1000
         
         user.addXP(xpEarned)
         user.addCoins(coinsEarned)
         
+        // Uložení do Firebase
         try await updateUser(user)
-        self.currentUser = user
     }
     
     func updateLastActive(uid: String) async throws {

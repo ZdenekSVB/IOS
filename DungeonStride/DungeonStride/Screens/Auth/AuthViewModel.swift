@@ -29,7 +29,6 @@ class AuthViewModel: ObservableObject {
     
     init() {
         if Auth.auth().currentUser != nil {
-            // Použijeme Task, protože checkIfUserIsLoggedIn obsahuje asynchronní volání
             Task {
                 await checkIfUserIsLoggedIn()
             }
@@ -57,7 +56,6 @@ class AuthViewModel: ObservableObject {
                 }
                 
                 if let user = result?.user {
-                    // handleSuccessfulLogin je non-async, ale spouští async Task.
                     self.handleSuccessfulLogin(user: user)
                 }
             }
@@ -84,7 +82,6 @@ class AuthViewModel: ObservableObject {
                 }
                 
                 if let user = result?.user {
-                    // Oprava: Volání createUserInFirestore je async, vyžaduje await
                     await self.createUserInFirestore(uid: user.uid)
                 }
             }
@@ -115,7 +112,7 @@ class AuthViewModel: ObservableObject {
             let result = try await Auth.auth().signIn(with: credential)
             
             await handleGoogleUser(user: result.user)
-            self.handleSuccessfulLogin(user: result.user) // Non-async volání handleSuccessfulLogin
+            self.handleSuccessfulLogin(user: result.user)
             
         } catch {
             isLoading = false
@@ -147,10 +144,17 @@ class AuthViewModel: ObservableObject {
         errorMessage = ""
         
         Task {
-            // Oprava: Zde musí být await, protože metody jsou async.
+            // 1. Načíst data uživatele
             await loadUserData(uid: user.uid)
+            
+            // 2. Zkontrolovat a případně vynulovat Daily Activity (pokud je nový den)
+            try? await userService.checkAndResetDailyStats(userId: user.uid)
+            
+            // 3. Přiřadit Daily Quests
             await assignDailyQuestsIfNeeded(for: user.uid)
-            await updateLastLogin(uid: user.uid) // Oprava: updateLastLogin je async
+            
+            // 4. Aktualizovat Last Login (lastActiveAt)
+            await updateLastLogin(uid: user.uid)
         }
     }
     
@@ -158,12 +162,12 @@ class AuthViewModel: ObservableObject {
         do {
             let _ = try await userService.createUser(uid: uid, email: email, username: username)
             isLoading = false
-            // handleSuccessfulLogin je non-async, spouštíme ho na MainActoru.
-            handleSuccessfulLogin(user: Auth.auth().currentUser!)
+            if let user = Auth.auth().currentUser {
+                handleSuccessfulLogin(user: user)
+            }
         } catch {
             isLoading = false
             errorMessage = error.localizedDescription
-            // Oprava: delete může selhat, musíme použít try
             try? await Auth.auth().currentUser?.delete()
         }
     }
@@ -176,7 +180,8 @@ class AuthViewModel: ObservableObject {
                 let googleUsername = user.displayName ?? user.email?.components(separatedBy: "@").first ?? "GoogleUser"
                 let _ = try await userService.createUser(uid: user.uid, email: user.email ?? "", username: googleUsername)
             } else {
-                // Oprava: updateLastActive je async, vyžaduje await
+                // Check reset daily i pro Google Usera
+                try? await userService.checkAndResetDailyStats(userId: user.uid)
                 try await userService.updateLastActive(uid: user.uid)
             }
             isLoading = false
@@ -204,7 +209,6 @@ class AuthViewModel: ObservableObject {
     }
     
     private func updateLastLogin(uid: String) async {
-        // Oprava: Volání updateLastActive je async, vyžaduje await a try
         do {
             try await userService.updateLastActive(uid: uid)
         } catch {
