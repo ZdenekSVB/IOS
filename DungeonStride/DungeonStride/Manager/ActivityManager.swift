@@ -224,4 +224,58 @@ final class ActivityManager: NSObject, ObservableObject, CLLocationManagerDelega
             }
         }
     }
+    // Přidej do ActivityManager.swift na iOS
+
+    func listenForWatchData(userId: String, userService: UserService, questService: QuestService) {
+        // Naslouchání na notifikace z WatchConnectivityManager
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("WorkoutReceived"), object: nil, queue: .main) { [weak self] notification in
+            
+            // OPRAVA: Přidáno přetypování 'as? [String: Any]'
+            guard let self = self,
+                  let rawUserInfo = notification.userInfo,
+                  let userInfo = rawUserInfo as? [String: Any] else { return }
+            
+            self.processWatchData(userInfo, userId: userId, userService: userService, questService: questService)
+        }
+    }
+
+    private func processWatchData(_ data: [String: Any], userId: String, userService: UserService, questService: QuestService) {
+        guard
+            let typeRaw = data["type"] as? String,
+            let duration = data["duration"] as? TimeInterval,
+            let distanceMeters = data["distance"] as? Double,
+            let calories = data["calories"] as? Double,
+            let timestamp = data["timestamp"] as? TimeInterval
+        else { return }
+        
+        let distanceKm = distanceMeters / 1000.0
+        let avgPace = distanceKm > 0 ? (duration / 60.0) / distanceKm : 0.0
+        let estimatedSteps = typeRaw == ActivityType.run.rawValue ? Int(distanceKm * 1250) : 0
+        
+        // Vytvoření záznamu pro Firestore
+        let activityRecord: [String: Any] = [
+            "timestamp": Date(timeIntervalSince1970: timestamp),
+            "type": typeRaw,
+            "duration": duration,
+            "distance_km": distanceKm,
+            "calories_kcal": calories,
+            "avg_pace_min_km": avgPace,
+            "pace_history_min_km": [], // Z hodinek zatím neposíláme detailní graf
+            "route_coordinates": []    // Z hodinek pro úsporu baterie často nemáme detailní GPS trasu, pokud ji explicitně neposbíráme
+        ]
+        
+        // Uložení pomocí existující logiky
+        Task {
+            if let updatedUser = try? await userService.saveRunActivity(
+                userId: userId,
+                activityData: activityRecord,
+                distanceMeters: Int(distanceMeters),
+                calories: Int(calories),
+                steps: estimatedSteps
+            ) {
+                await questService.updateQuestsFromDailyStats(user: updatedUser)
+                print("Activity from Watch saved successfully!")
+            }
+        }
+    }
 }
