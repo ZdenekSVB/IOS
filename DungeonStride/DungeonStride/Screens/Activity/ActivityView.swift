@@ -100,6 +100,7 @@ struct ActivityView: View {
         }
         .navigationTitle("Activity")
         .navigationBarTitleDisplayMode(.inline)
+        
         .onAppear {
             activityManager.validateActivityType(for: currentUnits)
         }

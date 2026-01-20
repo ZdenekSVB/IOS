@@ -53,7 +53,6 @@
 		2CDA277A2F1EA19600F63F5F /* Exceptions for "DungeonStride" folder in "DungeonStrideWatch Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Manager/WatchConnectivityManager.swift,
 				Model/ActivityType.swift,
 				Model/DistanceUnit.swift,
 			);

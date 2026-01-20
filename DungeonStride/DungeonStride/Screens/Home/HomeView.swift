@@ -52,9 +52,12 @@ struct TabContentView: View {
                 HomeContentView()
                     .id(homeReloadID)
             case 3:
-                ShopView() // Nebo CharacterView, dle tvé preference
+                ShopView()
             case 4:
                 ProfileView()
+            case 5:
+                // ZDE PŘIDÁVÁME HISTORII
+                HistoryView()
             default:
                 HomeContentView()
                     .id(homeReloadID)
@@ -63,7 +66,6 @@ struct TabContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
-
 struct HomeContentView: View {
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var userService: UserService
