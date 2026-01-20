@@ -6,14 +6,14 @@
 import SwiftUI
 
 struct ProfileHeaderView: View {
-    @Binding var selectedAvatar: String
-    @Binding var showAvatarPicker: Bool
+    // Pouze zobrazujeme, neupravujeme
     @Binding var showSettings: Bool
     let user: User
     let themeManager: ThemeManager
     
     var body: some View {
         VStack(spacing: 20) {
+            // Tlačítko Nastavení
             HStack {
                 Spacer()
                 Button(action: { showSettings = true }) {
@@ -28,20 +28,21 @@ struct ProfileHeaderView: View {
             }
             .padding(.horizontal)
             
-            Button(action: { showAvatarPicker = true }) {
-                Image(selectedAvatar)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 130, height: 130)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(themeManager.accentColor, lineWidth: 3))
-                    .shadow(radius: 6)
-            }
+            // Avatar (Pouze obrázek, ne tlačítko)
+            Image(user.selectedAvatar)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 130, height: 130)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(themeManager.accentColor, lineWidth: 3))
+                .shadow(radius: 6)
             
+            // Jméno
             Text(user.username)
                 .font(.title2.bold())
                 .foregroundColor(themeManager.primaryTextColor)
             
+            // Level a XP
             VStack(spacing: 8) {
                 HStack {
                     Text("Level \(user.level)")
@@ -70,7 +71,6 @@ struct StatsGridView: View {
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
             
-            // OPRAVENO: Použití user.settings.units.formatDistance() místo natvrdo napsaného "km"
             StatCard(
                 icon: "figure.walk",
                 title: "Total Distance",
@@ -111,44 +111,4 @@ struct ActionButtonsView: View {
     }
 }
 
-struct AvatarSelectionPopup: View {
-    @Binding var selectedAvatar: String
-    let predefinedAvatars: [String]
-    let themeManager: ThemeManager
-    let onSave: (String) -> Void
-    let onClose: () -> Void
-    
-    @State private var tempSelected: String?
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Select Your Avatar")
-                .font(.headline)
-                .foregroundColor(themeManager.primaryTextColor)
-            
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
-                ForEach(predefinedAvatars, id: \.self) { avatar in
-                    Image(avatar)
-                        .resizable()
-                        .frame(width: 80, height: 80)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(tempSelected == avatar ? themeManager.accentColor : .clear, lineWidth: 3))
-                        .onTapGesture { tempSelected = avatar }
-                }
-            }
-            
-            Button("Save Avatar") {
-                if let avatar = tempSelected { onSave(avatar) }
-            }
-            .buttonStyle(PrimaryButtonStyle(backgroundColor: tempSelected == nil ? Color.gray : themeManager.accentColor))
-            .disabled(tempSelected == nil)
-            
-            Button("Cancel", action: onClose)
-                .foregroundColor(.gray)
-        }
-        .padding(24)
-        .background(themeManager.cardBackgroundColor.opacity(0.95))
-        .cornerRadius(20)
-        .padding(.horizontal, 30)
-    }
-}
+// AvatarSelectionPopup byl odstraněn, protože je nyní v EditProfileView

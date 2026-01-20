@@ -27,8 +27,6 @@ struct ProfileView: View {
                 VStack(spacing: 30) {
                     if let user = userService.currentUser {
                         ProfileHeaderView(
-                            selectedAvatar: $viewModel.selectedAvatar,
-                            showAvatarPicker: $viewModel.showAvatarPicker,
                             showSettings: $viewModel.showSettings,
                             user: user,
                             themeManager: themeManager
@@ -44,27 +42,10 @@ struct ProfileView: View {
                 }
                 .padding(.top, 10)
             }
-            
-            if viewModel.showAvatarPicker {
-                Color.black.opacity(0.55).ignoresSafeArea().onTapGesture {
-                    viewModel.showAvatarPicker = false
-                }
-                
-                AvatarSelectionPopup(
-                    selectedAvatar: $viewModel.selectedAvatar,
-                    predefinedAvatars: viewModel.predefinedAvatars,
-                    themeManager: themeManager,
-                    onSave: { newAvatar in viewModel.updateAvatar(to: newAvatar) },
-                    onClose: { viewModel.showAvatarPicker = false }
-                )
-                .transition(.scale)
-                .zIndex(1)
-            }
         }
         .navigationBarHidden(true)
-        .sheet(isPresented: $viewModel.showSettings) { SettingsView() }
-        .onAppear {
-            viewModel.configure(userService: userService, authViewModel: authViewModel)
+        .sheet(isPresented: $viewModel.showSettings) {
+            SettingsView()
         }
     }
 }

@@ -26,7 +26,26 @@ struct SettingsView: View {
                     VStack(spacing: 20) {
                         
                         SettingsSection(title: "ACCOUNT", themeManager: themeManager) {
-                            SettingsRow(icon: "person.fill", title: "Edit Profile", value: "", themeManager: themeManager) {}
+                            if let user = userService.currentUser {
+                                NavigationLink(destination: EditProfileView(
+                                    viewModel: EditProfileViewModel(user: user, userService: userService)
+                                )) {
+                                    HStack {
+                                        Image(systemName: "person.fill")
+                                            .foregroundColor(themeManager.accentColor)
+                                            .frame(width: 30)
+                                        Text("Edit Profile")
+                                            .foregroundColor(themeManager.primaryTextColor)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .foregroundColor(themeManager.secondaryTextColor)
+                                    }
+                                    .padding()
+                                    .background(themeManager.cardBackgroundColor)
+                                }
+                            }
+                            
+                            // Ostatní řádky zůstávají stejné (neaktivní ukázky)
                             SettingsRow(icon: "envelope.fill", title: "Email Notifications", value: "", themeManager: themeManager) {}
                             SettingsRow(icon: "shield.fill", title: "Privacy", value: "", themeManager: themeManager) {}
                         }
