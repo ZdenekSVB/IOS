@@ -13,6 +13,26 @@ class HistoryViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    // --- FILTERING ---
+    @Published var filterStartDate: Date = Date()
+    @Published var filterEndDate: Date = Date()
+    @Published var isFilterExpanded: Bool = false
+    
+    // This property returns only activities falling within the selected range
+    var filteredActivities: [RunActivity] {
+        let calendar = Calendar.current
+        
+        // Ensure we cover the full day (from 00:00:00 to 23:59:59)
+        let start = calendar.startOfDay(for: filterStartDate)
+        guard let end = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: filterEndDate) else {
+            return activities
+        }
+        
+        return activities.filter { activity in
+            return activity.timestamp >= start && activity.timestamp <= end
+        }
+    }
+    
     private let db = Firestore.firestore()
     
     func fetchHistory(for userId: String) async {
@@ -20,9 +40,9 @@ class HistoryViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            print("📜 HistoryViewModel: Začínám stahovat historii pro uživatele \(userId)...")
+            print("📜 HistoryViewModel: Starting history fetch for user \(userId)...")
             
-            // Stáhneme posledních 50 aktivit
+            // Fetch last 50 activities
             let snapshot = try await db.collection("users")
                 .document(userId)
                 .collection("activities")
@@ -30,7 +50,7 @@ class HistoryViewModel: ObservableObject {
                 .limit(to: 50)
                 .getDocuments()
             
-            print("📜 HistoryViewModel: Nalezeno \(snapshot.documents.count) dokumentů.")
+            print("📜 HistoryViewModel: Found \(snapshot.documents.count) documents.")
             
             var loadedActivities: [RunActivity] = []
             
@@ -38,26 +58,16 @@ class HistoryViewModel: ObservableObject {
                 let data = document.data()
                 let docId = document.documentID
                 
-                // 1. Manuální extrakce dat (bezpečnější než Codable)
-                // Pokud nějaké pole chybí, použijeme výchozí hodnotu, aby aplikace nespadla/nepřeskočila záznam.
-                
+                // 1. Manual extraction
                 let type = data["type"] as? String ?? "run"
-                
-                // Distance: Může být uloženo jako Int nebo Double, převedeme na Double
                 let distanceKm = (data["distance_km"] as? NSNumber)?.doubleValue ?? 0.0
-                
                 let duration = (data["duration"] as? NSNumber)?.doubleValue ?? 0.0
-                
-                // Calories: Uloženo jako Double, chceme Int
                 let caloriesDouble = (data["calories_kcal"] as? NSNumber)?.doubleValue ?? 0.0
                 let calories = Int(caloriesDouble)
-                
                 let pace = (data["avg_pace_min_km"] as? NSNumber)?.doubleValue ?? 0.0
-                
-                // Timestamp
                 let timestamp = (data["timestamp"] as? Timestamp)?.dateValue() ?? Date()
                 
-                // 2. Extrakce souřadnic pro mapu
+                // 2. Parse coordinates
                 var parsedCoordinates: [CLLocationCoordinate2D]? = nil
                 if let rawCoordinates = data["route_coordinates"] as? [[String: Double]] {
                     parsedCoordinates = rawCoordinates.compactMap { point in
@@ -66,7 +76,7 @@ class HistoryViewModel: ObservableObject {
                     }
                 }
                 
-                // 3. Vytvoření instance RunActivity
+                // 3. Create instance
                 let activity = RunActivity(
                     id: docId,
                     type: type,
@@ -82,11 +92,21 @@ class HistoryViewModel: ObservableObject {
             }
             
             self.activities = loadedActivities
-            print("✅ HistoryViewModel: Úspěšně načteno \(loadedActivities.count) aktivit.")
+            
+            // Set default filter values based on loaded data
+            if let oldestDate = loadedActivities.last?.timestamp {
+                self.filterStartDate = oldestDate
+            } else {
+                // Default to 30 days ago if empty
+                self.filterStartDate = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
+            }
+            self.filterEndDate = Date()
+            
+            print("✅ HistoryViewModel: Successfully loaded \(loadedActivities.count) activities.")
             
         } catch {
             print("❌ HistoryViewModel Error: \(error.localizedDescription)")
-            self.errorMessage = "Nepodařilo se načíst historii: \(error.localizedDescription)"
+            self.errorMessage = "Failed to load history: \(error.localizedDescription)"
         }
         
         isLoading = false
