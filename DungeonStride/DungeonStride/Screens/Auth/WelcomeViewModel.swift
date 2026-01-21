@@ -41,6 +41,7 @@
                         description: template.description,
                         iconName: template.iconName,
                         xpReward: template.xpReward,
+                        coinsReward: template.coinsReward,
                         requirement: template.requirement,
                         progress: 0,
                         startedAt: Date()

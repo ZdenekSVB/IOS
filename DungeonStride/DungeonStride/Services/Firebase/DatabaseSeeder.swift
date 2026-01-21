@@ -92,4 +92,47 @@ class DatabaseSeeder {
             }
         }
     }
+    
+    // MARK: - Quests Upload
+    func uploadQuestsToFirestore() {
+        guard let url = Bundle.main.url(forResource: "quests", withExtension: "json") else {
+            print("❌ Soubor quests.json nebyl nalezen v Bundle!")
+            return
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] else {
+                print("❌ Chyba: JSON není pole objektů.")
+                return
+            }
+            
+            let db = Firestore.firestore()
+            print("🚀 Začínám nahrávat \(jsonArray.count) questů...")
+            
+            for var questDict in jsonArray {
+                guard let title = questDict["title"] as? String else { continue }
+                
+                // ID vytvoříme z názvu questu
+                let docId = title.lowercased()
+                    .replacingOccurrences(of: " ", with: "_")
+                    .replacingOccurrences(of: "'", with: "")
+                
+                // Přidáme ID do dat, aby bylo konzistentní
+                questDict["id"] = docId
+                
+                db.collection("quests").document(docId).setData(questDict) { error in
+                    if let error = error {
+                        print("❌ chyba u questu \(title): \(error.localizedDescription)")
+                    } else {
+                        print("✅ Quest nahrán: \(title)")
+                    }
+                }
+            }
+            
+        } catch {
+            print("❌ CHYBA PŘI ZPRACOVÁNÍ JSONu:")
+            print(error)
+        }
+    }
 }

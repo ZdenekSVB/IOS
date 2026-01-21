@@ -1,0 +1,242 @@
+[
+  {
+    "title": "Morning Walk",
+    "description": "Start your day with a brisk walk.",
+    "iconName": "figure.walk",
+    "xpReward": 50,
+    "coinsReward": 10,
+    "requirement": "steps:2000"
+  },
+  {
+    "title": "Daily Stroll",
+    "description": "Keep moving throughout the day.",
+    "iconName": "figure.walk",
+    "xpReward": 100,
+    "coinsReward": 20,
+    "requirement": "steps:5000"
+  },
+  {
+    "title": "Step Master",
+    "description": "Reach a high step count today.",
+    "iconName": "figure.walk",
+    "xpReward": 200,
+    "coinsReward": 50,
+    "requirement": "steps:10000"
+  },
+  {
+    "title": "Quick Run",
+    "description": "Go for a short 1km run.",
+    "iconName": "figure.run",
+    "xpReward": 150,
+    "coinsReward": 30,
+    "requirement": "distance:1000"
+  },
+  {
+    "title": "5K Challenge",
+    "description": "Complete a 5km distance today.",
+    "iconName": "figure.run",
+    "xpReward": 300,
+    "coinsReward": 80,
+    "requirement": "distance:5000"
+  },
+  {
+    "title": "Long Distance",
+    "description": "Push yourself to 10km.",
+    "iconName": "figure.run",
+    "xpReward": 500,
+    "coinsReward": 150,
+    "requirement": "distance:10000"
+  },
+  {
+    "title": "Calorie Burner",
+    "description": "Burn 300 active calories.",
+    "iconName": "flame.fill",
+    "xpReward": 120,
+    "coinsReward": 25,
+    "requirement": "calories:300"
+  },
+  {
+    "title": "Sweat It Out",
+    "description": "Burn 500 active calories.",
+    "iconName": "flame.fill",
+    "xpReward": 200,
+    "coinsReward": 45,
+    "requirement": "calories:500"
+  },
+  {
+    "title": "Inferno",
+    "description": "Burn 800 active calories.",
+    "iconName": "flame.fill",
+    "xpReward": 350,
+    "coinsReward": 100,
+    "requirement": "calories:800"
+  },
+  {
+    "title": "Consistency",
+    "description": "Log in to the app.",
+    "iconName": "calendar",
+    "xpReward": 50,
+    "coinsReward": 5,
+    "requirement": "dailyLogin:1"
+  },
+  {
+    "title": "Runner's High",
+    "description": "Complete 2 running sessions.",
+    "iconName": "figure.run",
+    "xpReward": 250,
+    "coinsReward": 60,
+    "requirement": "runs:2"
+  },
+  {
+    "title": "Marathon Training",
+    "description": "Cover 15km in total distance.",
+    "iconName": "map.fill",
+    "xpReward": 600,
+    "coinsReward": 200,
+    "requirement": "distance:15000"
+  },
+  {
+    "title": "Explorer",
+    "description": "Walk 3000 steps.",
+    "iconName": "figure.walk",
+    "xpReward": 80,
+    "coinsReward": 15,
+    "requirement": "steps:3000"
+  },
+  {
+    "title": "Speedster",
+    "description": "Run 2km.",
+    "iconName": "figure.run",
+    "xpReward": 200,
+    "coinsReward": 40,
+    "requirement": "distance:2000"
+  },
+  {
+    "title": "Light Workout",
+    "description": "Burn 150 calories.",
+    "iconName": "flame",
+    "xpReward": 80,
+    "coinsReward": 15,
+    "requirement": "calories:150"
+  },
+  {
+    "title": "Dedicated",
+    "description": "Log 3 runs.",
+    "iconName": "figure.run.circle",
+    "xpReward": 400,
+    "coinsReward": 100,
+    "requirement": "runs:3"
+  },
+  {
+    "title": "Half Marathon",
+    "description": "Run 21km (accumulated).",
+    "iconName": "trophy.fill",
+    "xpReward": 1000,
+    "coinsReward": 500,
+    "requirement": "distance:21000"
+  },
+  {
+    "title": "Trail Blazer",
+    "description": "Walk 8000 steps.",
+    "iconName": "figure.hiking",
+    "xpReward": 180,
+    "coinsReward": 40,
+    "requirement": "steps:8000"
+  },
+  {
+    "title": "Energy Surge",
+    "description": "Burn 1000 calories.",
+    "iconName": "bolt.fill",
+    "xpReward": 500,
+    "coinsReward": 120,
+    "requirement": "calories:1000"
+  },
+  {
+    "title": "Sprinter",
+    "description": "Run 500m.",
+    "iconName": "hare.fill",
+    "xpReward": 100,
+    "coinsReward": 20,
+    "requirement": "distance:500"
+  },
+  {
+    "title": "Weekend Warrior",
+    "description": "Burn 600 calories.",
+    "iconName": "flame.fill",
+    "xpReward": 250,
+    "coinsReward": 60,
+    "requirement": "calories:600"
+  },
+  {
+    "title": "Pathfinder",
+    "description": "Walk 6000 steps.",
+    "iconName": "figure.walk",
+    "xpReward": 120,
+    "coinsReward": 25,
+    "requirement": "steps:6000"
+  },
+  {
+    "title": "Endurance",
+    "description": "Run 8km.",
+    "iconName": "figure.run",
+    "xpReward": 450,
+    "coinsReward": 110,
+    "requirement": "distance:8000"
+  },
+  {
+    "title": "Fat Burner",
+    "description": "Burn 400 calories.",
+    "iconName": "flame",
+    "xpReward": 150,
+    "coinsReward": 35,
+    "requirement": "calories:400"
+  },
+  {
+    "title": "First Steps",
+    "description": "Walk 1000 steps.",
+    "iconName": "shoe.fill",
+    "xpReward": 40,
+    "coinsReward": 10,
+    "requirement": "steps:1000"
+  },
+  {
+    "title": "The Long Road",
+    "description": "Walk 15000 steps.",
+    "iconName": "figure.walk",
+    "xpReward": 400,
+    "coinsReward": 100,
+    "requirement": "steps:15000"
+  },
+  {
+    "title": "Double Run",
+    "description": "Complete 2 runs.",
+    "iconName": "figure.run.square.stack",
+    "xpReward": 300,
+    "coinsReward": 70,
+    "requirement": "runs:2"
+  },
+  {
+    "title": "Warm Up",
+    "description": "Burn 100 calories.",
+    "iconName": "flame",
+    "xpReward": 50,
+    "coinsReward": 10,
+    "requirement": "calories:100"
+  },
+  {
+    "title": "Iron Lungs",
+    "description": "Run 3km.",
+    "iconName": "lungs.fill",
+    "xpReward": 220,
+    "coinsReward": 50,
+    "requirement": "distance:3000"
+  },
+  {
+    "title": "Legendary Walk",
+    "description": "Walk 20000 steps.",
+    "iconName": "crown.fill",
+    "xpReward": 800,
+    "coinsReward": 250,
+    "requirement": "steps:20000"
+  }
+]

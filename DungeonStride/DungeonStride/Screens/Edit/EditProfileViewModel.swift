@@ -36,39 +36,29 @@ class EditProfileViewModel: ObservableObject {
         
         Task {
             do {
-                // OPRAVA: Vytvoříme novou instanci User s novým jménem a avatarem.
-                // Protože 'username' je 'let', musíme vytvořit úplně nový objekt.
-                
                 var newUser = User(
                     id: currentUser.id,
                     email: currentUser.email,
-                    username: username, // ZDE vkládáme nové jméno
+                    username: username,
                     createdAt: currentUser.createdAt,
-                    updatedAt: Date(), // Aktualizujeme čas
+                    updatedAt: Date(),
                     lastActiveAt: currentUser.lastActiveAt
                 )
                 
-                // Nyní zkopírujeme ostatní data, která User(...) init nenastavil
-                // (protože váš init v User.swift nastavuje jen základní věci a zbytek nechává na defaultu)
+                newUser.selectedAvatar = selectedAvatar
                 
-                newUser.selectedAvatar = selectedAvatar // ZDE vkládáme nový avatar
-                
-                // Kopírování ostatních dat (aby se neztratil postup)
-                newUser.stats = currentUser.stats
+                // Kopírování existujících dat
                 newUser.activityStats = currentUser.activityStats
                 newUser.dailyActivity = currentUser.dailyActivity
                 newUser.settings = currentUser.settings
                 newUser.coins = currentUser.coins
-                newUser.gems = currentUser.gems
-                newUser.premiumMember = currentUser.premiumMember
                 newUser.totalXP = currentUser.totalXP
-                newUser.myAchievements = currentUser.myAchievements
-                newUser.currentQuests = currentUser.currentQuests
-                newUser.completedQuests = currentUser.completedQuests
+                newUser.totalQuestsCompleted = currentUser.totalQuestsCompleted
                 newUser.equippedIds = currentUser.equippedIds
+                
+                // ZPĚT: Zachování dat z obchodu
                 newUser.shopData = currentUser.shopData
                 
-                // Uložíme do databáze
                 try await userService.updateUser(newUser)
                 
                 self.saveSuccess = true

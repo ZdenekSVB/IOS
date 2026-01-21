@@ -97,7 +97,7 @@ class AuthViewModel: ObservableObject {
     }
     
     func signInWithGoogle() async {
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        guard (FirebaseApp.app()?.options.clientID) != nil else { return }
         
         isLoading = true
         errorMessage = ""

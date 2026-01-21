@@ -2,6 +2,8 @@
 //  QuestService.swift
 //  DungeonStride
 //
+//  Created by Vít Čevelík on 14.10.2025.
+//
 
 import Foundation
 import FirebaseFirestore
@@ -15,24 +17,19 @@ class QuestService: ObservableObject {
     
     // MARK: - Daily Loading Logic
     
-    /// Zkontroluje, zda má uživatel úkoly pro dnešek.
-    /// Pokud ne (nebo je nový den), stáhne šablony z Firestore 'quests' a vybere 3 náhodné.
     func loadDailyQuests(for userId: String) async throws {
         await MainActor.run { isLoading = true }
         
         let today = Calendar.current.startOfDay(for: Date())
         let userQuestsRef = db.collection("users").document(userId).collection("dailyQuests")
         
-        // 1. Podíváme se do uživatelovy sub-kolekce, jestli už má úkoly vygenerované pro dnešek
         let todayQuestsQuery = userQuestsRef.whereField("startedAt", isGreaterThan: Timestamp(date: today))
         let snapshot = try await todayQuestsQuery.getDocuments()
         
         if snapshot.documents.isEmpty {
-            // Nemá úkoly pro dnešek -> Stáhnout šablony z hlavní DB a vygenerovat
             print("📅 No quests for today in user profile. Fetching templates from Firestore...")
             await fetchTemplatesAndAssign(to: userQuestsRef)
         } else {
-            // Má úkoly -> Načíst je
             print("✅ Found existing quests for today.")
             let quests = snapshot.documents.compactMap { Quest.fromFirestore($0.data()) }
             await MainActor.run {
@@ -43,7 +40,6 @@ class QuestService: ObservableObject {
         await MainActor.run { isLoading = false }
     }
     
-    /// Vynutí smazání starých a vygenerování nových questů (voláno z AuthViewModel při změně dne)
     func regenerateDailyQuests(for userId: String) async throws {
         await MainActor.run { isLoading = true }
         
@@ -51,13 +47,11 @@ class QuestService: ObservableObject {
         
         print("🔄 Regenerating quests due to daily reset...")
         
-        // 1. Smazat staré úkoly z uživatelovy kolekce
         let allDocs = try await userQuestsRef.getDocuments()
         for doc in allDocs.documents {
             try await userQuestsRef.document(doc.documentID).delete()
         }
         
-        // 2. Vygenerovat nové stažením z Firestore
         await fetchTemplatesAndAssign(to: userQuestsRef)
         
         await MainActor.run { isLoading = false }
@@ -67,42 +61,36 @@ class QuestService: ObservableObject {
     
     private func fetchTemplatesAndAssign(to collection: CollectionReference) async {
         do {
-            // 1. Stáhnout VŠECHNY šablony z hlavní kolekce "quests" ve Firestore
-            // ZDE SE BEROU DATA Z FIRESTORE, NIC SE NEVYTVÁŘÍ LOKÁLNĚ
             let templatesSnapshot = try await db.collection("quests").getDocuments()
             let templates = templatesSnapshot.documents.compactMap { Quest.fromFirestore($0.data()) }
             
-            // Pojistka, pokud je databáze prázdná
             guard !templates.isEmpty else {
                 print("⚠️ ERROR: Collection 'quests' in Firestore is empty!")
                 await MainActor.run { self.dailyQuests = [] }
                 return
             }
             
-            // 2. Vybrat 3 náhodné
             let shuffled = templates.shuffled()
             let selected = Array(shuffled.prefix(3))
             
-            // 3. Vytvořit instance pro uživatele (reset progressu, nastavit dnešní datum)
             let newQuests = selected.map { template in
                 Quest(
-                    id: template.id, // ID zůstává stejné jako v šabloně (nebo můžeš generovat UUID)
+                    id: template.id,
                     title: template.title,
                     description: template.description,
                     iconName: template.iconName,
                     xpReward: template.xpReward,
+                    coinsReward: template.coinsReward, // Přenášíme coinsReward ze šablony
                     requirement: template.requirement,
                     progress: 0,
                     startedAt: Date()
                 )
             }
             
-            // 4. Uložit do uživatelovy sub-kolekce
             for quest in newQuests {
                 try await collection.document(quest.id).setData(quest.toFirestore())
             }
             
-            // 5. Aktualizovat UI
             await MainActor.run {
                 self.dailyQuests = newQuests
             }
@@ -114,36 +102,28 @@ class QuestService: ObservableObject {
     
     // MARK: - Activity Synchronization
     
-    /// Tato funkce se zavolá po aktivitě. Vezme hodnoty z User.dailyActivity (které jsou z DB)
-    /// a porovná je s požadavky questů.
     func updateQuestsFromDailyStats(user: User) async {
         guard let userId = user.id else { return }
-        print("📊 Syncing quests with Daily Activity: Steps: \(user.dailyActivity.dailySteps)")
+        print("📊 Syncing quests with Daily Activity...")
         
         for quest in dailyQuests {
             if quest.isCompleted { continue }
             
             var newProgress = quest.progress
             
-            // Mapování dailyActivity na požadavky questu
             switch quest.requirement {
             case .steps(_):
                 newProgress = user.dailyActivity.dailySteps
             case .distance(_):
-                newProgress = user.dailyActivity.dailyDistance // v metrech
+                newProgress = user.dailyActivity.dailyDistance
             case .calories(_):
                 newProgress = user.dailyActivity.dailyCaloriesBurned
             case .runs(_):
-                // Pro runs používáme totalRuns z activityStats,
-                // protože dailyRuns v modelu User chybí (pokud jsi ho tam nepřidal).
-                // Alternativně: pokud se tato funkce volá po doběhnutí, přičti +1 k progressu questu.
-                // Zde předpokládám logiku "cumulative total":
                 newProgress = user.activityStats.totalRuns
             case .dailyLogin(_):
-                break // Řeší se při loginu
+                break
             }
             
-            // Pokud se progress zvýšil, aktualizujeme ve Firestore
             if newProgress > quest.progress {
                 try? await updateQuestProgress(userId: userId, questId: quest.id, progress: newProgress)
             }
@@ -155,16 +135,20 @@ class QuestService: ObservableObject {
         
         guard let quest = dailyQuests.first(where: { $0.id == questId }) else { return }
         
-        let isCompleted = progress >= quest.totalRequired
+        let wasCompleted = quest.isCompleted
+        let isNowCompleted = progress >= quest.totalRequired
         
         var updateData: [String: Any] = [
             "progress": progress,
-            "isCompleted": isCompleted,
+            "isCompleted": isNowCompleted,
             "updatedAt": Timestamp(date: Date())
         ]
         
-        if isCompleted && quest.completedAt == nil {
+        if isNowCompleted && !wasCompleted {
             updateData["completedAt"] = Timestamp(date: Date())
+            
+            // ZDE JE OPRAVA: Předáváme i coinsReward do funkce pro inkrementaci
+            try? await incrementUserStats(userId: userId, xpReward: quest.xpReward, coinsReward: quest.coinsReward)
         }
         
         try await questRef.updateData(updateData)
@@ -172,8 +156,23 @@ class QuestService: ObservableObject {
         if let index = dailyQuests.firstIndex(where: { $0.id == questId }) {
             await MainActor.run {
                 dailyQuests[index].updateProgress(progress)
+                if isNowCompleted { dailyQuests[index].isCompleted = true }
             }
         }
+    }
+    
+    // OPRAVENO: Přidán parametr coinsReward a inkrementace pole 'coins'
+    private func incrementUserStats(userId: String, xpReward: Int, coinsReward: Int) async throws {
+        let userRef = db.collection("users").document(userId)
+        
+        let data: [String: Any] = [
+            "totalQuestsCompleted": FieldValue.increment(Int64(1)),
+            "totalXP": FieldValue.increment(Int64(xpReward)),
+            "coins": FieldValue.increment(Int64(coinsReward)) // Zvyšujeme i mince
+        ]
+        
+        try await userRef.updateData(data)
+        print("🎉 Quest Completed! XP: +\(xpReward), Coins: +\(coinsReward)")
     }
     
     func completeQuest(userId: String, questId: String) async throws {

@@ -31,9 +31,9 @@ struct HomeView: View {
             }
             .navigationBarHidden(true)
         }
-        // ZMĚNA: Tady propojíme služby, jakmile se View zobrazí.
-        // Toto opraví problém, že AuthViewModel měl prázdný UserService.
         .onAppear {
+            // DŮLEŽITÉ: Toto nastartuje AuthViewModel, který následně
+            // načte Usera a spustí logiku pro Questy.
             authViewModel.setup(
                 userService: userService,
                 questService: questService,
@@ -43,7 +43,6 @@ struct HomeView: View {
     }
 }
 
-// Zbytek HomeView souboru (TabContentView, HomeContentView) zůstává stejný...
 struct TabContentView: View {
     @Binding var selectedTab: Int
     @Binding var homeReloadID: UUID
@@ -83,6 +82,25 @@ struct HomeContentView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                
+                // --- DEV BUTTON (Zakomentováno) ---
+                /*
+                Button(action: {
+                    print("🚀 Spouštím seedování questů...")
+                    DatabaseSeeder().uploadQuestsToFirestore()
+                }) {
+                    Text("SEED QUESTS (DEV ONLY)")
+                        .font(.caption)
+                        .bold()
+                        .padding(8)
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding(.top, 10)
+                */
+                // ----------------------------------
+                
                 UserProgressCard()
                 LastRunCard(lastActivity: lastActivity)
                 QuestsCard()
@@ -90,12 +108,10 @@ struct HomeContentView: View {
             .padding()
         }
         .task {
-            // Bezpečné načtení dat, pokud je uživatel přihlášen
             if let uid = authViewModel.currentUserUID {
                 lastActivity = await userService.fetchLastActivity(userId: uid)
             }
         }
-        // Přidáme refresh, když se změní uživatel (např. po autologinu)
         .onChange(of: authViewModel.currentUserUID) { _, newUid in
             if let uid = newUid {
                 Task {

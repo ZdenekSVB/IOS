@@ -28,8 +28,8 @@ struct ProfileHeaderView: View {
             }
             .padding(.horizontal)
             
-            // Avatar (Pouze obrázek, ne tlačítko)
-            Image(user.selectedAvatar)
+            // Avatar
+            Image(user.selectedAvatar=="default" ? "default" : user.selectedAvatar)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 130, height: 130)
@@ -89,10 +89,11 @@ struct StatsGridView: View {
                 value: "\(user.activityStats.totalRuns)"
             )
             
+            // ZMĚNA: Místo Achievementů zobrazujeme splněné mise
             StatCard(
-                icon: "trophy.fill",
-                title: "Achievements",
-                value: "\(user.myAchievements.count)"
+                icon: "checkmark.seal.fill",
+                title: "Missions",
+                value: "\(user.totalQuestsCompleted)"
             )
         }
         .padding(.horizontal)

@@ -33,7 +33,6 @@ struct UserProgressCard: View {
                     Text("Welcome back!")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
-                    // Zobrazujeme Username
                     Text(userService.currentUser?.username ?? "Adventurer")
                         .font(.headline)
                         .foregroundColor(themeManager.primaryTextColor)
@@ -94,7 +93,6 @@ struct LastRunCard: View {
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var userService: UserService
     
-    // Přijímáme data zvenčí
     let lastActivity: RunActivity?
     
     var body: some View {
@@ -113,30 +111,24 @@ struct LastRunCard: View {
             
             if let activity = lastActivity {
                 ZStack {
-                    // --- ZOBRAZENÍ MAPY ---
                     if let coords = activity.routeCoordinates, !coords.isEmpty {
-                        // Zobrazíme mapu s vypočítaným regionem
                         ActivityMapView(
                             polylineCoordinates: .constant(coords),
                             region: .constant(calculateRegion(for: coords))
                         )
                         .frame(height: 150)
                         .cornerRadius(8)
-                        .disabled(true) // Aby mapa nebrala dotyky (byla jen jako obrázek)
-                        
+                        .disabled(true)
                     } else {
-                        // Fallback, pokud nejsou souřadnice
                         Rectangle()
                             .fill(themeManager.secondaryTextColor.opacity(0.3))
                             .frame(height: 150)
                             .cornerRadius(8)
-                        
                         Image(systemName: "map.fill")
                             .font(.system(size: 40))
                             .foregroundColor(themeManager.accentColor)
                     }
                     
-                    // Štítek typu aktivity
                     VStack {
                         Spacer()
                         HStack {
@@ -153,34 +145,17 @@ struct LastRunCard: View {
                         .padding(8)
                     }
                 }
-                .frame(height: 150) // Fixní výška
+                .frame(height: 150)
                 
                 let units = userService.currentUser?.settings.units ?? .metric
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                    StatItem(
-                        icon: "figure.walk",
-                        title: "Distance",
-                        value: units.formatDistance(Int(activity.distanceKm * 1000))
-                    )
-                    StatItem(
-                        icon: "flame.fill",
-                        title: "Calories",
-                        value: "\(activity.calories)"
-                    )
-                    StatItem(
-                        icon: "timer",
-                        title: "Duration",
-                        value: activity.duration.stringFormat()
-                    )
-                    StatItem(
-                        icon: "speedometer",
-                        title: "Pace",
-                        value: formatPace(activity.pace, unit: units)
-                    )
+                    StatItem(icon: "figure.walk", title: "Distance", value: units.formatDistance(Int(activity.distanceKm * 1000)))
+                    StatItem(icon: "flame.fill", title: "Calories", value: "\(activity.calories)")
+                    StatItem(icon: "timer", title: "Duration", value: activity.duration.stringFormat())
+                    StatItem(icon: "speedometer", title: "Pace", value: formatPace(activity.pace, unit: units))
                 }
             } else {
-                // Empty State
                 VStack(spacing: 10) {
                     Image(systemName: "figure.run.circle")
                         .font(.system(size: 40))
@@ -209,30 +184,18 @@ struct LastRunCard: View {
         }
     }
     
-    /// Vypočítá střed a zoom mapy tak, aby byla vidět celá trasa
     private func calculateRegion(for coordinates: [CLLocationCoordinate2D]) -> MKCoordinateRegion {
         guard !coordinates.isEmpty else {
             return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 0, longitude: 0), span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
         }
-        
         let latitudes = coordinates.map { $0.latitude }
         let longitudes = coordinates.map { $0.longitude }
-        
         let minLat = latitudes.min()!
         let maxLat = latitudes.max()!
         let minLon = longitudes.min()!
         let maxLon = longitudes.max()!
-        
-        let center = CLLocationCoordinate2D(
-            latitude: (minLat + maxLat) / 2,
-            longitude: (minLon + maxLon) / 2
-        )
-        
-        let span = MKCoordinateSpan(
-            latitudeDelta: (maxLat - minLat) * 1.4, // Trochu bufferu
-            longitudeDelta: (maxLon - minLon) * 1.4
-        )
-        
+        let center = CLLocationCoordinate2D(latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2)
+        let span = MKCoordinateSpan(latitudeDelta: (maxLat - minLat) * 1.4, longitudeDelta: (maxLon - minLon) * 1.4)
         return MKCoordinateRegion(center: center, span: span)
     }
 }
@@ -249,9 +212,7 @@ struct QuestsCard: View {
                 Text("Daily Quests")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
-                
                 Spacer()
-                
                 if questService.isLoading {
                     ProgressView().scaleEffect(0.8)
                 } else {
@@ -274,7 +235,6 @@ struct QuestsCard: View {
             } else {
                 VStack(spacing: 12) {
                     ForEach(questService.dailyQuests) { quest in
-                        // Pouze zobrazujeme, žádná akce onComplete z UI
                         QuestRow(quest: quest)
                     }
                 }
@@ -296,6 +256,7 @@ struct QuestsCard: View {
     }
 }
 
+// MARK: - Quest Row
 struct QuestRow: View {
     @EnvironmentObject var themeManager: ThemeManager
     let quest: Quest
@@ -314,7 +275,6 @@ struct QuestRow: View {
                         .fontWeight(.medium)
                         .foregroundColor(themeManager.primaryTextColor)
                     Spacer()
-                    
                     if quest.isCompleted {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
@@ -334,11 +294,27 @@ struct QuestRow: View {
                     Text("\(quest.progress)/\(quest.totalRequired)")
                         .font(.caption2)
                         .foregroundColor(themeManager.secondaryTextColor)
+                    
                     Spacer()
-                    Text("+\(quest.xpReward) XP")
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.orange)
+                    
+                    // Zobrazení odměn (XP + Coins)
+                    HStack(spacing: 8) {
+                            Text("+\(quest.xpReward) XP")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                        
+                            HStack(spacing: 2) {
+                                Image(systemName: "dollarsign.circle.fill")
+                                    .font(.caption2)
+                                    .foregroundColor(.yellow)
+                                Text("\(quest.coinsReward)")
+                                    .font(.caption2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.yellow)
+                            }
+                        }
+                    
                 }
             }
         }
@@ -346,7 +322,7 @@ struct QuestRow: View {
     }
 }
 
-// Helper pro statistiky v LastRunCard (aby se kód neopakoval)
+// Helper pro statistiky
 struct StatItem: View {
     let icon: String
     let title: String

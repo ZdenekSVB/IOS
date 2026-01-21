@@ -195,6 +195,7 @@ struct ActivityActionButtons: View {
             // START / PAUSE
             Button {
                 if activityManager.activityState == .active {
+                    
                     activityManager.pauseActivity()
                 } else {
                     activityManager.startActivity()
