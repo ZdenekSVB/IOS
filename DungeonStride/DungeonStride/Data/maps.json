@@ -1,0 +1,137 @@
+[
+  {
+    "id": "map_ytonga_001",
+    "name": "Ytonga",
+    "imageName": "ytonga",
+    "width": 4000,
+    "height": 4000,
+    "locations": [
+      {
+        "name": "Město Ytonga",
+        "locationType": "city",
+        "description": "Hlavní město a srdce obchodu na ostrově.",
+        "x": 2000,
+        "y": 2000
+      },
+      {
+        "name": "Severní Přístav",
+        "locationType": "city",
+        "description": "Chladný přístav, odkud vyplouvají lodě na sever.",
+        "x": 2200,
+        "y": 500
+      },
+      {
+        "name": "Jižní Hláska",
+        "locationType": "ruins",
+        "description": "Stará věž střežící jižní moře.",
+        "x": 1800,
+        "y": 3800
+      },
+      {
+        "name": "Západní Lesy",
+        "locationType": "dungeon",
+        "description": "Hustý les, kde mizí pocestní.",
+        "x": 600,
+        "y": 2100
+      },
+      {
+        "name": "Východní Útesy",
+        "locationType": "ruins",
+        "description": "Vysoké skály obývané harpyjemi.",
+        "x": 3600,
+        "y": 2000
+      },
+      {
+        "name": "Temné Bažiny",
+        "locationType": "swamp",
+        "description": "Smrduté bažiny plné jedovatých výparů.",
+        "x": 2800,
+        "y": 3200
+      },
+      {
+        "name": "Staré Hory",
+        "locationType": "dungeon",
+        "description": "Opuštěné doly trpaslíků plné skřetů.",
+        "x": 1200,
+        "y": 1500
+      },
+      {
+        "name": "Zapomenuté Ruiny",
+        "locationType": "ruins",
+        "description": "Zbytky prastaré civilizace u jezera.",
+        "x": 800,
+        "y": 2500
+      },
+      {
+        "name": "Křišťálová Jeskyně",
+        "locationType": "dungeon",
+        "description": "Jeskyně zářící magickou energií.",
+        "x": 3000,
+        "y": 1200
+      },
+      {
+        "name": "Rybářská Vesnice",
+        "locationType": "city",
+        "description": "Poklidná vesnička na břehu řeky.",
+        "x": 1500,
+        "y": 2800
+      },
+      {
+        "name": "Pevnost Bouří",
+        "locationType": "dungeon",
+        "description": "Hrad na nejvyšším vrcholku hor.",
+        "x": 2000,
+        "y": 800
+      },
+      {
+        "name": "Oáza Klidu",
+        "locationType": "city",
+        "description": "Skryté místo v pustině.",
+        "x": 3200,
+        "y": 2800
+      },
+      {
+        "name": "Dračí Hnízdo",
+        "locationType": "dungeon",
+        "description": "Místo, kam se odváží jen blázni.",
+        "x": 500,
+        "y": 500
+      },
+      {
+        "name": "Maják Naděje",
+        "locationType": "ruins",
+        "description": "Vyhaslý maják na skalnatém výběžku.",
+        "x": 3800,
+        "y": 500
+      },
+      {
+        "name": "Zelené Údolí",
+        "locationType": "city",
+        "description": "Úrodná půda a farmy.",
+        "x": 2500,
+        "y": 1800
+      },
+      {
+        "name": "Tábor Banditů",
+        "locationType": "dungeon",
+        "description": "Provizorní opevnění lupičů.",
+        "x": 1000,
+        "y": 3500
+      },
+      {
+        "name": "Svatyně Vody",
+        "locationType": "ruins",
+        "description": "Starodávný chrám uprostřed jezera.",
+        "x": 1600,
+        "y": 1200
+      },
+      {
+        "name": "Spálená Země",
+        "locationType": "dungeon",
+        "description": "Oblast zničená dračím ohněm.",
+        "x": 3400,
+        "y": 800
+      }
+    ]
+  }
+]

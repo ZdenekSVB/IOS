@@ -1,128 +1,705 @@
 [
-  {
-    "name": "Basic Fist Wraps", "description": "Allows for quick, effective strikes.", "iconName": "icon_fist_common", "itemType": "Weapon", "rarity": "Common", "prerequisite": null, 
-    "baseStats": {"attack": 8, "defense": null, "healthBonus": 0, "sellPrice": 40},
-    "costs": {"practiceType": "Squat", "requiredPractice": 3, "energyCost": 5, "manaCost": null}
-  },
-  {
-    "name": "Fast-Draw Bow", "description": "For quick and accurate long-range shots.", "iconName": "icon_bow_uncommon", "itemType": "Weapon", "rarity": "Uncommon", "prerequisite": "Dexterity 5+", 
-    "baseStats": {"attack": 15, "defense": null, "healthBonus": 0, "sellPrice": 150},
-    "costs": {"practiceType": "Squat", "requiredPractice": 4, "energyCost": 8, "manaCost": null}
-  },
-  {
-    "name": "Knight's Sword", "description": "A heavy and effective weapon for close combat.", "iconName": "icon_sword_rare", "itemType": "Weapon", "rarity": "Rare", "prerequisite": "Strength 12+", 
-    "baseStats": {"attack": 25, "defense": null, "healthBonus": 0, "sellPrice": 400},
-    "costs": {"practiceType": "Squat", "requiredPractice": 5, "energyCost": 12, "manaCost": null}
-  },
-  {
-    "name": "Guard's Halberd", "description": "Long reach, slow action.", "iconName": "icon_halberd_epic", "itemType": "Weapon", "rarity": "Epic", "prerequisite": "Strength 20+", 
-    "baseStats": {"attack": 45, "defense": null, "healthBonus": 0, "sellPrice": 1500},
-    "costs": {"practiceType": "Squat", "requiredPractice": 6, "energyCost": 20, "manaCost": null}
-  },
-  {
-    "name": "Scythe of the Moon", "description": "A mystical cutting weapon.", "iconName": "icon_scythe_legendary", "itemType": "Weapon", "rarity": "Legendary", "prerequisite": "Level 40+", 
-    "baseStats": {"attack": 60, "defense": null, "healthBonus": 0, "sellPrice": 4000},
-    "costs": {"practiceType": "Squat", "requiredPractice": 8, "energyCost": 30, "manaCost": null}
-  },
-  { "name": "Master's Dagger", "description": "A silent weapon for assassins.", "iconName": "icon_dagger_rare", "itemType": "Weapon", "rarity": "Rare", "prerequisite": "Dexterity 15+", "baseStats": {"attack": 20, "defense": null, "healthBonus": 0, "sellPrice": 300}, "costs": {"practiceType": "Squat", "requiredPractice": 4, "energyCost": 8, "manaCost": null} },
-  { "name": "Warrior's Hammer", "description": "Huge and heavy, delivers crushing blows.", "iconName": "icon_hammer_epic", "itemType": "Weapon", "rarity": "Epic", "prerequisite": "Strength 25+", "baseStats": {"attack": 55, "defense": null, "healthBonus": 0, "sellPrice": 2200}, "costs": {"practiceType": "Squat", "requiredPractice": 7, "energyCost": 25, "manaCost": null} },
-  { "name": "Dragon Glaive", "description": "Weapon with a blade made of dragon bone.", "iconName": "icon_glaive_artifact", "itemType": "Weapon", "rarity": "Artifact", "prerequisite": "STR/INT 35+", "baseStats": {"attack": 80, "defense": null, "healthBonus": 0, "sellPrice": 0}, "costs": {"practiceType": "Squat", "requiredPractice": 10, "energyCost": 40, "manaCost": null} },
-  { "name": "Throwing Knife", "description": "Can be thrown at long range.", "iconName": "icon_throwing_common", "itemType": "Weapon", "rarity": "Common", "prerequisite": null, "baseStats": {"attack": 6, "defense": null, "healthBonus": 0, "sellPrice": 20}, "costs": {"practiceType": "Squat", "requiredPractice": 2, "energyCost": 3, "manaCost": null} },
-  { "name": "Two-Handed Sword", "description": "Requires both hands to wield.", "iconName": "icon_greatsword_uncommon", "itemType": "Weapon", "rarity": "Uncommon", "prerequisite": "Strength 8+", "baseStats": {"attack": 18, "defense": null, "healthBonus": 0, "sellPrice": 180}, "costs": {"practiceType": "Squat", "requiredPractice": 4, "energyCost": 10, "manaCost": null} },
-  
-  
-  {
-    "name": "Basic Helmet", "description": "Protects against minor head injuries.", "iconName": "icon_helmet_common", "itemType": "Head", "rarity": "Common", "prerequisite": null,
-    "baseStats": {"attack": null, "defense": 5, "healthBonus": 5, "sellPrice": 30},
-    "costs": {"practiceType": "PushUp", "requiredPractice": 2, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Gloves of Strength", "description": "A slight bonus to physical attack.", "iconName": "icon_gloves_uncommon", "itemType": "Arms", "rarity": "Uncommon", "prerequisite": null,
-    "baseStats": {"attack": 5, "defense": 7, "healthBonus": 0, "sellPrice": 150},
-    "costs": {"practiceType": "PushUp", "requiredPractice": 3, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Chainmail Armor", "description": "Good protection against slashing weapons.", "iconName": "icon_chain_rare", "itemType": "Chest", "rarity": "Rare", "prerequisite": "Strength 10+",
-    "baseStats": {"attack": null, "defense": 18, "healthBonus": 15, "sellPrice": 400},
-    "costs": {"practiceType": "PushUp", "requiredPractice": 4, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Mantle of Resilience", "description": "Protects against elemental damage.", "iconName": "icon_cloak_epic", "itemType": "Chest", "rarity": "Epic", "prerequisite": "Intelligence 20+",
-    "baseStats": {"attack": null, "defense": 25, "healthBonus": 25, "sellPrice": 1800},
-    "costs": {"practiceType": "PushUp", "requiredPractice": 5, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Golden Shield", "description": "Almost impenetrable, very heavy.", "iconName": "icon_shield_legendary", "itemType": "Shield", "rarity": "Legendary", "prerequisite": "Strength 30+",
-    "baseStats": {"attack": null, "defense": 45, "healthBonus": 45, "sellPrice": 6000},
-    "costs": {"practiceType": "PushUp", "requiredPractice": 6, "energyCost": 0, "manaCost": 0}
-  },
-  { "name": "Leather Boots", "description": "Basic footwear for adventurers.", "iconName": "icon_boots_uncommon", "itemType": "Feet", "rarity": "Uncommon", "prerequisite": null, "baseStats": {"attack": null, "defense": 8, "healthBonus": 5, "sellPrice": 100}, "costs": {"practiceType": "PushUp", "requiredPractice": 3, "energyCost": 0, "manaCost": 0} },
-  { "name": "Belt of Knowledge", "description": "Gives a bonus to magic.", "iconName": "icon_belt_rare", "itemType": "Legs", "rarity": "Rare", "prerequisite": "Intelligence 15+", "baseStats": {"attack": 10, "defense": 5, "healthBonus": 0, "sellPrice": 350}, "costs": {"practiceType": "PushUp", "requiredPractice": 4, "energyCost": 0, "manaCost": 0} },
-  { "name": "Crown of Enlightenment", "description": "Provides protection from dark magic.", "iconName": "icon_crown_artifact", "itemType": "Head", "rarity": "Artifact", "prerequisite": "Intelligence 40+", "baseStats": {"attack": null, "defense": 60, "healthBonus": 60, "sellPrice": 0}, "costs": {"practiceType": "PushUp", "requiredPractice": 8, "energyCost": 0, "manaCost": 0} },
-  { "name": "Cotton Cloak", "description": "Very weak protection, cheap.", "iconName": "icon_robe_common", "itemType": "Chest", "rarity": "Common", "prerequisite": null, "baseStats": {"attack": null, "defense": 3, "healthBonus": 2, "sellPrice": 20}, "costs": {"practiceType": "PushUp", "requiredPractice": 2, "energyCost": 0, "manaCost": 0} },
-  { "name": "Nature's Hide", "description": "Special hide from tree creatures.", "iconName": "icon_nature_legendary", "itemType": "Legs", "rarity": "Legendary", "prerequisite": "Dexterity 30+", "baseStats": {"attack": null, "defense": 35, "healthBonus": 55, "sellPrice": 4500}, "costs": {"practiceType": "PushUp", "requiredPractice": 7, "energyCost": 0, "manaCost": 0} },
+    {
+        "name": "Basic Fist Wraps",
+        "description": "Allows for quick, effective strikes.",
+        "iconName": "icon_fist_common",
+        "itemType": "Weapon",
+        "rarity": "Common",
+        "prerequisite": null,
+        "baseStats": {
+            "attack": 8,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 40
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 3,
+            "energyCost": 5,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Fast-Draw Bow",
+        "description": "For quick and accurate long-range shots.",
+        "iconName": "icon_bow_uncommon",
+        "itemType": "Weapon",
+        "rarity": "Uncommon",
+        "prerequisite": "Dexterity 5+",
+        "baseStats": {
+            "attack": 15,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 150
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 4,
+            "energyCost": 8,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Knight's Sword",
+        "description": "A heavy and effective weapon for close combat.",
+        "iconName": "icon_sword_rare",
+        "itemType": "Weapon",
+        "rarity": "Rare",
+        "prerequisite": "Strength 12+",
+        "baseStats": {
+            "attack": 25,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 400
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 5,
+            "energyCost": 12,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Guard's Halberd",
+        "description": "Long reach, slow action.",
+        "iconName": "icon_halberd_epic",
+        "itemType": "Weapon",
+        "rarity": "Epic",
+        "prerequisite": "Strength 20+",
+        "baseStats": {
+            "attack": 45,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 1500
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 6,
+            "energyCost": 20,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Scythe of the Moon",
+        "description": "A mystical cutting weapon.",
+        "iconName": "icon_scythe_legendary",
+        "itemType": "Weapon",
+        "rarity": "Legendary",
+        "prerequisite": "Level 40+",
+        "baseStats": {
+            "attack": 60,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 4000
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 8,
+            "energyCost": 30,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Master's Dagger",
+        "description": "A silent weapon for assassins.",
+        "iconName": "icon_dagger_rare",
+        "itemType": "Weapon",
+        "rarity": "Rare",
+        "prerequisite": "Dexterity 15+",
+        "baseStats": {
+            "attack": 20,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 300
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 4,
+            "energyCost": 8,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Warrior's Hammer",
+        "description": "Huge and heavy, delivers crushing blows.",
+        "iconName": "icon_hammer_epic",
+        "itemType": "Weapon",
+        "rarity": "Epic",
+        "prerequisite": "Strength 25+",
+        "baseStats": {
+            "attack": 55,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 2200
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 7,
+            "energyCost": 25,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Dragon Glaive",
+        "description": "Weapon with a blade made of dragon bone.",
+        "iconName": "icon_glaive_artifact",
+        "itemType": "Weapon",
+        "rarity": "Artifact",
+        "prerequisite": "STR/INT 35+",
+        "baseStats": {
+            "attack": 80,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 0
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 10,
+            "energyCost": 40,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Throwing Knife",
+        "description": "Can be thrown at long range.",
+        "iconName": "icon_throwing_common",
+        "itemType": "Weapon",
+        "rarity": "Common",
+        "prerequisite": null,
+        "baseStats": {
+            "attack": 6,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 20
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 2,
+            "energyCost": 3,
+            "manaCost": null
+        }
+    },
+    {
+        "name": "Two-Handed Sword",
+        "description": "Requires both hands to wield.",
+        "iconName": "icon_greatsword_uncommon",
+        "itemType": "Weapon",
+        "rarity": "Uncommon",
+        "prerequisite": "Strength 8+",
+        "baseStats": {
+            "attack": 18,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 180
+        },
+        "costs": {
+            "practiceType": "Squat",
+            "requiredPractice": 4,
+            "energyCost": 10,
+            "manaCost": null
+        }
+    },
 
-   {
-    "name": "Fireball", "description": "Hits a single enemy with massive damage.", "iconName": "icon_spell_fireball", "itemType": "Spell", "rarity": "Epic", "prerequisite": "Adept Spellcaster", 
-    "baseStats": {"attack": 40, "defense": null, "healthBonus": 0, "sellPrice": 800},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 6, "energyCost": null, "manaCost": 50}
-  },
-  {
-    "name": "Ice Shard", "description": "Slows and damages the enemy.", "iconName": "icon_spell_ice", "itemType": "Spell", "rarity": "Rare", "prerequisite": "Intelligence 15+", 
-    "baseStats": {"attack": 25, "defense": null, "healthBonus": 0, "sellPrice": 300},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 4, "energyCost": null, "manaCost": 30}
-  },
-  {
-    "name": "Minor Healing Touch", "description": "Restores a small amount of health.", "iconName": "icon_spell_heal_common", "itemType": "Spell", "rarity": "Common", "prerequisite": "Intelligence 3+", 
-    "baseStats": {"attack": null, "defense": null, "healthBonus": 10, "sellPrice": 40},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 3, "energyCost": null, "manaCost": 15}
-  },
-  {
-    "name": "Lightning Bolt", "description": "A quick magical strike.", "iconName": "icon_spell_lightning", "itemType": "Spell", "rarity": "Uncommon", "prerequisite": "Intelligence 8+", "baseStats": {"attack": 18, "defense": null, "healthBonus": 0, "sellPrice": 150}, "costs": {"practiceType": "SitUp", "requiredPractice": 4, "energyCost": null, "manaCost": 25}
-  },
-  {
-    "name": "Magic Shield", "description": "Temporarily increases defense.", "iconName": "icon_spell_shield_rare", "itemType": "Spell", "rarity": "Rare", "prerequisite": "Intelligence 20+", "baseStats": {"attack": null, "defense": 20, "healthBonus": 0, "sellPrice": 450}, "costs": {"practiceType": "SitUp", "requiredPractice": 5, "energyCost": null, "manaCost": 40}
-  },
-  { "name": "Vortex", "description": "A swirling attack on all enemies.", "iconName": "icon_spell_vortex_legendary", "itemType": "Spell", "rarity": "Legendary", "prerequisite": "Level 50+", "baseStats": {"attack": 75, "defense": null, "healthBonus": 0, "sellPrice": 7000}, "costs": {"practiceType": "SitUp", "requiredPractice": 10, "energyCost": null, "manaCost": 120} },
-  { "name": "Divine Light", "description": "Heals and removes negative effects.", "iconName": "icon_spell_light_artifact", "itemType": "Spell", "rarity": "Artifact", "prerequisite": "Intelligence 50+", "baseStats": {"attack": null, "defense": null, "healthBonus": 80, "sellPrice": 0}, "costs": {"practiceType": "SitUp", "requiredPractice": 12, "energyCost": null, "manaCost": 150} },
-  { "name": "Hypnosis", "description": "Confuses the enemy.", "iconName": "icon_spell_hypnosis_rare", "itemType": "Spell", "rarity": "Rare", "prerequisite": "Intelligence 18+", "baseStats": {"attack": null, "defense": 0, "healthBonus": 0, "sellPrice": 350}, "costs": {"practiceType": "SitUp", "requiredPractice": 4, "energyCost": null, "manaCost": 35} },
-  { "name": "Teleportation", "description": "Instant short-range travel.", "iconName": "icon_spell_teleport_epic", "itemType": "Spell", "rarity": "Epic", "prerequisite": "Intelligence 30+", "baseStats": {"attack": null, "defense": null, "healthBonus": null, "sellPrice": 1200}, "costs": {"practiceType": "SitUp", "requiredPractice": 7, "energyCost": null, "manaCost": 80} },
-  { "name": "Mana Drain", "description": "Drains mana from the target.", "iconName": "icon_spell_drain_uncommon", "itemType": "Spell", "rarity": "Uncommon", "prerequisite": "Intelligence 10+", "baseStats": {"attack": 15, "defense": null, "healthBonus": 0, "sellPrice": 100}, "costs": {"practiceType": "SitUp", "requiredPractice": 3, "energyCost": null, "manaCost": 20} },
+    {
+        "name": "Basic Helmet",
+        "description": "Protects against minor head injuries.",
+        "iconName": "icon_helmet_common",
+        "itemType": "Head",
+        "rarity": "Common",
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": 5,
+            "healthBonus": 5,
+            "sellPrice": 30
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 2,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Gloves of Strength",
+        "description": "A slight bonus to physical attack.",
+        "iconName": "icon_gloves_uncommon",
+        "itemType": "Arms",
+        "rarity": "Uncommon",
+        "prerequisite": null,
+        "baseStats": {
+            "attack": 5,
+            "defense": 7,
+            "healthBonus": 0,
+            "sellPrice": 150
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 3,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Chainmail Armor",
+        "description": "Good protection against slashing weapons.",
+        "iconName": "icon_chain_rare",
+        "itemType": "Chest",
+        "rarity": "Rare",
+        "prerequisite": "Strength 10+",
+        "baseStats": {
+            "attack": null,
+            "defense": 18,
+            "healthBonus": 15,
+            "sellPrice": 400
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 4,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Mantle of Resilience",
+        "description": "Protects against elemental damage.",
+        "iconName": "icon_cloak_epic",
+        "itemType": "Chest",
+        "rarity": "Epic",
+        "prerequisite": "Intelligence 20+",
+        "baseStats": {
+            "attack": null,
+            "defense": 25,
+            "healthBonus": 25,
+            "sellPrice": 1800
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 5,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Golden Shield",
+        "description": "Almost impenetrable, very heavy.",
+        "iconName": "icon_shield_legendary",
+        "itemType": "Shield",
+        "rarity": "Legendary",
+        "prerequisite": "Strength 30+",
+        "baseStats": {
+            "attack": null,
+            "defense": 45,
+            "healthBonus": 45,
+            "sellPrice": 6000
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 6,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Leather Boots",
+        "description": "Basic footwear for adventurers.",
+        "iconName": "icon_boots_uncommon",
+        "itemType": "Feet",
+        "rarity": "Uncommon",
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": 8,
+            "healthBonus": 5,
+            "sellPrice": 100
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 3,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Belt of Knowledge",
+        "description": "Gives a bonus to magic.",
+        "iconName": "icon_belt_rare",
+        "itemType": "Legs",
+        "rarity": "Rare",
+        "prerequisite": "Intelligence 15+",
+        "baseStats": {
+            "attack": 10,
+            "defense": 5,
+            "healthBonus": 0,
+            "sellPrice": 350
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 4,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Crown of Enlightenment",
+        "description": "Provides protection from dark magic.",
+        "iconName": "icon_crown_artifact",
+        "itemType": "Head",
+        "rarity": "Artifact",
+        "prerequisite": "Intelligence 40+",
+        "baseStats": {
+            "attack": null,
+            "defense": 60,
+            "healthBonus": 60,
+            "sellPrice": 0
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 8,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Cotton Cloak",
+        "description": "Very weak protection, cheap.",
+        "iconName": "icon_robe_common",
+        "itemType": "Chest",
+        "rarity": "Common",
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": 3,
+            "healthBonus": 2,
+            "sellPrice": 20
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 2,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Nature's Hide",
+        "description": "Special hide from tree creatures.",
+        "iconName": "icon_nature_legendary",
+        "itemType": "Legs",
+        "rarity": "Legendary",
+        "prerequisite": "Dexterity 30+",
+        "baseStats": {
+            "attack": null,
+            "defense": 35,
+            "healthBonus": 55,
+            "sellPrice": 4500
+        },
+        "costs": {
+            "practiceType": "PushUp",
+            "requiredPractice": 7,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
 
- 
-  {
-    "name": "Health Potion", "description": "Instantly restores health (Consumable).", "iconName": "icon_potion_hp_rare", "itemType": "Potion", 
-    "rarity": null, 
-    "prerequisite": null, 
-    "baseStats": {"attack": null, "defense": null, "healthBonus": 30, "sellPrice": 200},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 0, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Mana Potion", "description": "Restores a moderate amount of Mana.", "iconName": "icon_potion_mana_uncommon", "itemType": "Potion", 
-    "rarity": null, 
-    "prerequisite": null, 
-    "baseStats": {"attack": null, "defense": null, "healthBonus": 0, "sellPrice": 120},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 0, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Elixir of Resilience", "description": "Temporarily increases defense.", "iconName": "icon_potion_def_epic", "itemType": "Potion", 
-    "rarity": null, 
-    "prerequisite": null, 
-    "baseStats": {"attack": null, "defense": 20, "healthBonus": 0, "sellPrice": 600},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 0, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Basic Ration", "description": "A bit of food to replenish minor energy.", "iconName": "icon_food_common", "itemType": "Consumable", 
-    "rarity": null, 
-    "prerequisite": null, 
-    "baseStats": {"attack": null, "defense": null, "healthBonus": 0, "sellPrice": 10},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 0, "energyCost": 0, "manaCost": 0}
-  },
-  {
-    "name": "Stone of Return", "description": "Teleports back to the main town.", "iconName": "icon_stone_uncommon", "itemType": "Consumable", 
-    "rarity": null, 
-    "prerequisite": null, 
-    "baseStats": {"attack": null, "defense": null, "healthBonus": 0, "sellPrice": 100},
-    "costs": {"practiceType": "SitUp", "requiredPractice": 0, "energyCost": 0, "manaCost": 0}
-  }
+    {
+        "name": "Fireball",
+        "description": "Hits a single enemy with massive damage.",
+        "iconName": "icon_spell_fireball",
+        "itemType": "Spell",
+        "rarity": "Epic",
+        "prerequisite": "Adept Spellcaster",
+        "baseStats": {
+            "attack": 40,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 800
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 6,
+            "energyCost": null,
+            "manaCost": 50
+        }
+    },
+    {
+        "name": "Ice Shard",
+        "description": "Slows and damages the enemy.",
+        "iconName": "icon_spell_ice",
+        "itemType": "Spell",
+        "rarity": "Rare",
+        "prerequisite": "Intelligence 15+",
+        "baseStats": {
+            "attack": 25,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 300
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 4,
+            "energyCost": null,
+            "manaCost": 30
+        }
+    },
+    {
+        "name": "Minor Healing Touch",
+        "description": "Restores a small amount of health.",
+        "iconName": "icon_spell_heal_common",
+        "itemType": "Spell",
+        "rarity": "Common",
+        "prerequisite": "Intelligence 3+",
+        "baseStats": {
+            "attack": null,
+            "defense": null,
+            "healthBonus": 10,
+            "sellPrice": 40
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 3,
+            "energyCost": null,
+            "manaCost": 15
+        }
+    },
+    {
+        "name": "Lightning Bolt",
+        "description": "A quick magical strike.",
+        "iconName": "icon_spell_lightning",
+        "itemType": "Spell",
+        "rarity": "Uncommon",
+        "prerequisite": "Intelligence 8+",
+        "baseStats": {
+            "attack": 18,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 150
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 4,
+            "energyCost": null,
+            "manaCost": 25
+        }
+    },
+    {
+        "name": "Magic Shield",
+        "description": "Temporarily increases defense.",
+        "iconName": "icon_spell_shield_rare",
+        "itemType": "Spell",
+        "rarity": "Rare",
+        "prerequisite": "Intelligence 20+",
+        "baseStats": {
+            "attack": null,
+            "defense": 20,
+            "healthBonus": 0,
+            "sellPrice": 450
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 5,
+            "energyCost": null,
+            "manaCost": 40
+        }
+    },
+    {
+        "name": "Vortex",
+        "description": "A swirling attack on all enemies.",
+        "iconName": "icon_spell_vortex_legendary",
+        "itemType": "Spell",
+        "rarity": "Legendary",
+        "prerequisite": "Level 50+",
+        "baseStats": {
+            "attack": 75,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 7000
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 10,
+            "energyCost": null,
+            "manaCost": 120
+        }
+    },
+    {
+        "name": "Divine Light",
+        "description": "Heals and removes negative effects.",
+        "iconName": "icon_spell_light_artifact",
+        "itemType": "Spell",
+        "rarity": "Artifact",
+        "prerequisite": "Intelligence 50+",
+        "baseStats": {
+            "attack": null,
+            "defense": null,
+            "healthBonus": 80,
+            "sellPrice": 0
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 12,
+            "energyCost": null,
+            "manaCost": 150
+        }
+    },
+    {
+        "name": "Hypnosis",
+        "description": "Confuses the enemy.",
+        "iconName": "icon_spell_hypnosis_rare",
+        "itemType": "Spell",
+        "rarity": "Rare",
+        "prerequisite": "Intelligence 18+",
+        "baseStats": {
+            "attack": null,
+            "defense": 0,
+            "healthBonus": 0,
+            "sellPrice": 350
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 4,
+            "energyCost": null,
+            "manaCost": 35
+        }
+    },
+    {
+        "name": "Teleportation",
+        "description": "Instant short-range travel.",
+        "iconName": "icon_spell_teleport_epic",
+        "itemType": "Spell",
+        "rarity": "Epic",
+        "prerequisite": "Intelligence 30+",
+        "baseStats": {
+            "attack": null,
+            "defense": null,
+            "healthBonus": null,
+            "sellPrice": 1200
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 7,
+            "energyCost": null,
+            "manaCost": 80
+        }
+    },
+    {
+        "name": "Mana Drain",
+        "description": "Drains mana from the target.",
+        "iconName": "icon_spell_drain_uncommon",
+        "itemType": "Spell",
+        "rarity": "Uncommon",
+        "prerequisite": "Intelligence 10+",
+        "baseStats": {
+            "attack": 15,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 100
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 3,
+            "energyCost": null,
+            "manaCost": 20
+        }
+    },
+
+    {
+        "name": "Health Potion",
+        "description": "Instantly restores health (Consumable).",
+        "iconName": "icon_potion_hp_rare",
+        "itemType": "Potion",
+        "rarity": null,
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": null,
+            "healthBonus": 30,
+            "sellPrice": 200
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 0,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Mana Potion",
+        "description": "Restores a moderate amount of Mana.",
+        "iconName": "icon_potion_mana_uncommon",
+        "itemType": "Potion",
+        "rarity": null,
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 120
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 0,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Elixir of Resilience",
+        "description": "Temporarily increases defense.",
+        "iconName": "icon_potion_def_epic",
+        "itemType": "Potion",
+        "rarity": null,
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": 20,
+            "healthBonus": 0,
+            "sellPrice": 600
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 0,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Basic Ration",
+        "description": "A bit of food to replenish minor energy.",
+        "iconName": "icon_food_common",
+        "itemType": "Consumable",
+        "rarity": null,
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 10
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 0,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    },
+    {
+        "name": "Stone of Return",
+        "description": "Teleports back to the main town.",
+        "iconName": "icon_stone_uncommon",
+        "itemType": "Consumable",
+        "rarity": null,
+        "prerequisite": null,
+        "baseStats": {
+            "attack": null,
+            "defense": null,
+            "healthBonus": 0,
+            "sellPrice": 100
+        },
+        "costs": {
+            "practiceType": "SitUp",
+            "requiredPractice": 0,
+            "energyCost": 0,
+            "manaCost": 0
+        }
+    }
 ]

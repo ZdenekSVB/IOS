@@ -85,7 +85,7 @@ class ShopViewModel: ObservableObject {
             // Cena v obchodě je 4x vyšší než prodejní cena
             // (nebo si vymysli vlastní vzorec)
             let basePrice = item.baseStats.sellPrice ?? 10
-            let buyPrice = basePrice * 4
+            let buyPrice = basePrice * 2
             
             newSlots.append(ShopSlot(
                 itemId: item.id ?? "",
