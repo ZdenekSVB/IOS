@@ -29,12 +29,17 @@ struct DungeonStrideApp: App {
                 .environmentObject(userService)
                 .environmentObject(questService)
                 .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
+                
                 .onAppear {
                     themeManager.setupDependencies(
                         userService: userService,
                         authViewModel: authViewModel
                     )
-                    authViewModel.setupThemeManager(themeManager)
+                    authViewModel.setup(
+                        userService: userService,
+                        questService: questService,
+                        themeManager: themeManager
+                    )
                 }
         }
     }

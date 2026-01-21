@@ -14,7 +14,9 @@ import GoogleSignInSwift
 class AuthViewModel: ObservableObject {
     
     private let db = Firestore.firestore()
-    private let userService = UserService()
+    
+    // ZMĚNA: Už nevytváříme novou instanci, ale čekáme na tu sdílenou
+    var userService: UserService?
     private var questService: QuestService?
     private var themeManager: ThemeManager?
     
@@ -28,20 +30,21 @@ class AuthViewModel: ObservableObject {
     @Published var currentUserUID: String?
     @Published var currentUserEmail: String?
     
-    init() {
+    // ZMĚNA: Init je prázdný, logika se spouští až v 'setup'
+    init() {}
+    
+    // ZMĚNA: Jedna metoda pro nastavení všech závislostí a spuštění kontroly přihlášení
+    func setup(userService: UserService, questService: QuestService, themeManager: ThemeManager) {
+        self.userService = userService
+        self.questService = questService
+        self.themeManager = themeManager
+        
+        // Spustíme kontrolu až teď, když máme UserService k dispozici
         if Auth.auth().currentUser != nil {
             Task {
                 await checkIfUserIsLoggedIn()
             }
         }
-    }
-    
-    func setupThemeManager(_ themeManager: ThemeManager) {
-        self.themeManager = themeManager
-    }
-    
-    func setupQuestService(_ questService: QuestService) {
-        self.questService = questService
     }
     
     func login() {
@@ -135,7 +138,11 @@ class AuthViewModel: ObservableObject {
             password = ""
             username = ""
             errorMessage = ""
-            userService.currentUser = nil
+            
+            // Vyčistíme data v UserService a přestaneme naslouchat
+            userService?.currentUser = nil
+            userService?.stopListeningForUserUpdates()
+            
             themeManager?.setDarkMode(false)
         } catch {
             errorMessage = error.localizedDescription
@@ -149,29 +156,37 @@ class AuthViewModel: ObservableObject {
         errorMessage = ""
         
         Task {
-            // 1. Načíst data uživatele
-            await loadUserData(uid: user.uid)
+            // 1. Spustit naslouchání na User profil (to zajistí, že UI se hned aktualizuje)
+            // ZMĚNA: Používáme startListening místo jednorázového fetch
+            userService?.startListeningForUserUpdates(uid: user.uid)
             
-            // 2. Zkontrolovat reset dne (vrací Bool)
-            let isNewDay = (try? await userService.checkAndResetDailyStats(userId: user.uid)) ?? false
-            
-            // 3. Spravovat Questy
-            if isNewDay {
-                // Je nový den -> SMAZAT staré a STÁHNOUT nové šablony z DB
-                try? await questService?.regenerateDailyQuests(for: user.uid)
-            } else {
-                // Stejný den -> Jen načíst existující (nebo stáhnout, pokud chybí)
-                try? await questService?.loadDailyQuests(for: user.uid)
+            // 2. Počkáme chvilku, než se načte user, abychom mohli zkontrolovat nastavení (dark mode)
+            // Poznámka: startListening je asynchronní, data přijdou do UserService sama.
+            // Pro jistotu zde načteme Theme explicitně, pokud už data máme.
+            if let fetchedUser = try? await userService?.fetchUser(uid: user.uid) {
+                themeManager?.setDarkMode(fetchedUser.settings.isDarkMode)
+                
+                // 3. Zkontrolovat reset dne
+                // Protože startListening už běží, checkAndResetDailyStats by měl pracovat s aktuálními daty
+                // nebo si je stáhne znovu.
+                let isNewDay = (try? await userService?.checkAndResetDailyStats(userId: user.uid)) ?? false
+                
+                // 4. Spravovat Questy
+                if isNewDay {
+                    try? await questService?.regenerateDailyQuests(for: user.uid)
+                } else {
+                    try? await questService?.loadDailyQuests(for: user.uid)
+                }
             }
             
-            // 4. Update Last Active
+            // 5. Update Last Active
             await updateLastLogin(uid: user.uid)
         }
     }
     
     private func createUserInFirestore(uid: String) async {
         do {
-            let _ = try await userService.createUser(uid: uid, email: email, username: username)
+            let _ = try await userService?.createUser(uid: uid, email: email, username: username)
             isLoading = false
             if let user = Auth.auth().currentUser {
                 handleSuccessfulLogin(user: user)
@@ -185,33 +200,22 @@ class AuthViewModel: ObservableObject {
     
     private func handleGoogleUser(user: FirebaseAuth.User) async {
         do {
-            let existingUser = try? await userService.fetchUser(uid: user.uid)
+            let existingUser = try? await userService?.fetchUser(uid: user.uid)
             
             if existingUser == nil {
                 let googleUsername = user.displayName ?? user.email?.components(separatedBy: "@").first ?? "GoogleUser"
-                let _ = try await userService.createUser(uid: user.uid, email: user.email ?? "", username: googleUsername)
+                let _ = try await userService?.createUser(uid: user.uid, email: user.email ?? "", username: googleUsername)
             } else {
-                let isNewDay = (try? await userService.checkAndResetDailyStats(userId: user.uid)) ?? false
+                let isNewDay = (try? await userService?.checkAndResetDailyStats(userId: user.uid)) ?? false
                 if isNewDay {
                     try? await questService?.regenerateDailyQuests(for: user.uid)
                 }
-                try await userService.updateLastActive(uid: user.uid)
+                try await userService?.updateLastActive(uid: user.uid)
             }
             isLoading = false
         } catch {
             isLoading = false
             errorMessage = error.localizedDescription
-        }
-    }
-    
-    private func loadUserData(uid: String) async {
-        do {
-            let user = try await userService.fetchUser(uid: uid)
-            await MainActor.run {
-                themeManager?.setDarkMode(user.settings.isDarkMode)
-            }
-        } catch {
-            print(error.localizedDescription)
         }
     }
     
@@ -223,7 +227,7 @@ class AuthViewModel: ObservableObject {
     
     private func updateLastLogin(uid: String) async {
         do {
-            try await userService.updateLastActive(uid: uid)
+            try await userService?.updateLastActive(uid: uid)
         } catch {
             print("Failed to update last login: \(error.localizedDescription)")
         }

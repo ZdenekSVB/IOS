@@ -44,7 +44,9 @@ struct ActivityMapView: UIViewRepresentable {
             uiView.setRegion(region, animated: true)
         }
         
-        uiView.removeOverlays(uiView.overlays)
+        if uiView.overlays.count > 0 {
+            uiView.removeOverlays(uiView.overlays)
+        }
         let polyline = MKPolyline(coordinates: polylineCoordinates, count: polylineCoordinates.count)
         uiView.addOverlay(polyline)
     }
@@ -80,12 +82,12 @@ struct PaceChart: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(units == .metric ? "Pace (min/km)" : "Pace (min/mi)")
+            Text("Speed (\(units.speedSymbol))")
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.secondaryTextColor)
             
-            if activityManager.paceHistoryForChart.isEmpty {
+            if activityManager.rawSpeedHistory.isEmpty {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color.clear)
@@ -96,26 +98,25 @@ struct PaceChart: View {
                 }
             } else {
                 Chart {
-                    ForEach(Array(activityManager.paceHistoryForChart.enumerated()), id: \.offset) { index, paceInMinPerKm in
-                        let displayedPace = units == .metric ? paceInMinPerKm : paceInMinPerKm * 1.60934
+                    ForEach(Array(activityManager.rawSpeedHistory.enumerated()), id: \.offset) { index, speedMs in
+                        // Převedeme m/s na km/h (nebo mph/uzly) přímo v grafu
+                        let convertedSpeed = units.convertSpeed(fromMetersPerSecond: speedMs)
                         
-                        if displayedPace > 0 {
-                            LineMark(
-                                x: .value("Segment", index + 1),
-                                y: .value("Pace", displayedPace)
+                        LineMark(
+                            x: .value("Segment", index + 1),
+                            y: .value("Speed", convertedSpeed)
+                        )
+                        .interpolationMethod(.catmullRom)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [themeManager.accentColor, themeManager.accentColor.opacity(0.3)],
+                                startPoint: .top,
+                                endPoint: .bottom
                             )
-                            .interpolationMethod(.catmullRom)
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [themeManager.accentColor, themeManager.accentColor.opacity(0.3)],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                        }
+                        )
                     }
                 }
-                .chartYAxisLabel(units == .metric ? "min/km" : "min/mi")
+                .chartYAxisLabel(units.speedSymbol)
                 .chartYScale(domain: .automatic(includesZero: false))
             }
         }
@@ -143,8 +144,9 @@ struct MetricsView: View {
             )
             
             MetricItem(
-                title: "Pace",
-                value: calculatePaceString(),
+                title: "Speed",
+                // Zde se používá formátovač z DistanceUnit, který to hodí do km/h, mph nebo uzlů
+                value: units.formatSpeed(metersPerSecond: activityManager.currentSpeed),
                 themeManager: themeManager
             )
             
@@ -154,29 +156,6 @@ struct MetricsView: View {
                 themeManager: themeManager
             )
         }
-    }
-    
-    private func calculatePaceString() -> String {
-        guard activityManager.distance > 10, activityManager.elapsedTime > 0 else {
-            return units == .metric ? "0'00\" / km" : "0'00\" / mi"
-        }
-        
-        let distanceVal: Double
-        let unitLabel: String
-        
-        if units == .metric {
-            distanceVal = activityManager.distance / 1000.0
-            unitLabel = "/ km"
-        } else {
-            distanceVal = activityManager.distance * 0.000621371
-            unitLabel = "/ mi"
-        }
-        
-        let minutesPerUnit = (activityManager.elapsedTime / 60.0) / distanceVal
-        let minutes = Int(minutesPerUnit)
-        let seconds = Int((minutesPerUnit - Double(minutes)) * 60)
-        
-        return String(format: "%d'%02d\" %@", minutes, seconds, unitLabel)
     }
 }
 
@@ -209,12 +188,11 @@ struct ActivityActionButtons: View {
     @ObservedObject var activityManager: ActivityManager
     var authViewModel: AuthViewModel
     var userService: UserService
-    // Změna: Přidána environment object pro QuestService
     @EnvironmentObject var questService: QuestService
     
     var body: some View {
         HStack(spacing: 20) {
-            // START / PAUSE Button
+            // START / PAUSE
             Button {
                 if activityManager.activityState == .active {
                     activityManager.pauseActivity()
@@ -231,13 +209,13 @@ struct ActivityActionButtons: View {
                     .shadow(radius: 5)
             }
             
-            // STOP Button
+            // STOP
             if activityManager.activityState == .active || activityManager.activityState == .paused {
                 Button {
                     activityManager.finishActivity(
                         userId: authViewModel.currentUserUID,
                         userService: userService,
-                        questService: questService // Předáváme službu
+                        questService: questService
                     )
                 } label: {
                     Image(systemName: "stop.fill")
@@ -251,6 +229,7 @@ struct ActivityActionButtons: View {
                 .transition(.scale.combined(with: .opacity))
             }
             
+            // RESET
             if activityManager.activityState == .finished {
                 Button {
                     activityManager.resetActivity()
