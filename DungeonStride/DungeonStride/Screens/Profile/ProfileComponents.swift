@@ -110,5 +110,3 @@ struct ActionButtonsView: View {
             .padding(.bottom, 20)
     }
 }
-
-// AvatarSelectionPopup byl odstraněn, protože je nyní v EditProfileView

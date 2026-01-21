@@ -16,128 +16,82 @@ class ThemeManager: ObservableObject {
     private let darkModeKey = "isDarkMode"
     
     // MARK: - Colors
-    var backgroundColor: Color {
-        isDarkMode ? Color("Paleta3") : Color("Paleta6")
-    }
-    
-    var cardBackgroundColor: Color {
-        isDarkMode ? Color("Paleta5") : Color("Paleta4").opacity(0.1)
-    }
-    
-    var primaryTextColor: Color {
-        isDarkMode ? .white : .black
-    }
-    
-    var secondaryTextColor: Color {
-        isDarkMode ? Color("Paleta4") : Color("Paleta4").opacity(0.7)
-    }
-    
-    var accentColor: Color {
-        Color("Paleta2")
-    }
+    var backgroundColor: Color { isDarkMode ? Color("Paleta3") : Color("Paleta6") }
+    var cardBackgroundColor: Color { isDarkMode ? Color("Paleta5") : Color("Paleta4").opacity(0.1) }
+    var primaryTextColor: Color { isDarkMode ? .white : .black }
+    var secondaryTextColor: Color { isDarkMode ? Color("Paleta4") : Color("Paleta4").opacity(0.7) }
+    var accentColor: Color { Color("Paleta2") }
     
     // MARK: - Initialization
     init() {
+        // Okamžité načtení z UserDefaults pro rychlý start UI
         self.isDarkMode = UserDefaults.standard.object(forKey: darkModeKey) as? Bool ?? true
-    }
-    
-    deinit {
-        cancellables.forEach { $0.cancel() }
     }
     
     func setupDependencies(userService: UserService, authViewModel: AuthViewModel) {
         self.userService = userService
         self.authViewModel = authViewModel
         
-        setupDarkModeListeners()
-        loadDarkModeFromFirestore()
+        setupListeners()
     }
-}
-
-// MARK: - Logic & Updates
-extension ThemeManager {
+    
+    // MARK: - Logic
     
     func toggleDarkMode() {
-        let newDarkMode = !isDarkMode
-        updateDarkModeLocally(newDarkMode)
-        syncDarkModeWithFirestore(isDarkMode: newDarkMode)
+        setDarkMode(!isDarkMode)
     }
     
-    func setDarkMode(_ isDarkMode: Bool) {
-        updateDarkModeLocally(isDarkMode)
-        syncDarkModeWithFirestore(isDarkMode: isDarkMode)
-    }
-    
-    private func updateDarkModeLocally(_ isDarkMode: Bool) {
-        self.isDarkMode = isDarkMode
-        UserDefaults.standard.set(isDarkMode, forKey: darkModeKey)
-        updateSystemAppearance()
-    }
-    
-    private func updateSystemAppearance() {
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-            windowScene.windows.forEach { window in
-                window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+    func setDarkMode(_ enabled: Bool) {
+        // 1. Lokální update (hned)
+        updateLocalState(enabled)
+        
+        // 2. Vzdálený update (na pozadí)
+        if let userId = authViewModel?.currentUserUID {
+            Task {
+                try? await userService?.updateDarkMode(uid: userId, isDarkMode: enabled)
             }
         }
     }
-}
-
-// MARK: - Firestore Sync
-extension ThemeManager {
     
-    private func setupDarkModeListeners() {
+    private func updateLocalState(_ enabled: Bool) {
+        guard isDarkMode != enabled else { return } // Optimalizace: nepřekreslovat, pokud se nic nemění
+        
+        isDarkMode = enabled
+        UserDefaults.standard.set(enabled, forKey: darkModeKey)
+        
+        // Hack pro vynucení změny vzhledu celého okna (pro systémové prvky jako Alert, Keyboard)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            windowScene.windows.forEach { window in
+                window.overrideUserInterfaceStyle = enabled ? .dark : .light
+            }
+        }
+    }
+    
+    // MARK: - Sync & Listeners
+    
+    private func setupListeners() {
+        // 1. Posloucháme změny z Firestore (přes NotificationCenter, které vysílá UserService)
         NotificationCenter.default.publisher(for: .darkModeChanged)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] notification in
-                if let isDarkMode = notification.userInfo?["isDarkMode"] as? Bool {
-                    self?.updateDarkModeLocally(isDarkMode)
+                if let serverDarkMode = notification.userInfo?["isDarkMode"] as? Bool {
+                    self?.updateLocalState(serverDarkMode)
                 }
             }
             .store(in: &cancellables)
         
+        // 2. Reagujeme na přihlášení/odhlášení
         authViewModel?.$isLoggedIn
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoggedIn in
-                if isLoggedIn {
-                    self?.loadDarkModeFromFirestore()
+                if isLoggedIn, let uid = self?.authViewModel?.currentUserUID {
+                    // ZDE BYLA CHYBA: Volal se startListening A ZÁROVEŇ fetch.
+                    // Stačí jen začít poslouchat. První data přijdou sama.
+                    self?.userService?.startListeningForUserUpdates(uid: uid)
                 } else {
-                    self?.stopFirestoreListening()
+                    self?.userService?.stopListeningForUserUpdates()
                 }
             }
             .store(in: &cancellables)
-    }
-    
-    private func loadDarkModeFromFirestore() {
-        guard let userId = authViewModel?.currentUserUID,
-              let userService = userService else { return }
-        
-        userService.startListeningForUserUpdates(uid: userId)
-        
-        Task {
-            do {
-                let user = try await userService.fetchUser(uid: userId)
-                self.updateDarkModeLocally(user.settings.isDarkMode)
-            } catch {
-                
-            }
-        }
-    }
-    
-    private func stopFirestoreListening() {
-        userService?.stopListeningForUserUpdates()
-    }
-    
-    private func syncDarkModeWithFirestore(isDarkMode: Bool) {
-        guard let userId = authViewModel?.currentUserUID,
-              let userService = userService else { return }
-        
-        Task {
-            do {
-                try await userService.updateDarkMode(uid: userId, isDarkMode: isDarkMode)
-            } catch {
-                
-            }
-        }
     }
 }

@@ -2,14 +2,6 @@
 //  LocationManager.swift
 //  DungeonStride
 //
-//  Created by Zdeněk Svoboda on 21.01.2026.
-//
-
-
-//
-//  LocationManager.swift
-//  DungeonStride
-//
 
 import Foundation
 import CoreLocation
@@ -17,21 +9,22 @@ import Combine
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
-    // Publikujeme polohu a chyby, aby je ActivityManager mohl "odebírat"
     @Published var lastLocation: CLLocation?
     @Published var locationError: String?
-    @Published var authStatus: CLAuthorizationStatus = .notDetermined
+    @Published var authStatus: CLAuthorizationStatus
     
     private let manager = CLLocationManager()
     
     override init() {
+        self.authStatus = manager.authorizationStatus // Inicializace před super.init není u manageru možná, takže takto:
         super.init()
+        
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
         manager.allowsBackgroundLocationUpdates = true
         manager.activityType = .fitness
         
-        // Okamžitá kontrola oprávnění
+        // Aktualizace statusu po nastavení delegáta
         self.authStatus = manager.authorizationStatus
     }
     
@@ -48,12 +41,12 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         manager.stopUpdatingLocation()
     }
     
-    // MARK: - CLLocationManagerDelegate
+    // MARK: - Delegate Methods
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let newLocation = locations.last else { return }
         
-        // Filtrace nepřesných dat (přeneseno z původního kódu)
+        // Filtrace nepřesné GPS ( > 50m nebo nevalidní < 0)
         if newLocation.horizontalAccuracy < 0 || newLocation.horizontalAccuracy > 50 {
             return
         }
@@ -73,7 +66,6 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location Error: \(error.localizedDescription)")
-        // Můžeme sem přidat logiku pro nastavení locationError, pokud je to kritické
+        print("Location Manager Error: \(error.localizedDescription)")
     }
 }

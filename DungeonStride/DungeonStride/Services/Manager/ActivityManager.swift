@@ -6,10 +6,8 @@
 import SwiftUI
 import CoreLocation
 import MapKit
-import HealthKit
 import Combine
 import FirebaseFirestore
-import Charts
 
 final class ActivityManager: ObservableObject {
     
@@ -17,9 +15,11 @@ final class ActivityManager: ObservableObject {
     @Published var activityState: ActivityState = .ready
     @Published var selectedActivity: ActivityType = .run
     
+    // UI Data
     @Published var currentPolyline: [CLLocationCoordinate2D] = []
     @Published var currentRegion: MKCoordinateRegion?
     
+    // Metrics
     @Published var elapsedTime: TimeInterval = 0.0
     @Published var distance: Double = 0.0
     @Published var pace: String = "0'00\" / km"
@@ -27,35 +27,33 @@ final class ActivityManager: ObservableObject {
     @Published var locationError: String?
     
     // MARK: - Private Properties
-    private let locationManager = LocationManager() 
+    private let locationManager = LocationManager()
     private var timer: AnyCancellable?
-    private var locationSubscription: AnyCancellable?
-    private var errorSubscription: AnyCancellable?
+    private var cancellables = Set<AnyCancellable>()
     
     private var previousLocation: CLLocation?
-    private var paceHistory: [Double] = []
-    
-    private let firestore = Firestore.firestore()
+    private var paceHistory: [Double] = [] // Ukládáme rychlost v km/h
     
     // MARK: - Computed Properties
+    // Převod km/h na min/km pro graf
     var paceHistoryForChart: [Double] {
-        paceHistory.map { speedKmPerHour in
-            guard speedKmPerHour > 0 else { return 0.0 }
-            return (1.0 / speedKmPerHour) * 60.0
+        paceHistory.map { speedKmH in
+            guard speedKmH > 0 else { return 0.0 }
+            return 60.0 / speedKmH
         }
     }
     
     // MARK: - Init
     init() {
-        // Požádáme o oprávnění přes LocationManager
         locationManager.requestPermission()
         setupBindings()
     }
     
     private func setupBindings() {
-        // Naslouchání chybám z LocationManageru
-        errorSubscription = locationManager.$locationError
+        // Propojení chyb z LocationManageru
+        locationManager.$locationError
             .assign(to: \.locationError, on: self)
+            .store(in: &cancellables)
     }
     
     // MARK: - Activity Control
@@ -63,29 +61,26 @@ final class ActivityManager: ObservableObject {
     func startActivity() {
         guard activityState != .active else { return }
         
-        if activityState != .paused {
+        if activityState == .finished {
             resetActivity()
         }
         
         activityState = .active
         locationManager.startTracking()
         startTimer()
-        startLocationUpdates() // Začneme odebírat data z LocationManageru
+        subscribeToLocation()
         
         locationError = nil
     }
     
     func pauseActivity() {
         activityState = .paused
-        locationManager.stopTracking()
-        stopTimer()
+        stopTrackingAndTimer()
     }
     
     func finishActivity(userId: String?, userService: UserService?, questService: QuestService?) {
         activityState = .finished
-        locationManager.stopTracking()
-        stopTimer()
-        locationSubscription?.cancel() // Přestaneme naslouchat poloze
+        stopTrackingAndTimer()
         
         if let uid = userId, let service = userService {
             saveActivityData(userId: uid, userService: service, questService: questService)
@@ -94,10 +89,9 @@ final class ActivityManager: ObservableObject {
     
     func resetActivity() {
         activityState = .ready
-        locationManager.stopTracking()
-        stopTimer()
-        locationSubscription?.cancel()
+        stopTrackingAndTimer()
         
+        // Reset dat
         elapsedTime = 0.0
         distance = 0.0
         pace = "0'00\" / km"
@@ -107,40 +101,48 @@ final class ActivityManager: ObservableObject {
         paceHistory = []
     }
     
-    // MARK: - Logic & Updates
+    // MARK: - Private Helpers
     
-    private func startLocationUpdates() {
-        // Reagujeme na změnu `lastLocation` v LocationManageru
-        locationSubscription = locationManager.$lastLocation
-            .compactMap { $0 } // Ignorujeme nil hodnoty
-            .sink { [weak self] newLocation in
-                self?.handleNewLocation(newLocation)
+    private func stopTrackingAndTimer() {
+        locationManager.stopTracking()
+        timer?.cancel()
+        timer = nil
+        // Location subscription se zruší v rámci logic, nebo můžeme nechat běžet 'listen', ale location manager data neposílá
+    }
+    
+    private func subscribeToLocation() {
+        // Zabráníme vícenásobnému odběru
+        locationManager.$lastLocation
+            .compactMap { $0 }
+            .sink { [weak self] location in
+                self?.handleNewLocation(location)
             }
+            .store(in: &cancellables)
     }
     
     private func handleNewLocation(_ newLocation: CLLocation) {
         guard activityState == .active else { return }
         
-        // 1. Přidání do polyline
         currentPolyline.append(newLocation.coordinate)
         
-        // 2. Update mapy
+        // Update regionu pro mapu
         currentRegion = MKCoordinateRegion(
             center: newLocation.coordinate,
             latitudinalMeters: 500,
             longitudinalMeters: 500
         )
         
-        // 3. Výpočty vzdálenosti a rychlosti
-        if let previousLocation = previousLocation {
-            let segmentDistance = newLocation.distance(from: previousLocation)
-            distance += segmentDistance
+        // Výpočty
+        if let previous = previousLocation {
+            let delta = newLocation.distance(from: previous)
+            distance += delta
             
-            let timeElapsed = newLocation.timestamp.timeIntervalSince(previousLocation.timestamp)
-            if segmentDistance > 0 && timeElapsed > 0 {
-                let speedMetersPerSecond = segmentDistance / timeElapsed
-                let speedKmPerHour = speedMetersPerSecond * 3.6
-                paceHistory.append(speedKmPerHour)
+            let timeDelta = newLocation.timestamp.timeIntervalSince(previous.timestamp)
+            
+            // Okamžitá rychlost pro graf (km/h)
+            if delta > 0 && timeDelta > 0 {
+                let speedMs = delta / timeDelta
+                paceHistory.append(speedMs * 3.6)
             } else {
                 paceHistory.append(0.0)
             }
@@ -160,74 +162,64 @@ final class ActivityManager: ObservableObject {
             }
     }
     
-    private func stopTimer() {
-        timer?.cancel()
-        timer = nil
-    }
-    
     private func updateMetrics() {
-        // Výpočet tempa
+        // Průměrné tempo (text)
         if distance > 10.0 && elapsedTime > 0 {
-            let totalKilometers = distance / 1000.0
-            let minutesPerKilometer = (elapsedTime / 60.0) / totalKilometers
+            let totalKm = distance / 1000.0
+            let minPerKm = (elapsedTime / 60.0) / totalKm
             
-            let minutes = Int(minutesPerKilometer)
-            let seconds = Int((minutesPerKilometer - Double(minutes)) * 60)
-            pace = String(format: "%d'%02d\" / km", minutes, seconds)
+            let min = Int(minPerKm)
+            let sec = Int((minPerKm - Double(min)) * 60)
+            pace = String(format: "%d'%02d\" / km", min, sec)
         } else {
             pace = "0'00\" / km"
         }
         
-        // Výpočet kalorií
+        // Kalorie
         if distance > 0 {
-            let userWeight: Double = 75.0 // Zde by se měla brát váha z User profilu
-            let timeInHours = elapsedTime / 3600.0
-            kcalBurned = selectedActivity.metValue * userWeight * timeInHours
-        } else {
-            kcalBurned = 0.0
+            let userWeight: Double = 75.0 // TODO: Načíst z User profilu
+            let hours = elapsedTime / 3600.0
+            kcalBurned = selectedActivity.metValue * userWeight * hours
         }
     }
     
     func validateActivityType(for unit: DistanceUnit) {
-        if unit == .nautical {
-            if !ActivityType.waterActivities.contains(selectedActivity) {
-                selectedActivity = .swim
-            }
-        } else {
-            if !ActivityType.landActivities.contains(selectedActivity) {
-                selectedActivity = .run
-            }
+        let isWater = unit == .nautical
+        let isValid = isWater ? ActivityType.waterActivities.contains(selectedActivity) : ActivityType.landActivities.contains(selectedActivity)
+        
+        if !isValid {
+            selectedActivity = isWater ? .swim : .run
         }
     }
 
     // MARK: - Data Saving
-    
     private func saveActivityData(userId: String, userService: UserService, questService: QuestService?) {
-        let totalKilometers = distance / 1000.0
-        let avgPaceMinPerKm = totalKilometers > 0 ? (elapsedTime / 60.0) / totalKilometers : 0.0
+        let totalKm = distance / 1000.0
+        let avgPace = totalKm > 0 ? (elapsedTime / 60.0) / totalKm : 0.0
         
+        // Optimalizace: Coordinates pro Firestore mapujeme až na konci
         let routeData = currentPolyline.map { ["lat": $0.latitude, "lon": $0.longitude] }
         
-        let activityRecord: [String: Any] = [
+        let record: [String: Any] = [
             "timestamp": FieldValue.serverTimestamp(),
             "type": selectedActivity.rawValue,
             "duration": elapsedTime,
-            "distance_km": totalKilometers,
+            "distance_km": totalKm,
             "calories_kcal": kcalBurned,
-            "avg_pace_min_km": avgPaceMinPerKm,
+            "avg_pace_min_km": avgPace,
             "pace_history_min_km": paceHistoryForChart,
             "route_coordinates": routeData
         ]
         
-        let estimatedSteps = selectedActivity == .run ? Int(totalKilometers * 1250) : 0
+        let steps = selectedActivity == .run ? Int(totalKm * 1250) : 0
         
         Task {
             if let updatedUser = try? await userService.saveRunActivity(
                 userId: userId,
-                activityData: activityRecord,
+                activityData: record,
                 distanceMeters: Int(distance),
                 calories: Int(kcalBurned),
-                steps: estimatedSteps
+                steps: steps
             ) {
                 await questService?.updateQuestsFromDailyStats(user: updatedUser)
             }

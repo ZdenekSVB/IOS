@@ -6,18 +6,13 @@
 import SwiftUI
 
 struct ProfileView: View {
+    // Tyto objekty přicházejí z hlavní aplikace (jsou sdílené)
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var userService: UserService
     
-    @StateObject private var viewModel: ProfileViewModel
-    
-    init() {
-        _viewModel = StateObject(wrappedValue: ProfileViewModel(
-            userService: UserService(),
-            authViewModel: AuthViewModel()
-        ))
-    }
+    // ViewModel řeší jen lokální stav této obrazovky (např. otevření sheetu)
+    @StateObject private var viewModel = ProfileViewModel()
     
     var body: some View {
         ZStack {
@@ -34,7 +29,10 @@ struct ProfileView: View {
                         
                         StatsGridView(user: user, themeManager: themeManager)
                         
-                        ActionButtonsView(logoutAction: viewModel.logout)
+                        // Zde voláme logout přímo na sdíleném AuthViewModelu
+                        ActionButtonsView(logoutAction: {
+                            authViewModel.logout()
+                        })
                     } else {
                         ProgressView()
                             .padding()
