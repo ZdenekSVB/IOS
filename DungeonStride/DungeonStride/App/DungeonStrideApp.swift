@@ -12,7 +12,6 @@ import FirebaseCore
 struct DungeonStrideApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
-    // Vytvoříme jediné instance služeb pro celou aplikaci (Source of Truth)
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var userService = UserService()
     @StateObject private var questService = QuestService()
