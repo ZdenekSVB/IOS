@@ -14,6 +14,10 @@ struct HistoryRow: View {
     var body: some View {
         let units = userService.currentUser?.settings.units ?? .metric
         
+        // Získání ikony přímo z ActivityType bez duplicity
+        // Pokud se typ v databázi neshoduje s enumem (fallback), použijeme figure.run
+        let iconName = ActivityType(rawValue: activity.type)?.iconName ?? "figure.run"
+        
         HStack(spacing: 16) {
             // Icon Background
             ZStack {
@@ -22,7 +26,7 @@ struct HistoryRow: View {
                     .frame(width: 50, height: 50)
                     .shadow(color: .black.opacity(0.1), radius: 2)
                 
-                Image(systemName: getActivityIcon(activity.type))
+                Image(systemName: iconName)
                     .foregroundColor(themeManager.accentColor)
                     .font(.title3)
             }
@@ -55,14 +59,5 @@ struct HistoryRow: View {
         .padding()
         .background(themeManager.cardBackgroundColor)
         .cornerRadius(12)
-    }
-    
-    private func getActivityIcon(_ type: String) -> String {
-        switch type {
-        case "Running": return "figure.run"
-        case "Walking": return "figure.walk"
-        case "Cycling": return "bicycle"
-        default: return "figure.run"
-        }
     }
 }

@@ -13,12 +13,28 @@ enum ActivityType: String, CaseIterable, Identifiable, Codable {
     
     var id: String { self.rawValue }
     
+    // MARK: - Properties
+    
     var metValue: Double {
         switch self {
         case .run: return 9.8
         case .cycle: return 7.5
         case .swim: return 8.0
         case .kayak: return 5.0
+        }
+    }
+    
+    /// Jediné místo, kde definujeme ikony pro aktivity
+    var iconName: String {
+        switch self {
+        case .run:
+            return "figure.run"
+        case .cycle:
+            return "figure.outdoor.cycle"
+        case .swim:
+            return "figure.pool.swim"
+        case .kayak:
+            return "figure.sailing" 
         }
     }
     
