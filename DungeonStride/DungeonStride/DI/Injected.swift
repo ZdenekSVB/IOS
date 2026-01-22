@@ -11,6 +11,7 @@ import Foundation
 struct Injected<T> {
     let wrappedValue: T
     
+    // ZDE BYLA CHYBA: Odstraněno @MainActor
     init() {
         wrappedValue = DIContainer.shared.resolve()
     }

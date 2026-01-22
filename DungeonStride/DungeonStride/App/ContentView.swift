@@ -14,9 +14,12 @@ struct ContentView: View {
         Group {
             if authViewModel.isLoggedIn {
                 HomeView()
+                    .transition(.opacity) // Hladký přechod
             } else {
                 WelcomeView()
+                    .transition(.opacity)
             }
         }
+        .animation(.default, value: authViewModel.isLoggedIn) // Animace změny stavu
     }
 }

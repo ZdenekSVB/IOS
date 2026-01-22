@@ -43,25 +43,62 @@ final class DIContainer {
 
 extension DIContainer {
     func registerDependencies() {
-        // 1. Activity Manager
+        
+        // 1. AuthService (NOVÉ - Místo ViewModelu)
+        register(AuthService.self, cached: true) {
+            MainActor.assumeIsolated {
+                AuthService()
+            }
+        }
+        
+        // 2. UserService
+        register(UserService.self, cached: true) {
+            MainActor.assumeIsolated {
+                UserService()
+            }
+        }
+        
+        // 3. ThemeManager
+        register(ThemeManager.self, cached: true) {
+            MainActor.assumeIsolated {
+                ThemeManager()
+            }
+        }
+        
+        // 4. Managers
         register(ActivityManager.self, cached: true) {
             ActivityManager()
         }
         
-        // 2. Haptic Manager (Singleton)
         register(HapticManager.self, cached: true) {
             HapticManager.shared
         }
         
-        // 3. Location Manager
-        // Registrujeme ho, kdybychom ho potřebovali injectnout jinam než do ActivityManageru
         register(LocationManager.self, cached: true) {
             LocationManager()
         }
         
-        // Poznámka: Ostatní služby jako UserService, AuthViewModel, ThemeManager
-        // jsou v této architektuře inicializovány v App jako @StateObject a předávány
-        // přes .environmentObject, což je pro SwiftUI ViewModels správně.
-        // Pokud bys je chtěl mít zde, museli bychom změnit inicializaci v DungeonStrideApp.swift.
+        // 5. Other Services
+        register(QuestService.self, cached: true) {
+            QuestService()
+        }
+        
+        register(DungeonMapService.self, cached: true) {
+            MainActor.assumeIsolated {
+                DungeonMapService()
+            }
+        }
+        
+        register(ItemsService.self, cached: true) {
+            MainActor.assumeIsolated {
+                ItemsService()
+            }
+        }
+        
+        register(EnemyService.self, cached: true) {
+            MainActor.assumeIsolated {
+                EnemyService()
+            }
+        }
     }
 }

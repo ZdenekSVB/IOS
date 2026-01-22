@@ -10,14 +10,51 @@ import CoreLocation
 
 @MainActor
 class UserService: ObservableObject {
+    
     private let db = Firestore.firestore()
     
+    // ZMĚNA: Potřebujeme vědět, kdy se uživatel přihlásí
+    private var authService: AuthService { DIContainer.shared.resolve() }
+    
     @Published var currentUser: User?
+    
     private var userListener: ListenerRegistration?
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        // Spustíme sledování přihlášení
+        setupAuthListener()
+    }
     
     deinit {
         userListener?.remove()
         userListener = nil
+    }
+    
+    // MARK: - Auto-Sync Logic (NOVÉ)
+    
+    private func setupAuthListener() {
+        // Musíme počkat, až bude DI kontejner plně připraven, proto Task
+        Task {
+            // Sledujeme změny uživatele v AuthService
+            authService.$user
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] firebaseUser in
+                    guard let self = self else { return }
+                    
+                    if let uid = firebaseUser?.uid {
+                        // Uživatel se přihlásil -> začni stahovat data
+                        print("👤 UserService: Detected login for \(uid). Starting listener...")
+                        self.startListeningForUserUpdates(uid: uid)
+                    } else {
+                        // Uživatel se odhlásil -> vyčisti data
+                        print("👤 UserService: Detected logout. Clearing data.")
+                        self.stopListeningForUserUpdates()
+                        self.currentUser = nil
+                    }
+                }
+                .store(in: &cancellables)
+        }
     }
     
     // MARK: - User Lifecycle
@@ -30,7 +67,7 @@ class UserService: ObservableObject {
         )
         
         try await db.collection("users").document(uid).setData(newUser.toFirestore())
-        currentUser = newUser
+        // Nemusíme nastavovat currentUser manuálně, listener to zachytí
         return newUser
     }
     
@@ -45,7 +82,7 @@ class UserService: ObservableObject {
             throw NSError(domain: "UserService", code: 500, userInfo: [NSLocalizedDescriptionKey: "Failed to parse user data"])
         }
         
-        currentUser = user
+        self.currentUser = user
         return user
     }
     
@@ -54,12 +91,14 @@ class UserService: ObservableObject {
             throw NSError(domain: "UserService", code: 400, userInfo: [NSLocalizedDescriptionKey: "User ID is missing"])
         }
         try await db.collection("users").document(userId).setData(user.toFirestore(), merge: true)
-        currentUser = user
+        // Listener se postará o update UI, ale pro rychlou odezvu můžeme nastavit i lokálně:
+        self.currentUser = user
     }
     
     // MARK: - Daily Reset Logic
     
     func checkAndResetDailyStats(userId: String) async throws -> Bool {
+        // Zde raději fetchujeme čerstvá data, abychom nepracovali se starými
         let user = try await fetchUser(uid: userId)
         var updatedUser = user
         
@@ -69,7 +108,6 @@ class UserService: ObservableObject {
             try await updateUser(updatedUser)
             return true
         } else {
-            print("✅ Daily stats are current.")
             return false
         }
     }
@@ -113,7 +151,6 @@ extension UserService {
                 let timestamp = (data["timestamp"] as? Timestamp)?.dateValue()
             else { return nil }
             
-            // --- NOVÉ: Načítání souřadnic pro mapu ---
             var parsedCoordinates: [CLLocationCoordinate2D]? = nil
             
             if let rawCoordinates = data["route_coordinates"] as? [[String: Double]] {
@@ -122,7 +159,6 @@ extension UserService {
                     return CLLocationCoordinate2D(latitude: lat, longitude: lon)
                 }
             }
-            // ------------------------------------------
             
             return RunActivity(
                 id: doc.documentID,
@@ -132,7 +168,7 @@ extension UserService {
                 calories: Int(calories),
                 pace: pace,
                 timestamp: timestamp,
-                routeCoordinates: parsedCoordinates // Předáváme souřadnice
+                routeCoordinates: parsedCoordinates
             )
             
         } catch {
@@ -174,6 +210,7 @@ extension UserService {
         ]
         try await db.collection("users").document(uid).updateData(updateData)
         
+        // Lokální update (pokud listener ještě nezareagoval)
         if var user = currentUser {
             user.lastActiveAt = Date()
             user.updatedAt = Date()
@@ -187,30 +224,45 @@ extension UserService {
     func updateSelectedAvatar(uid: String, avatarName: String) async throws {
         let updateData: [String: Any] = [ "selectedAvatar": avatarName, "updatedAt": FieldValue.serverTimestamp() ]
         try await db.collection("users").document(uid).updateData(updateData)
-        if var user = currentUser { user.selectedAvatar = avatarName; user.updatedAt = Date(); currentUser = user }
     }
     
     func updateDarkMode(uid: String, isDarkMode: Bool) async throws {
         let updateData: [String: Any] = [ "settings.isDarkMode": isDarkMode, "updatedAt": FieldValue.serverTimestamp() ]
         try await db.collection("users").document(uid).updateData(updateData)
-        if var user = currentUser { user.settings.isDarkMode = isDarkMode; user.updatedAt = Date(); currentUser = user }
     }
     
     func updateUserSettings(uid: String, settings: UserSettings) async throws {
         let updateData: [String: Any] = [ "settings": settings.toFirestore(), "updatedAt": FieldValue.serverTimestamp() ]
         try await db.collection("users").document(uid).updateData(updateData)
-        if var user = currentUser { user.settings = settings; user.updatedAt = Date(); currentUser = user }
     }
     
     func startListeningForUserUpdates(uid: String) {
+        // Pokud už posloucháme stejného uživatele, nic nedělej
+        if currentUser?.id == uid && userListener != nil { return }
+        
         userListener?.remove()
+        print("🎧 Starting Firestore listener for user: \(uid)")
+        
         userListener = db.collection("users").document(uid).addSnapshotListener { [weak self] snapshot, error in
-            guard let self = self, let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else { return }
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("❌ User listener error: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let snapshot = snapshot, snapshot.exists, let data = snapshot.data() else {
+                print("⚠️ User document does not exist yet (might be creating).")
+                return
+            }
+            
             Task { @MainActor in
                 if let user = User.fromFirestore(documentId: snapshot.documentID, data: data) {
                     let oldDM = self.currentUser?.settings.isDarkMode
                     self.currentUser = user
-                    if oldDM != user.settings.isDarkMode {
+                    
+                    // Notifikace pro ThemeManager (pokud se změnilo téma z jiného zařízení)
+                    if let oldDM = oldDM, oldDM != user.settings.isDarkMode {
                         NotificationCenter.default.post(name: .darkModeChanged, object: nil, userInfo: ["isDarkMode": user.settings.isDarkMode])
                     }
                 }
@@ -219,7 +271,9 @@ extension UserService {
     }
     
     func stopListeningForUserUpdates() {
-        Task { @MainActor in userListener?.remove(); userListener = nil }
+        userListener?.remove()
+        userListener = nil
+        print("🛑 Stopped user listener.")
     }
 }
 

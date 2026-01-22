@@ -12,8 +12,39 @@ import Combine
 class QuestService: ObservableObject {
     private let db = Firestore.firestore()
     
+    // ZMĚNA: Přístup k AuthService přes DI
+    private var authService: AuthService { DIContainer.shared.resolve() }
+    
     @Published var dailyQuests: [Quest] = []
     @Published var isLoading = false
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        setupAuthListener()
+    }
+    
+    // MARK: - Auto-Sync
+    
+    private func setupAuthListener() {
+        Task { @MainActor in
+            authService.$user
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] firebaseUser in
+                    guard let self = self else { return }
+                    if let uid = firebaseUser?.uid {
+                        // Uživatel se přihlásil -> načti questy
+                        Task {
+                            try? await self.loadDailyQuests(for: uid)
+                        }
+                    } else {
+                        // Odhlášení -> vyčisti
+                        self.dailyQuests = []
+                    }
+                }
+                .store(in: &cancellables)
+        }
+    }
     
     // MARK: - Daily Loading Logic
     
@@ -27,10 +58,10 @@ class QuestService: ObservableObject {
         let snapshot = try await todayQuestsQuery.getDocuments()
         
         if snapshot.documents.isEmpty {
-            print("📅 No quests for today in user profile. Fetching templates from Firestore...")
+            print("📅 No quests for today. Fetching templates...")
             await fetchTemplatesAndAssign(to: userQuestsRef)
         } else {
-            print("✅ Found existing quests for today.")
+            print("✅ Loaded existing daily quests.")
             let quests = snapshot.documents.compactMap { Quest.fromFirestore($0.data()) }
             await MainActor.run {
                 self.dailyQuests = quests
@@ -44,8 +75,7 @@ class QuestService: ObservableObject {
         await MainActor.run { isLoading = true }
         
         let userQuestsRef = db.collection("users").document(userId).collection("dailyQuests")
-        
-        print("🔄 Regenerating quests due to daily reset...")
+        print("🔄 Regenerating quests...")
         
         let allDocs = try await userQuestsRef.getDocuments()
         for doc in allDocs.documents {
@@ -53,7 +83,6 @@ class QuestService: ObservableObject {
         }
         
         await fetchTemplatesAndAssign(to: userQuestsRef)
-        
         await MainActor.run { isLoading = false }
     }
     
@@ -65,7 +94,7 @@ class QuestService: ObservableObject {
             let templates = templatesSnapshot.documents.compactMap { Quest.fromFirestore($0.data()) }
             
             guard !templates.isEmpty else {
-                print("⚠️ ERROR: Collection 'quests' in Firestore is empty!")
+                print("⚠️ Firestore 'quests' collection is empty!")
                 await MainActor.run { self.dailyQuests = [] }
                 return
             }
@@ -80,7 +109,7 @@ class QuestService: ObservableObject {
                     description: template.description,
                     iconName: template.iconName,
                     xpReward: template.xpReward,
-                    coinsReward: template.coinsReward, // Přenášíme coinsReward ze šablony
+                    coinsReward: template.coinsReward,
                     requirement: template.requirement,
                     progress: 0,
                     startedAt: Date()
@@ -96,7 +125,7 @@ class QuestService: ObservableObject {
             }
             
         } catch {
-            print("❌ Error fetching templates from Firestore: \(error)")
+            print("❌ Error fetching quest templates: \(error)")
         }
     }
     
@@ -104,7 +133,7 @@ class QuestService: ObservableObject {
     
     func updateQuestsFromDailyStats(user: User) async {
         guard let userId = user.id else { return }
-        print("📊 Syncing quests with Daily Activity...")
+        print("📊 Updating quest progress from stats...")
         
         for quest in dailyQuests {
             if quest.isCompleted { continue }
@@ -146,9 +175,12 @@ class QuestService: ObservableObject {
         
         if isNowCompleted && !wasCompleted {
             updateData["completedAt"] = Timestamp(date: Date())
-            
-            // ZDE JE OPRAVA: Předáváme i coinsReward do funkce pro inkrementaci
             try? await incrementUserStats(userId: userId, xpReward: quest.xpReward, coinsReward: quest.coinsReward)
+            
+            // Haptická odezva
+            await MainActor.run {
+                HapticManager.shared.success()
+            }
         }
         
         try await questRef.updateData(updateData)
@@ -161,18 +193,17 @@ class QuestService: ObservableObject {
         }
     }
     
-    // OPRAVENO: Přidán parametr coinsReward a inkrementace pole 'coins'
     private func incrementUserStats(userId: String, xpReward: Int, coinsReward: Int) async throws {
         let userRef = db.collection("users").document(userId)
         
         let data: [String: Any] = [
             "totalQuestsCompleted": FieldValue.increment(Int64(1)),
             "totalXP": FieldValue.increment(Int64(xpReward)),
-            "coins": FieldValue.increment(Int64(coinsReward)) // Zvyšujeme i mince
+            "coins": FieldValue.increment(Int64(coinsReward))
         ]
         
         try await userRef.updateData(data)
-        print("🎉 Quest Completed! XP: +\(xpReward), Coins: +\(coinsReward)")
+        print("🎉 Quest Rewards: +\(xpReward) XP, +\(coinsReward) Coins")
     }
     
     func completeQuest(userId: String, questId: String) async throws {

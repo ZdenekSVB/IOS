@@ -31,15 +31,6 @@ struct HomeView: View {
             }
             .navigationBarHidden(true)
         }
-        .onAppear {
-            // DŮLEŽITÉ: Toto nastartuje AuthViewModel, který následně
-            // načte Usera a spustí logiku pro Questy.
-            authViewModel.setup(
-                userService: userService,
-                questService: questService,
-                themeManager: themeManager
-            )
-        }
     }
 }
 
