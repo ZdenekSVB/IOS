@@ -21,18 +21,18 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 30) {
                     if let user = userService.currentUser {
+                        // Hlavička s avatarem a tlačítkem nastavení
                         ProfileHeaderView(
                             showSettings: $viewModel.showSettings,
                             user: user,
                             themeManager: themeManager
                         )
                         
+                        // Mřížka se statistikami
                         StatsGridView(user: user, themeManager: themeManager)
                         
-                        // Zde voláme logout přímo na sdíleném AuthViewModelu
-                        ActionButtonsView(logoutAction: {
-                            authViewModel.logout()
-                        })
+                        // ZDE BYL LOGOUT - ODSTRANĚNO
+                        // Logout je nyní přesunut do SettingsView
                     } else {
                         ProgressView()
                             .padding()

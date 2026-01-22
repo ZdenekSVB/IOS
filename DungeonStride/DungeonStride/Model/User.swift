@@ -299,12 +299,14 @@ struct UserSettings: Codable {
     var isDarkMode: Bool
     var notificationsEnabled: Bool
     var soundEffectsEnabled: Bool
+    var hapticsEnabled: Bool // NOVÉ
     var units: DistanceUnit
 
     static let `default` = UserSettings(
         isDarkMode: false,
         notificationsEnabled: true,
         soundEffectsEnabled: true,
+        hapticsEnabled: true, // Defaultně zapnuto
         units: .metric
     )
 
@@ -313,6 +315,7 @@ struct UserSettings: Codable {
             "isDarkMode": isDarkMode,
             "notificationsEnabled": notificationsEnabled,
             "soundEffectsEnabled": soundEffectsEnabled,
+            "hapticsEnabled": hapticsEnabled, // NOVÉ
             "units": units.rawValue
         ]
     }
@@ -322,6 +325,7 @@ struct UserSettings: Codable {
             isDarkMode: data["isDarkMode"] as? Bool ?? false,
             notificationsEnabled: data["notificationsEnabled"] as? Bool ?? true,
             soundEffectsEnabled: data["soundEffectsEnabled"] as? Bool ?? true,
+            hapticsEnabled: data["hapticsEnabled"] as? Bool ?? true, // NOVÉ
             units: DistanceUnit(rawValue: data["units"] as? String ?? "metric") ?? .metric
         )
     }

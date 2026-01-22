@@ -61,12 +61,15 @@ struct SettingsRow: View {
         .buttonStyle(PlainButtonStyle())
     }
 }
+// V souboru SettingsComponents.swift
 
 struct SettingsToggleRow: View {
     let icon: String
     let title: String
     @Binding var isOn: Bool
     @ObservedObject var themeManager: ThemeManager
+    // Přidáme sem settings, abychom věděli, jestli vibrovat?
+    // Nebo jednodušeji: zavibrujeme, když uživatel změní stav.
     
     var body: some View {
         HStack {
@@ -79,6 +82,12 @@ struct SettingsToggleRow: View {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
                 .toggleStyle(SwitchToggleStyle(tint: themeManager.accentColor))
+                .onChange(of: isOn) { _, _ in
+                    // Když uživatel přepne přepínač, zavibrujeme
+                    // Tady to dává smysl udělat vždy (jako feedback), nebo podle nastavení.
+                    // Pokud si uživatel vypíná vibrace, poslední vibrace je "rozlučková".
+                    HapticManager.shared.lightImpact()
+                }
         }
         .padding()
         .background(themeManager.cardBackgroundColor)

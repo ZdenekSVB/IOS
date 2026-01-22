@@ -242,4 +242,23 @@ class AuthViewModel: ObservableObject {
             print("Failed to update last login: \(error.localizedDescription)")
         }
     }
+    // MARK: - Delete Account
+        
+        func deleteAccount() async throws {
+            guard let user = Auth.auth().currentUser else { return }
+            let uid = user.uid
+            
+            // 1. Smazat data z Firestore (User dokument)
+            // Poznámka: V produkci by se měly smazat i subkolekce (Cloud Functions jsou na to lepší),
+            // ale pro tento účel smažeme hlavní záznam.
+            try await db.collection("users").document(uid).delete()
+            
+            // 2. Smazat uživatele z Firebase Auth
+            try await user.delete()
+            
+            // 3. Lokální úklid
+            await MainActor.run {
+                self.logout()
+            }
+        }
 }

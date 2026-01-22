@@ -43,10 +43,25 @@ final class DIContainer {
 
 extension DIContainer {
     func registerDependencies() {
+        // 1. Activity Manager
         register(ActivityManager.self, cached: true) {
             ActivityManager()
         }
         
-        // Zde přidejte další registrace (např. WorkoutManager)
+        // 2. Haptic Manager (Singleton)
+        register(HapticManager.self, cached: true) {
+            HapticManager.shared
+        }
+        
+        // 3. Location Manager
+        // Registrujeme ho, kdybychom ho potřebovali injectnout jinam než do ActivityManageru
+        register(LocationManager.self, cached: true) {
+            LocationManager()
+        }
+        
+        // Poznámka: Ostatní služby jako UserService, AuthViewModel, ThemeManager
+        // jsou v této architektuře inicializovány v App jako @StateObject a předávány
+        // přes .environmentObject, což je pro SwiftUI ViewModels správně.
+        // Pokud bys je chtěl mít zde, museli bychom změnit inicializaci v DungeonStrideApp.swift.
     }
 }

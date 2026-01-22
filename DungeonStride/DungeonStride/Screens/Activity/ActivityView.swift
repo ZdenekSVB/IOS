@@ -119,6 +119,7 @@ struct ActivityView: View {
             isDarkMode: themeManager.isDarkMode,
             notificationsEnabled: userService.currentUser?.settings.notificationsEnabled ?? true,
             soundEffectsEnabled: userService.currentUser?.settings.soundEffectsEnabled ?? true,
+            hapticsEnabled: userService.currentUser?.settings.hapticsEnabled ?? true,
             units: newUnit
         )
         

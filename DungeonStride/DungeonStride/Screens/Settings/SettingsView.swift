@@ -14,7 +14,6 @@ struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
     
     init() {
-        // Inicializujeme s dummy daty, reálná se dosadí v onAppear přes synchronize
         _viewModel = StateObject(wrappedValue: SettingsViewModel(userService: UserService(), authViewModel: AuthViewModel(), themeManager: ThemeManager()))
     }
     
@@ -24,11 +23,11 @@ struct SettingsView: View {
                 themeManager.backgroundColor.ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 24) {
                         
+                        // --- PROFILE & ACCOUNT ---
                         SettingsSection(title: "ACCOUNT", themeManager: themeManager) {
                             if let user = userService.currentUser {
-                                // ZDE JE ZMĚNA: Předáváme authViewModel do konstruktoru EditProfileViewModel
                                 NavigationLink(destination: EditProfileView(
                                     viewModel: EditProfileViewModel(
                                         user: user,
@@ -37,10 +36,10 @@ struct SettingsView: View {
                                     )
                                 )) {
                                     HStack {
-                                        Image(systemName: "person.fill")
+                                        Image(systemName: "person.crop.circle.badge.exclamationmark")
                                             .foregroundColor(themeManager.accentColor)
                                             .frame(width: 30)
-                                        Text("Edit Profile")
+                                        Text("Edit Profile & Security")
                                             .foregroundColor(themeManager.primaryTextColor)
                                         Spacer()
                                         Image(systemName: "chevron.right")
@@ -50,19 +49,20 @@ struct SettingsView: View {
                                     .background(themeManager.cardBackgroundColor)
                                 }
                             }
-                            
-                            // Ostatní řádky
-                            SettingsRow(icon: "envelope.fill", title: "Email Notifications", value: "", themeManager: themeManager) {}
-                            SettingsRow(icon: "shield.fill", title: "Privacy", value: "", themeManager: themeManager) {}
                         }
                         
-                        SettingsSection(title: "APP SETTINGS", themeManager: themeManager) {
+                        // --- APP SETTINGS ---
+                        SettingsSection(title: "PREFERENCES", themeManager: themeManager) {
                             
                             SettingsToggleRow(icon: "bell.fill", title: "Push Notifications", isOn: $viewModel.notificationsEnabled, themeManager: themeManager)
                                 .onChange(of: viewModel.notificationsEnabled) { _, _ in viewModel.updateSettings() }
                             
                             SettingsToggleRow(icon: "speaker.wave.2.fill", title: "Sound Effects", isOn: $viewModel.soundEffects, themeManager: themeManager)
                                 .onChange(of: viewModel.soundEffects) { _, _ in viewModel.updateSettings() }
+                            
+                            // NOVÉ: Haptika
+                            SettingsToggleRow(icon: "iphone.radiowaves.left.and.right", title: "Haptic Feedback", isOn: $viewModel.hapticsEnabled, themeManager: themeManager)
+                                .onChange(of: viewModel.hapticsEnabled) { _, _ in viewModel.updateSettings() }
                             
                             SettingsToggleRow(icon: themeManager.isDarkMode ? "moon.fill" : "sun.max.fill", title: "Dark Mode", isOn: Binding(
                                 get: { themeManager.isDarkMode },
@@ -72,16 +72,62 @@ struct SettingsView: View {
                             unitPickerRow
                         }
                         
+                        // --- SUPPORT (Funkční odkazy) ---
                         SettingsSection(title: "SUPPORT", themeManager: themeManager) {
-                            SettingsRow(icon: "questionmark.circle.fill", title: "Help & Support", value: "", themeManager: themeManager) {}
-                            SettingsRow(icon: "exclamationmark.triangle.fill", title: "Report a Problem", value: "", themeManager: themeManager) {}
-                            SettingsRow(icon: "doc.text.fill", title: "Terms of Service", value: "", themeManager: themeManager) {}
-                            SettingsRow(icon: "lock.shield.fill", title: "Privacy Policy", value: "", themeManager: themeManager) {}
+                            // Tyto URL si časem nahraď svými reálnými
+                            SettingsRow(icon: "lock.shield.fill", title: "Privacy Policy", value: "", themeManager: themeManager) {
+                                viewModel.openUrl("https://www.google.com") // Doplň real URL
+                            }
+                            
+                            SettingsRow(icon: "doc.text.fill", title: "Terms of Service", value: "", themeManager: themeManager) {
+                                viewModel.openUrl("https://www.google.com") // Doplň real URL
+                            }
+                            
+                            SettingsRow(icon: "envelope.fill", title: "Contact Support", value: "", themeManager: themeManager) {
+                                viewModel.sendEmail()
+                            }
                         }
                         
-                        SettingsSection(title: "ABOUT", themeManager: themeManager) {
-                            SettingsRow(icon: "info.circle.fill", title: "Version", value: "1.0.0", themeManager: themeManager) {}
+                        // --- DANGER ZONE & LOGOUT ---
+                        VStack(spacing: 12) {
+                            Button(action: {
+                                viewModel.logout()
+                            }) {
+                                HStack {
+                                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                                    Text("Log Out")
+                                }
+                                .fontWeight(.bold)
+                                .foregroundColor(themeManager.primaryTextColor)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(themeManager.cardBackgroundColor)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(themeManager.secondaryTextColor.opacity(0.3), lineWidth: 1)
+                                )
+                            }
+                            
+                            Button(action: {
+                                viewModel.showDeleteConfirmation = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "trash.fill")
+                                    Text("Delete Account")
+                                }
+                                .font(.caption)
+                                .foregroundColor(.red.opacity(0.8))
+                                .padding(8)
+                            }
                         }
+                        .padding(.top, 10)
+                        
+                        // --- VERSION ---
+                        Text("Version \(viewModel.appVersion)")
+                            .font(.caption2)
+                            .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
+                            .padding(.bottom, 20)
                     }
                     .padding()
                 }
@@ -96,6 +142,24 @@ struct SettingsView: View {
             }
             .onAppear {
                 viewModel.synchronize(userService: userService, authViewModel: authViewModel, themeManager: themeManager)
+            }
+            // Alert pro smazání účtu
+            .alert("Delete Account?", isPresented: $viewModel.showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    viewModel.deleteAccount()
+                }
+            } message: {
+                Text("This action cannot be undone. All your progress, items, and stats will be permanently lost.")
+            }
+            // Alert pro chybu při mazání
+            .alert("Error", isPresented: Binding<Bool>(
+                get: { viewModel.deleteError != nil },
+                set: { _ in viewModel.deleteError = nil }
+            )) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(viewModel.deleteError ?? "Unknown error")
             }
         }
     }
