@@ -12,13 +12,16 @@ import Combine
 class QuestService: ObservableObject {
     private let db = Firestore.firestore()
     
-    // ZMĚNA: Přístup k AuthService přes DI
+    // Přístup k AuthService přes DI
     private var authService: AuthService { DIContainer.shared.resolve() }
     
     @Published var dailyQuests: [Quest] = []
     @Published var isLoading = false
     
     private var cancellables = Set<AnyCancellable>()
+    
+    // Zámek proti dvojímu spuštění generování
+    private var isGenerating = false
     
     init() {
         setupAuthListener()
@@ -33,12 +36,10 @@ class QuestService: ObservableObject {
                 .sink { [weak self] firebaseUser in
                     guard let self = self else { return }
                     if let uid = firebaseUser?.uid {
-                        // Uživatel se přihlásil -> načti questy
                         Task {
                             try? await self.loadDailyQuests(for: uid)
                         }
                     } else {
-                        // Odhlášení -> vyčisti
                         self.dailyQuests = []
                     }
                 }
@@ -49,40 +50,65 @@ class QuestService: ObservableObject {
     // MARK: - Daily Loading Logic
     
     func loadDailyQuests(for userId: String) async throws {
+        if isGenerating { return } // Pokud už se něco děje, ignoruj
+        
         await MainActor.run { isLoading = true }
         
         let today = Calendar.current.startOfDay(for: Date())
         let userQuestsRef = db.collection("users").document(userId).collection("dailyQuests")
         
+        // Načteme všechny questy, které mají datum startedAt od dnešní půlnoci
         let todayQuestsQuery = userQuestsRef.whereField("startedAt", isGreaterThan: Timestamp(date: today))
         let snapshot = try await todayQuestsQuery.getDocuments()
         
+        // --- SEBE-OPRAVNÁ LOGIKA ---
+        if snapshot.documents.count > 3 {
+            print("⚠️ DETECTED DUPLICATES: Found \(snapshot.documents.count) quests. Wiping and regenerating...")
+            // Pokud je jich víc než 3, něco je špatně. Smažeme vše a uděláme znovu.
+            try await regenerateDailyQuests(for: userId)
+            return
+        }
+        
         if snapshot.documents.isEmpty {
             print("📅 No quests for today. Fetching templates...")
-            await fetchTemplatesAndAssign(to: userQuestsRef)
+            // Pokud žádné nejsou, vygenerujeme nové (což taky nejdřív promaže staré)
+            try await regenerateDailyQuests(for: userId)
         } else {
             print("✅ Loaded existing daily quests.")
             let quests = snapshot.documents.compactMap { Quest.fromFirestore($0.data()) }
             await MainActor.run {
                 self.dailyQuests = quests
+                self.isLoading = false
             }
         }
-        
-        await MainActor.run { isLoading = false }
     }
     
+    // Tato funkce slouží jako "Hard Reset" denních questů
     func regenerateDailyQuests(for userId: String) async throws {
+        if isGenerating { return }
+        isGenerating = true
+        
         await MainActor.run { isLoading = true }
         
         let userQuestsRef = db.collection("users").document(userId).collection("dailyQuests")
-        print("🔄 Regenerating quests...")
+        print("🔄 Regenerating quests (Clean Slate)...")
         
-        let allDocs = try await userQuestsRef.getDocuments()
-        for doc in allDocs.documents {
-            try await userQuestsRef.document(doc.documentID).delete()
+        do {
+            // 1. NEJDŮLEŽITĚJŠÍ KROK: Smazat VŠECHNY dokumenty v kolekci dailyQuests
+            // (Nejen ty dnešní, ale i staré smetí, aby se nehromadilo)
+            let allDocs = try await userQuestsRef.getDocuments()
+            for doc in allDocs.documents {
+                try await userQuestsRef.document(doc.documentID).delete()
+            }
+            
+            // 2. Vybrat a zapsat nové
+            await fetchTemplatesAndAssign(to: userQuestsRef)
+            
+        } catch {
+            print("❌ Error during regeneration: \(error)")
         }
         
-        await fetchTemplatesAndAssign(to: userQuestsRef)
+        isGenerating = false
         await MainActor.run { isLoading = false }
     }
     

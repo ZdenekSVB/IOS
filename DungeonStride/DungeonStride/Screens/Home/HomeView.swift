@@ -11,7 +11,8 @@ struct HomeView: View {
     @EnvironmentObject var userService: UserService
     @EnvironmentObject var questService: QuestService
     
-    @State private var selectedTab = 2
+    // Defaultně vybraná záložka 0 (Home)
+    @State private var selectedTab = 0
     @State private var homeReloadID = UUID()
     
     var body: some View {
@@ -20,12 +21,21 @@ struct HomeView: View {
                 themeManager.backgroundColor.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
+                    // Obsah záložek
                     TabContentView(selectedTab: $selectedTab, homeReloadID: $homeReloadID)
+                    
+                    // Vlastní spodní lišta
+                    // zIndex(1) zajistí, že vyčuhující tlačítko "Run" bude vizuálně NAD obsahem stránky
                     CustomTabBar(selectedTab: $selectedTab)
+                        .zIndex(1)
                 }
+                // Tímto říkáme, že spodní část obrazovky (kde je TabBar) nemá být
+                // ignorována obsahem, aby se obsah scrolloval "nad" spodní hranou,
+                // ale CustomTabBar si to vyřeší sám přes edgesIgnoringSafeArea.
             }
             .onChange(of: selectedTab) { _, newValue in
-                if newValue == 2 {
+                // Reload HomeView při návratu na něj (volitelné)
+                if newValue == 0 {
                     homeReloadID = UUID()
                 }
             }
@@ -42,18 +52,16 @@ struct TabContentView: View {
         Group {
             switch selectedTab {
             case 0:
-                DungeonMapView()
-            case 1:
-                ActivityView()
-            case 2:
                 HomeContentView()
                     .id(homeReloadID)
+            case 1:
+                DungeonMapView()
+            case 2:
+                ActivityView()
             case 3:
                 ShopView()
             case 4:
                 ProfileView()
-            case 5:
-                HistoryView()
             default:
                 HomeContentView()
                     .id(homeReloadID)
@@ -73,28 +81,12 @@ struct HomeContentView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                
-                // --- DEV BUTTON (Zakomentováno) ---
-                /*
-                Button(action: {
-                    print("🚀 Spouštím seedování questů...")
-                    DatabaseSeeder().uploadQuestsToFirestore()
-                }) {
-                    Text("SEED QUESTS (DEV ONLY)")
-                        .font(.caption)
-                        .bold()
-                        .padding(8)
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
-                .padding(.top, 10)
-                */
-                // ----------------------------------
-                
                 UserProgressCard()
                 LastRunCard(lastActivity: lastActivity)
                 QuestsCard()
+                
+                // Přidáme trochu místa dole, aby obsah nebyl schovaný za vyčuhujícím TabBarem
+                Spacer().frame(height: 50)
             }
             .padding()
         }
