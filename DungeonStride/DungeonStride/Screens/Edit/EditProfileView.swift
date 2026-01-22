@@ -1,4 +1,4 @@
-//
+////
 //  EditProfileView.swift
 //  DungeonStride
 //
@@ -10,7 +10,6 @@ struct EditProfileView: View {
     @EnvironmentObject var themeManager: ThemeManager
     @StateObject var viewModel: EditProfileViewModel
     
-    // Stav pro zobrazení výběru avatara
     @State private var showAvatarPicker = false
     
     var body: some View {
@@ -26,8 +25,7 @@ struct EditProfileView: View {
                             showAvatarPicker = true
                         }) {
                             ZStack {
-                                // Obrázek
-                                Image(viewModel.selectedAvatar) // Používáme obrázek z ViewModelu
+                                Image(viewModel.selectedAvatar == "default" ? "default" : viewModel.selectedAvatar)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: 120, height: 120)
@@ -37,7 +35,6 @@ struct EditProfileView: View {
                                     )
                                     .shadow(radius: 5)
                                 
-                                // Ikonka tužky (indikuje editaci)
                                 Image(systemName: "pencil.circle.fill")
                                     .font(.title)
                                     .foregroundColor(.white)
@@ -52,7 +49,7 @@ struct EditProfileView: View {
                     }
                     .padding(.top, 20)
                     
-                    // --- ZBYTEK FORMULÁŘE (stejný jako předtím) ---
+                    // --- FORMULÁŘ ---
                     
                     VStack(alignment: .leading, spacing: 20) {
                         
@@ -71,18 +68,53 @@ struct EditProfileView: View {
                         }
                         
                         // Email (Read-only)
+                        // TADY JE OPRAVA: Zobrazuje jen email, žádné placeholdery
                         VStack(alignment: .leading, spacing: 8) {
                             Text("EMAIL (Nelze změnit)")
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundColor(themeManager.secondaryTextColor)
                             
-                            Text(viewModel.username.isEmpty ? "email@example.com" : "Váš registrovaný email")
+                            // Používáme Text místo TextField, aby to nešlo editovat
+                            Text(viewModel.email)
                                 .padding()
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(themeManager.cardBackgroundColor.opacity(0.5))
+                                .frame(maxWidth: .infinity, alignment: .leading) // Zarovnání doleva
+                                .background(themeManager.cardBackgroundColor.opacity(0.5)) // Trochu průhlednější pozadí (disabled look)
                                 .cornerRadius(12)
+                                .foregroundColor(themeManager.secondaryTextColor) // Šedá barva textu
+                        }
+                        
+                        Divider()
+                            .background(themeManager.secondaryTextColor)
+                            .padding(.vertical, 10)
+                        
+                        // --- SEKCE ZMĚNA HESLA ---
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("ZMĚNA HESLA (VOLITELNÉ)")
+                                .font(.caption)
+                                .fontWeight(.bold)
                                 .foregroundColor(themeManager.secondaryTextColor)
+                            
+                            // Staré heslo
+                            SecureField("Stávající heslo (pro potvrzení)", text: $viewModel.oldPassword)
+                                .padding()
+                                .background(themeManager.cardBackgroundColor)
+                                .cornerRadius(12)
+                                .foregroundColor(themeManager.primaryTextColor)
+                            
+                            // Nové heslo
+                            SecureField("Nové heslo", text: $viewModel.newPassword)
+                                .padding()
+                                .background(themeManager.cardBackgroundColor)
+                                .cornerRadius(12)
+                                .foregroundColor(themeManager.primaryTextColor)
+                            
+                            // Potvrzení hesla
+                            SecureField("Potvrzení nového hesla", text: $viewModel.confirmNewPassword)
+                                .padding()
+                                .background(themeManager.cardBackgroundColor)
+                                .cornerRadius(12)
+                                .foregroundColor(themeManager.primaryTextColor)
                         }
                     }
                     .padding(.horizontal)
@@ -91,6 +123,7 @@ struct EditProfileView: View {
                         Text(error)
                             .foregroundColor(.red)
                             .font(.caption)
+                            .padding(.horizontal)
                     }
                     
                     Spacer()
@@ -108,18 +141,17 @@ struct EditProfileView: View {
                     }
                     .buttonStyle(PrimaryButtonStyle(backgroundColor: themeManager.accentColor))
                     .padding(.horizontal)
+                    .padding(.bottom, 20)
                     .disabled(viewModel.isLoading)
                 }
             }
         }
         .navigationTitle("Upravit profil")
         .navigationBarTitleDisplayMode(.inline)
-        // Otevření výběru avatara
         .sheet(isPresented: $showAvatarPicker) {
             AvatarPickerSheet(selectedAvatar: $viewModel.selectedAvatar)
-                .environmentObject(themeManager) // Předáme themeManager i do sheetu
+                .environmentObject(themeManager)
         }
-        // Po úspěšném uložení zavřeme okno
         .onChange(of: viewModel.saveSuccess) { _, success in
             if success {
                 dismiss()
@@ -127,7 +159,6 @@ struct EditProfileView: View {
         }
     }
 }
-
 // --- NOVÁ KOMPONENTA PRO VÝBĚR (GRID) ---
 struct AvatarPickerSheet: View {
     @Binding var selectedAvatar: String

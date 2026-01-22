@@ -14,6 +14,7 @@ struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
     
     init() {
+        // Inicializujeme s dummy daty, reálná se dosadí v onAppear přes synchronize
         _viewModel = StateObject(wrappedValue: SettingsViewModel(userService: UserService(), authViewModel: AuthViewModel(), themeManager: ThemeManager()))
     }
     
@@ -27,8 +28,13 @@ struct SettingsView: View {
                         
                         SettingsSection(title: "ACCOUNT", themeManager: themeManager) {
                             if let user = userService.currentUser {
+                                // ZDE JE ZMĚNA: Předáváme authViewModel do konstruktoru EditProfileViewModel
                                 NavigationLink(destination: EditProfileView(
-                                    viewModel: EditProfileViewModel(user: user, userService: userService)
+                                    viewModel: EditProfileViewModel(
+                                        user: user,
+                                        userService: userService,
+                                        authViewModel: authViewModel
+                                    )
                                 )) {
                                     HStack {
                                         Image(systemName: "person.fill")
@@ -45,7 +51,7 @@ struct SettingsView: View {
                                 }
                             }
                             
-                            // Ostatní řádky zůstávají stejné (neaktivní ukázky)
+                            // Ostatní řádky
                             SettingsRow(icon: "envelope.fill", title: "Email Notifications", value: "", themeManager: themeManager) {}
                             SettingsRow(icon: "shield.fill", title: "Privacy", value: "", themeManager: themeManager) {}
                         }

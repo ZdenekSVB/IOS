@@ -15,7 +15,6 @@ class AuthViewModel: ObservableObject {
     
     private let db = Firestore.firestore()
     
-    // ZMĚNA: Už nevytváříme novou instanci, ale čekáme na tu sdílenou
     var userService: UserService?
     private var questService: QuestService?
     private var themeManager: ThemeManager?
@@ -30,22 +29,21 @@ class AuthViewModel: ObservableObject {
     @Published var currentUserUID: String?
     @Published var currentUserEmail: String?
     
-    // ZMĚNA: Init je prázdný, logika se spouští až v 'setup'
     init() {}
     
-    // ZMĚNA: Jedna metoda pro nastavení všech závislostí a spuštění kontroly přihlášení
     func setup(userService: UserService, questService: QuestService, themeManager: ThemeManager) {
         self.userService = userService
         self.questService = questService
         self.themeManager = themeManager
         
-        // Spustíme kontrolu až teď, když máme UserService k dispozici
         if Auth.auth().currentUser != nil {
             Task {
                 await checkIfUserIsLoggedIn()
             }
         }
     }
+    
+    // MARK: - Login & Register
     
     func login() {
         guard !email.isEmpty, !password.isEmpty else { return }
@@ -96,6 +94,27 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Password Update (NOVÉ)
+    
+    func updatePassword(oldPassword: String, newPassword: String) async throws {
+        guard let user = Auth.auth().currentUser, let email = user.email else {
+            throw NSError(domain: "Auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "Uživatel není přihlášen."])
+        }
+        
+        // 1. Vytvoření pověření ze starého hesla (pro ověření)
+        let credential = EmailAuthProvider.credential(withEmail: email, password: oldPassword)
+        
+        // 2. Re-autentizace (ověření, že staré heslo je správné)
+        // Toto je klíčový krok, který vyžaduješ
+        try await user.reauthenticate(with: credential)
+        
+        // 3. Nastavení nového hesla
+        try await user.updatePassword(to: newPassword)
+        print("✅ Heslo úspěšně změněno.")
+    }
+    
+    // MARK: - Google Sign In
+    
     func signInWithGoogle() async {
         guard (FirebaseApp.app()?.options.clientID) != nil else { return }
         
@@ -128,6 +147,8 @@ class AuthViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Logout & Helpers
+    
     func logout() {
         do {
             try Auth.auth().signOut()
@@ -139,7 +160,6 @@ class AuthViewModel: ObservableObject {
             username = ""
             errorMessage = ""
             
-            // Vyčistíme data v UserService a přestaneme naslouchat
             userService?.currentUser = nil
             userService?.stopListeningForUserUpdates()
             
@@ -156,22 +176,13 @@ class AuthViewModel: ObservableObject {
         errorMessage = ""
         
         Task {
-            // 1. Spustit naslouchání na User profil (to zajistí, že UI se hned aktualizuje)
-            // ZMĚNA: Používáme startListening místo jednorázového fetch
             userService?.startListeningForUserUpdates(uid: user.uid)
             
-            // 2. Počkáme chvilku, než se načte user, abychom mohli zkontrolovat nastavení (dark mode)
-            // Poznámka: startListening je asynchronní, data přijdou do UserService sama.
-            // Pro jistotu zde načteme Theme explicitně, pokud už data máme.
             if let fetchedUser = try? await userService?.fetchUser(uid: user.uid) {
                 themeManager?.setDarkMode(fetchedUser.settings.isDarkMode)
                 
-                // 3. Zkontrolovat reset dne
-                // Protože startListening už běží, checkAndResetDailyStats by měl pracovat s aktuálními daty
-                // nebo si je stáhne znovu.
                 let isNewDay = (try? await userService?.checkAndResetDailyStats(userId: user.uid)) ?? false
                 
-                // 4. Spravovat Questy
                 if isNewDay {
                     try? await questService?.regenerateDailyQuests(for: user.uid)
                 } else {
@@ -179,7 +190,6 @@ class AuthViewModel: ObservableObject {
                 }
             }
             
-            // 5. Update Last Active
             await updateLastLogin(uid: user.uid)
         }
     }

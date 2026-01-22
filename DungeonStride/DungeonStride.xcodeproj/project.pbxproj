@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2CDA276E2F1E9FE500F63F5F /* DungeonStrideWatch Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 2CDA27642F1E9FE400F63F5F /* DungeonStrideWatch Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C98887FD2EBB67FF0081A62E /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = C98887FC2EBB67FF0081A62E /* GoogleSignIn */; };
 		C98887FF2EBB67FF0081A62E /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C98887FE2EBB67FF0081A62E /* GoogleSignInSwift */; };
 		C9A1C8682E9E684C00EAE666 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = C9A1C8672E9E684C00EAE666 /* FirebaseAnalytics */; };
@@ -20,16 +19,6 @@
 		C9A1C8762E9E684C00EAE666 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = C9A1C8752E9E684C00EAE666 /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		2CDA276C2F1E9FE500F63F5F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C9A1C8492E9E659200EAE666 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2CDA27632F1E9FE400F63F5F;
-			remoteInfo = "DungeonStrideWatch Watch App";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		2CDA276F2F1E9FE500F63F5F /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -37,7 +26,6 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				2CDA276E2F1E9FE500F63F5F /* DungeonStrideWatch Watch App.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,19 +33,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2CDA27642F1E9FE400F63F5F /* DungeonStrideWatch Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DungeonStrideWatch Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9A1C8512E9E659200EAE666 /* DungeonStride.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DungeonStride.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		2CDA277A2F1EA19600F63F5F /* Exceptions for "DungeonStride" folder in "DungeonStrideWatch Watch App" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Model/ActivityType.swift,
-				Model/DistanceUnit.swift,
-			);
-			target = 2CDA27632F1E9FE400F63F5F /* DungeonStrideWatch Watch App */;
-		};
 		C98888032EBB6A2D0081A62E /* Exceptions for "DungeonStride" folder in "DungeonStride" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -68,16 +47,10 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2CDA27652F1E9FE400F63F5F /* DungeonStrideWatch */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DungeonStrideWatch;
-			sourceTree = "<group>";
-		};
 		C9A1C8532E9E659200EAE666 /* DungeonStride */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C98888032EBB6A2D0081A62E /* Exceptions for "DungeonStride" folder in "DungeonStride" target */,
-				2CDA277A2F1EA19600F63F5F /* Exceptions for "DungeonStride" folder in "DungeonStrideWatch Watch App" target */,
 			);
 			path = DungeonStride;
 			sourceTree = "<group>";
@@ -85,13 +58,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		2CDA27612F1E9FE400F63F5F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		C9A1C84E2E9E659200EAE666 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -116,7 +82,6 @@
 			isa = PBXGroup;
 			children = (
 				C9A1C8532E9E659200EAE666 /* DungeonStride */,
-				2CDA27652F1E9FE400F63F5F /* DungeonStrideWatch */,
 				C9A1C8522E9E659200EAE666 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -125,7 +90,6 @@
 			isa = PBXGroup;
 			children = (
 				C9A1C8512E9E659200EAE666 /* DungeonStride.app */,
-				2CDA27642F1E9FE400F63F5F /* DungeonStrideWatch Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -133,28 +97,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2CDA27632F1E9FE400F63F5F /* DungeonStrideWatch Watch App */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2CDA27722F1E9FE500F63F5F /* Build configuration list for PBXNativeTarget "DungeonStrideWatch Watch App" */;
-			buildPhases = (
-				2CDA27602F1E9FE400F63F5F /* Sources */,
-				2CDA27612F1E9FE400F63F5F /* Frameworks */,
-				2CDA27622F1E9FE400F63F5F /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				2CDA27652F1E9FE400F63F5F /* DungeonStrideWatch */,
-			);
-			name = "DungeonStrideWatch Watch App";
-			packageProductDependencies = (
-			);
-			productName = "DungeonStrideWatch Watch App";
-			productReference = 2CDA27642F1E9FE400F63F5F /* DungeonStrideWatch Watch App.app */;
-			productType = "com.apple.product-type.application";
-		};
 		C9A1C8502E9E659200EAE666 /* DungeonStride */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C9A1C8612E9E659300EAE666 /* Build configuration list for PBXNativeTarget "DungeonStride" */;
@@ -167,7 +109,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				2CDA276D2F1E9FE500F63F5F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				C9A1C8532E9E659200EAE666 /* DungeonStride */,
@@ -199,9 +140,6 @@
 				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
-					2CDA27632F1E9FE400F63F5F = {
-						CreatedOnToolsVersion = 26.2;
-					};
 					C9A1C8502E9E659200EAE666 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -226,19 +164,11 @@
 			projectRoot = "";
 			targets = (
 				C9A1C8502E9E659200EAE666 /* DungeonStride */,
-				2CDA27632F1E9FE400F63F5F /* DungeonStrideWatch Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		2CDA27622F1E9FE400F63F5F /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		C9A1C84F2E9E659200EAE666 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -249,13 +179,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		2CDA27602F1E9FE400F63F5F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		C9A1C84D2E9E659200EAE666 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -265,79 +188,7 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		2CDA276D2F1E9FE500F63F5F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2CDA27632F1E9FE400F63F5F /* DungeonStrideWatch Watch App */;
-			targetProxy = 2CDA276C2F1E9FE500F63F5F /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		2CDA27702F1E9FE500F63F5F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = DungeonStrideWatch;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = cz.mendelu.DungeonStride;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = cz.mendelu.DungeonStride.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 26.2;
-			};
-			name = Debug;
-		};
-		2CDA27712F1E9FE500F63F5F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = DungeonStrideWatch;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = cz.mendelu.DungeonStride;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = cz.mendelu.DungeonStride.watchkitapp;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 26.2;
-			};
-			name = Release;
-		};
 		C9A1C85F2E9E659300EAE666 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -526,15 +377,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2CDA27722F1E9FE500F63F5F /* Build configuration list for PBXNativeTarget "DungeonStrideWatch Watch App" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2CDA27702F1E9FE500F63F5F /* Debug */,
-				2CDA27712F1E9FE500F63F5F /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		C9A1C84C2E9E659200EAE666 /* Build configuration list for PBXProject "DungeonStride" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

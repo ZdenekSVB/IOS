@@ -59,7 +59,7 @@ struct ShopView: View {
                     HStack {
                         Button(action: {
                             print("⚡️ Spouštím upload map...")
-                            DatabaseSeeder().uploadMapsFromJSON()
+                            //DatabaseSeeder().uploadMapsFromJSON()
                         }) {
                             Text("UPLOAD MAPS")
                                 .font(.caption2)
