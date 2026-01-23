@@ -13,6 +13,10 @@ struct SettingsView: View {
     
     @StateObject private var viewModel: SettingsViewModel
     
+    // URL odkazy
+    private let reportProblemURL = URL(string: "https://forms.gle/N6SHg5RRvKrKUpqs6")!
+    private let privacyPolicyURL = URL(string: "https://www.apple.com/legal/privacy/en-ww/")!
+    
     init() {
         _viewModel = StateObject(wrappedValue: SettingsViewModel(userService: UserService(), authViewModel: AuthViewModel(), themeManager: ThemeManager()))
     }
@@ -35,18 +39,8 @@ struct SettingsView: View {
                                         authViewModel: authViewModel
                                     )
                                 )) {
-                                    HStack {
-                                        Image(systemName: "person.crop.circle.badge.exclamationmark")
-                                            .foregroundColor(themeManager.accentColor)
-                                            .frame(width: 30)
-                                        Text("Edit Profile & Security")
-                                            .foregroundColor(themeManager.primaryTextColor)
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .foregroundColor(themeManager.secondaryTextColor)
-                                    }
-                                    .padding()
-                                    .background(themeManager.cardBackgroundColor)
+                                    // Používáme stejný styling jako u Edit Profile pro konzistenci
+                                    customNavigationRow(icon: "person.crop.circle.badge.exclamationmark", title: "Edit Profile & Security", color: themeManager.accentColor)
                                 }
                             }
                         }
@@ -60,7 +54,6 @@ struct SettingsView: View {
                             SettingsToggleRow(icon: "speaker.wave.2.fill", title: "Sound Effects", isOn: $viewModel.soundEffects, themeManager: themeManager)
                                 .onChange(of: viewModel.soundEffects) { _, _ in viewModel.updateSettings() }
                             
-                            // NOVÉ: Haptika
                             SettingsToggleRow(icon: "iphone.radiowaves.left.and.right", title: "Haptic Feedback", isOn: $viewModel.hapticsEnabled, themeManager: themeManager)
                                 .onChange(of: viewModel.hapticsEnabled) { _, _ in viewModel.updateSettings() }
                             
@@ -72,19 +65,31 @@ struct SettingsView: View {
                             unitPickerRow
                         }
                         
-                        // --- SUPPORT (Funkční odkazy) ---
+                        // --- SUPPORT ---
                         SettingsSection(title: "SUPPORT", themeManager: themeManager) {
-                            // Tyto URL si časem nahraď svými reálnými
-                            SettingsRow(icon: "lock.shield.fill", title: "Privacy Policy", value: "", themeManager: themeManager) {
-                                viewModel.openUrl("https://www.google.com") // Doplň real URL
+                            
+                            // 1. Report a Problem (Google Form)
+                            Button(action: {
+                                UIApplication.shared.open(reportProblemURL)
+                            }) {
+                                customRowContent(icon: "exclamationmark.bubble.fill", title: "Report a Problem", color: .orange, showChevron: false, showExternalIcon: true)
                             }
                             
-                            SettingsRow(icon: "doc.text.fill", title: "Terms of Service", value: "", themeManager: themeManager) {
-                                viewModel.openUrl("https://www.google.com") // Doplň real URL
+                            // 2. Contact Us (Interní View)
+                            NavigationLink(destination: ContactUsView()) {
+                                customNavigationRow(icon: "envelope.fill", title: "Contact Us", color: .blue)
                             }
                             
-                            SettingsRow(icon: "envelope.fill", title: "Contact Support", value: "", themeManager: themeManager) {
-                                viewModel.sendEmail()
+                            // 3. Terms of Service (Interní View)
+                            NavigationLink(destination: TermsOfServiceView()) {
+                                customNavigationRow(icon: "doc.text.fill", title: "Terms of Service", color: themeManager.secondaryTextColor)
+                            }
+
+                            // 4. Privacy Policy (Apple odkaz)
+                            Button(action: {
+                                UIApplication.shared.open(privacyPolicyURL)
+                            }) {
+                                customRowContent(icon: "hand.raised.fill", title: "Privacy Policy", color: .gray, showChevron: false, showExternalIcon: true)
                             }
                         }
                         
@@ -152,7 +157,7 @@ struct SettingsView: View {
             } message: {
                 Text("This action cannot be undone. All your progress, items, and stats will be permanently lost.")
             }
-            // Alert pro chybu při mazání
+            // Alert pro chybu
             .alert("Error", isPresented: Binding<Bool>(
                 get: { viewModel.deleteError != nil },
                 set: { _ in viewModel.deleteError = nil }
@@ -162,6 +167,40 @@ struct SettingsView: View {
                 Text(viewModel.deleteError ?? "Unknown error")
             }
         }
+    }
+    
+    // MARK: - Helper Views pro konzistentní design
+    
+    // Pro NavigationLinky (s šipkou doprava)
+    private func customNavigationRow(icon: String, title: String, color: Color) -> some View {
+        customRowContent(icon: icon, title: title, color: color, showChevron: true, showExternalIcon: false)
+    }
+    
+    // Samotný obsah řádku
+    private func customRowContent(icon: String, title: String, color: Color, showChevron: Bool, showExternalIcon: Bool) -> some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(color)
+                .frame(width: 30)
+            
+            Text(title)
+                .foregroundColor(themeManager.primaryTextColor)
+            
+            Spacer()
+            
+            if showExternalIcon {
+                Image(systemName: "arrow.up.right")
+                    .font(.caption)
+                    .foregroundColor(themeManager.secondaryTextColor.opacity(0.7))
+            }
+            
+            if showChevron {
+                Image(systemName: "chevron.right")
+                    .foregroundColor(themeManager.secondaryTextColor)
+            }
+        }
+        .padding()
+        .background(themeManager.cardBackgroundColor)
     }
     
     private var unitPickerRow: some View {
