@@ -10,7 +10,7 @@ import SwiftUI
 struct ContactUsView: View {
     @EnvironmentObject var themeManager: ThemeManager
     
-    // Vymyšlené kontakty
+    // Kontaktní údaje
     private let supportEmail = "support@dungeonstride.app"
     private let supportPhone = "+420 555 019 283"
     
@@ -83,19 +83,33 @@ struct ContactUsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     
+    // MARK: - Actions
+    
     private func openMail() {
+        print("📧 Pokus o otevření emailu...") // Pro debugging v konzoli
+        
+        // Vytvoříme URL mailto:support@...
         if let url = URL(string: "mailto:\(supportEmail)") {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url)
+            } else {
+                print("❌ Zařízení nemůže poslat email (např. simulátor nebo chybí Mail app).")
             }
         }
     }
     
     private func openPhone() {
+        print("📞 Pokus o vytáčení čísla...") // Pro debugging v konzoli
+        
+        // Odstraníme mezery z čísla, aby to systém pochopil (např. +420123456789)
         let cleanPhone = supportPhone.replacingOccurrences(of: " ", with: "")
-        if let url = URL(string: "tel://\(cleanPhone)") {
+        
+        // Použijeme schéma "tel:"
+        if let url = URL(string: "tel:\(cleanPhone)") {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url)
+            } else {
+                print("❌ Zařízení nemůže volat (např. simulátor nebo iPad bez SIM).")
             }
         }
     }
