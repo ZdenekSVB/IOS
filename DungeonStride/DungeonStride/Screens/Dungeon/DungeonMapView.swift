@@ -163,7 +163,7 @@ struct DungeonMapView: View {
                 }
             }
         }
-        .onChange(of: viewModel.isTraveling) { isTraveling in
+        .onChange(of: viewModel.isTraveling) { _, isTraveling in
             if !isTraveling { centerOnUser() }
         }
     }

@@ -11,27 +11,14 @@ import SwiftUI
 class DatabaseSeeder {
 
     func uploadItemsToFirestore() {
-        guard
-            let url = Bundle.main.url(
-                forResource: "items",
-                withExtension: "json"
-            )
-        else {
+        guard let url = Bundle.main.url(forResource: "items", withExtension: "json") else {
             print("❌ Soubor items.json nebyl nalezen v Bundle!")
             return
         }
 
         do {
             let data = try Data(contentsOf: url)
-
-            // 1. Místo AItem dekódujeme čistá data (Array of Dictionaries)
-            // Tím obejdeme kontrolu "id" i "rarity"
-            guard
-                let jsonArray = try JSONSerialization.jsonObject(
-                    with: data,
-                    options: []
-                ) as? [[String: Any]]
-            else {
+            guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] else {
                 print("❌ Chyba: JSON není pole objektů.")
                 return
             }
@@ -39,27 +26,30 @@ class DatabaseSeeder {
             let db = Firestore.firestore()
             print("🚀 Začínám nahrávat \(jsonArray.count) itemů (RAW mód)...")
 
+            // Změna na 'var' je nyní oprávněná, protože dictionary mutujeme
             for var itemDict in jsonArray {
-
-                // Získáme jméno pro ID dokumentu
                 guard let name = itemDict["name"] as? String else { continue }
 
                 let docId = name.lowercased()
                     .replacingOccurrences(of: " ", with: "_")
                     .replacingOccurrences(of: "'", with: "")
 
-                // ⚠️ DŮLEŽITÁ OPRAVA DAT ZA BĚHU
-                // Tvůj AItem model vyžaduje Rarity (nesmí být null).
-                // V JSONu máš u lektvarů "rarity": null. Pokud to tak nahraješ, aplikace ti spadne při čtení.
-                // Zde to automaticky opravíme na "Common", aby to prošlo:
+                // OPRAVA RARITY (aby se proměnná itemDict využila)
+                if itemDict["rarity"] is NSNull || itemDict["rarity"] == nil {
+                    itemDict["rarity"] = "Common"
+                }
+                
+                // OPRAVA CENY
+                if var stats = itemDict["baseStats"] as? [String: Any] {
+                    if stats["sellPrice"] == nil || stats["sellPrice"] is NSNull {
+                        stats["sellPrice"] = 10
+                        itemDict["baseStats"] = stats
+                    }
+                }
 
-                // 2. Nahrajeme slovník přímo do Firestore
-                db.collection("items").document(docId).setData(itemDict) {
-                    error in
+                db.collection("items").document(docId).setData(itemDict) { error in
                     if let error = error {
-                        print(
-                            "chyba u itemu \(name): \(error.localizedDescription)"
-                        )
+                        print("❌ chyba u itemu \(name): \(error.localizedDescription)")
                     } else {
                         print("✅ Item nahrán: \(name)")
                     }
@@ -74,11 +64,7 @@ class DatabaseSeeder {
 
     func giveStarterGear(to userId: String) {
         let db = Firestore.firestore()
-
-        // 1. Přidat itemy do batohu (Inventory Subcollection)
-        let inventoryRef = db.collection("users").document(userId).collection(
-            "inventory"
-        )
+        let inventoryRef = db.collection("users").document(userId).collection("inventory")
 
         let starterItems = [
             ["itemId": "knights_sword", "quantity": 1],
@@ -90,10 +76,8 @@ class DatabaseSeeder {
             inventoryRef.addDocument(data: item)
         }
 
-        // 2. Nastavit equip (User Document)
-        // Tady předstíráme, že už má meč v ruce
         let equippedData: [String: String] = [
-            "Zbraň": "knights_sword"  // Klíč musí sedět s EquipSlot.mainHand.rawValue
+            "Zbraň": "knights_sword"
         ]
 
         db.collection("users").document(userId).updateData([
@@ -107,26 +91,15 @@ class DatabaseSeeder {
         }
     }
 
-    // MARK: - Quests Upload
     func uploadQuestsToFirestore() {
-        guard
-            let url = Bundle.main.url(
-                forResource: "quests",
-                withExtension: "json"
-            )
-        else {
+        guard let url = Bundle.main.url(forResource: "quests", withExtension: "json") else {
             print("❌ Soubor quests.json nebyl nalezen v Bundle!")
             return
         }
 
         do {
             let data = try Data(contentsOf: url)
-            guard
-                let jsonArray = try JSONSerialization.jsonObject(
-                    with: data,
-                    options: []
-                ) as? [[String: Any]]
-            else {
+            guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] else {
                 print("❌ Chyba: JSON není pole objektů.")
                 return
             }
@@ -135,24 +108,17 @@ class DatabaseSeeder {
             print("🚀 Začínám nahrávat \(jsonArray.count) questů...")
 
             for var questDict in jsonArray {
-                guard let title = questDict["title"] as? String else {
-                    continue
-                }
+                guard let title = questDict["title"] as? String else { continue }
 
-                // ID vytvoříme z názvu questu
                 let docId = title.lowercased()
                     .replacingOccurrences(of: " ", with: "_")
                     .replacingOccurrences(of: "'", with: "")
 
-                // Přidáme ID do dat, aby bylo konzistentní
                 questDict["id"] = docId
 
-                db.collection("quests").document(docId).setData(questDict) {
-                    error in
+                db.collection("quests").document(docId).setData(questDict) { error in
                     if let error = error {
-                        print(
-                            "❌ chyba u questu \(title): \(error.localizedDescription)"
-                        )
+                        print("❌ chyba u questu \(title): \(error.localizedDescription)")
                     } else {
                         print("✅ Quest nahrán: \(title)")
                     }
@@ -166,24 +132,14 @@ class DatabaseSeeder {
     }
 
     func uploadEnemiesToFirestore() {
-        guard
-            let url = Bundle.main.url(
-                forResource: "enemies",
-                withExtension: "json"
-            )
-        else {
+        guard let url = Bundle.main.url(forResource: "enemies", withExtension: "json") else {
             print("❌ Soubor enemies.json nebyl nalezen v Bundle!")
             return
         }
 
         do {
             let data = try Data(contentsOf: url)
-            guard
-                let jsonArray = try JSONSerialization.jsonObject(
-                    with: data,
-                    options: []
-                ) as? [[String: Any]]
-            else {
+            guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] else {
                 print("❌ Chyba: JSON enemies není pole objektů.")
                 return
             }
@@ -191,21 +147,18 @@ class DatabaseSeeder {
             let db = Firestore.firestore()
             print("🚀 Začínám nahrávat \(jsonArray.count) nepřátel...")
 
-            for var enemyDict in jsonArray {
+            // Změna na 'let', protože enemyDict nemutujeme (pokud ho neopravujeme)
+            // Pokud bys chtěl opravovat data, změň na 'var' a přidej logiku.
+            for enemyDict in jsonArray {
                 guard let name = enemyDict["name"] as? String else { continue }
 
-                // Vytvoření ID (např. "Green Slime" -> "green_slime")
                 let docId = name.lowercased()
                     .replacingOccurrences(of: " ", with: "_")
                     .replacingOccurrences(of: "'", with: "")
 
-                // Uložíme do kolekce "enemies"
-                db.collection("enemies").document(docId).setData(enemyDict) {
-                    error in
+                db.collection("enemies").document(docId).setData(enemyDict) { error in
                     if let error = error {
-                        print(
-                            "❌ chyba u nepřítele \(name): \(error.localizedDescription)"
-                        )
+                        print("❌ chyba u nepřítele \(name): \(error.localizedDescription)")
                     } else {
                         print("✅ Nepřítel nahrán: \(name)")
                     }

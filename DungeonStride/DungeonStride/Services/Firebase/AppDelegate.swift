@@ -27,6 +27,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         #endif
     }
     
+    // OPRAVA: Pro iOS 9.0 a novější. OpenURLOptionsKey není deprecated v tomto kontextu,
+    // varování bylo pravděpodobně způsobeno špatným Deployment Targetem v projektu.
     func application(_ app: UIApplication,
                      open url: URL,
                      options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {

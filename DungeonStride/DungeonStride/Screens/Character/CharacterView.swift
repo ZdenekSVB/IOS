@@ -39,9 +39,12 @@ struct CharacterView: View {
             .onAppear {
                 if let uid = authVM.currentUserUID { charVM.fetchData(for: uid) }
             }
-            .onChange(of: authVM.currentUserUID) { newUid in
-                if let uid = newUid { charVM.fetchData(for: uid) }
-                else { charVM.stopListening() }
+            .onChange(of: authVM.currentUserUID) { _, newUid in
+                if let uid = newUid {
+                    charVM.fetchData(for: uid)
+                } else {
+                    charVM.stopListening()
+                }
             }
             .sheet(item: $charVM.selectedItemForCompare) { invItem in
                 if let slot = invItem.item.computedSlot {
