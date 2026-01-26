@@ -98,7 +98,7 @@ struct DungeonMapView: View {
                         }
 
                         Spacer()
-                        
+
                         Button(action: { centerOnUser() }) {
                             Image(systemName: "location.fill")
                                 .font(.title2)
@@ -131,20 +131,9 @@ struct DungeonMapView: View {
         }
         .sheet(isPresented: $showCharacterView) {
             ZStack(alignment: .topTrailing) {
-
                 CharacterView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(UIColor.systemBackground))
-
-                Button(action: {
-                    showCharacterView = false
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(Color(.systemGray2))
-                        .padding(24)
-                        .shadow(radius: 2)
-                }
             }
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
