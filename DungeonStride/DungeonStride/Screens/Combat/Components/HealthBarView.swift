@@ -11,26 +11,24 @@ struct HealthBarView: View {
     let current: Int
     let max: Int
     let color: Color
-    
+
     var percent: Double {
+        guard max > 0 else { return 0 }
         return Double(current) / Double(max)
     }
-    
+
     var body: some View {
-        ZStack(alignment: .leading) {
-            // Pozadí
-            Capsule().frame(height: 12).foregroundColor(Color.gray.opacity(0.3))
-            // Popředí (Bar)
-            Capsule().frame(width: CGFloat(percent) * 300, height: 12) // 300 je šířka baru, uprav dle potřeby
-                .foregroundColor(color)
-                .animation(.linear, value: current)
-            
-            // Text HP
-            Text("\(current) / \(max)")
-                .font(.system(size: 10, weight: .bold))
+        VStack(spacing: 4) {
+            ZStack(alignment: .leading) {
+                Capsule().frame(width: 100, height: 10).foregroundColor(
+                    .gray.opacity(0.5)
+                )
+                Capsule().frame(width: 100 * CGFloat(percent), height: 10)
+                    .foregroundColor(color)
+            }
+            Text("\(current)/\(max)")
+                .font(.system(size: 9, weight: .bold))
                 .foregroundColor(.white)
-                .padding(.leading, 8)
         }
-        .frame(height: 12)
     }
 }

@@ -9,15 +9,15 @@
     },
     "%lld / %lld" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld / %2$lld"
-          }
-        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
+            "value" : "%1$lld / %2$lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
             "value" : "%1$lld / %2$lld"
           }
         }
@@ -25,19 +25,22 @@
     },
     "%lld / %lld XP" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld / %2$lld XP"
-          }
-        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld / %2$lld XP"
           }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld XP"
+          }
         }
       }
+    },
+    "%lld MP" : {
+
     },
     "%lld XP" : {
       "localizations" : {
@@ -51,15 +54,15 @@
     },
     "%lld/%lld" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld/%2$lld"
-          }
-        },
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
+            "value" : "%1$lld/%2$lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
             "value" : "%1$lld/%2$lld"
           }
         }
@@ -665,6 +668,9 @@
         }
       }
     },
+    "Kniha kouzel" : {
+
+    },
     "KONEC" : {
       "localizations" : {
         "en" : {
@@ -695,6 +701,9 @@
           }
         }
       }
+    },
+    "Lektvary" : {
+
     },
     "Level %lld" : {
       "localizations" : {
@@ -847,6 +856,7 @@
       }
     },
     "Nepřítel útočí..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -886,6 +896,9 @@
           }
         }
       }
+    },
+    "Neznáš žádná kouzla." : {
+
     },
     "No activities in this range." : {
       "localizations" : {
@@ -988,6 +1001,9 @@
           }
         }
       }
+    },
+    "Prázdný batoh" : {
+
     },
     "PREFERENCES" : {
       "localizations" : {
@@ -1202,6 +1218,9 @@
         }
       }
     },
+    "Soupeř hraje..." : {
+
+    },
     "Speed" : {
       "localizations" : {
         "cs" : {
@@ -1402,6 +1421,9 @@
         }
       }
     },
+    "VS" : {
+
+    },
     "VYBRAT ODMĚNU" : {
       "localizations" : {
         "en" : {
@@ -1433,6 +1455,9 @@
         }
       }
     },
+    "x%lld" : {
+
+    },
     "Zavřít" : {
       "localizations" : {
         "en" : {
@@ -1442,6 +1467,12 @@
           }
         }
       }
+    },
+    "Zpět" : {
+
+    },
+    "Zvol typ útoku" : {
+
     }
   },
   "version" : "1.1"
