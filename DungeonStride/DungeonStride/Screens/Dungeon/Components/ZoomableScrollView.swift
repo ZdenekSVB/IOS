@@ -11,7 +11,7 @@ import UIKit
 struct ZoomableScrollView<Content: View>: UIViewRepresentable {
     private var content: Content
     private var contentSize: CGSize
-    @Binding var centerOnPoint: CGPoint? // Pokud se změní, mapa se vycentruje
+    @Binding var centerOnPoint: CGPoint?
     
     init(contentSize: CGSize, centerOnPoint: Binding<CGPoint?>, @ViewBuilder content: () -> Content) {
         self.contentSize = contentSize
@@ -22,13 +22,12 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
     func makeUIView(context: Context) -> UIScrollView {
         let scrollView = UIScrollView()
         scrollView.delegate = context.coordinator
-        scrollView.maximumZoomScale = 5.0 // Maximální přiblížení (5x)
-        scrollView.minimumZoomScale = 0.2 // Maximální oddálení
+        scrollView.maximumZoomScale = 5.0
+        scrollView.minimumZoomScale = 0.2
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.showsVerticalScrollIndicator = false
         scrollView.bouncesZoom = true
         
-        // Vytvoření hostingu pro SwiftUI obsah
         let hostedView = context.coordinator.hostingController.view!
         hostedView.translatesAutoresizingMaskIntoConstraints = true
         hostedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -42,17 +41,13 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIScrollView, context: Context) {
-        // Aktualizace obsahu (pokud se změní poloha panáčka, překreslí se)
         context.coordinator.hostingController.rootView = content
         
-        // LOGIKA CENTROVÁNÍ
         if let centerPoint = centerOnPoint {
-            // Vypočítáme obdélník, který chceme vidět
             let zoomScale = uiView.zoomScale
             let width = uiView.bounds.width / zoomScale
             let height = uiView.bounds.height / zoomScale
             
-            // Vytvoříme rect kolem bodu, na který chceme centrovat
             let rect = CGRect(
                 x: centerPoint.x - (width / 2),
                 y: centerPoint.y - (height / 2),
@@ -60,10 +55,8 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
                 height: height
             )
             
-            // Animovaně posuneme scrollview
             uiView.scrollRectToVisible(rect, animated: true)
             
-            // Resetujeme trigger, aby se dalo hýbat mapou a nevracelo nás to zpět
             DispatchQueue.main.async {
                 centerOnPoint = nil
             }
@@ -74,7 +67,6 @@ struct ZoomableScrollView<Content: View>: UIViewRepresentable {
         return Coordinator(hostingController: UIHostingController(rootView: content))
     }
     
-    // Coordinator řeší delegáta pro zoomování
     class Coordinator: NSObject, UIScrollViewDelegate {
         var hostingController: UIHostingController<Content>
         

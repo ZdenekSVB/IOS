@@ -11,78 +11,117 @@ import UIKit
 struct DungeonMapView: View {
     @StateObject var viewModel = DungeonMapViewModel()
     @State private var selectedLocation: GameMapLocation?
-
-    // Trigger pro centrování kamery (když se sem něco uloží, mapa tam odscroluje)
     @State private var cameraTarget: CGPoint?
+
+    @State private var showCharacterView = false
 
     var body: some View {
         NavigationView {
-            // Používáme náš nový ZoomableScrollView
-            ZoomableScrollView(
-                contentSize: CGSize(
-                    width: viewModel.mapData?.width ?? 4000,
-                    height: viewModel.mapData?.height ?? 4000
-                ),
-                centerOnPoint: $cameraTarget
-            ) {
-                ZStack(alignment: .topLeading) {
+            ZStack(alignment: .topLeading) {
+                ZoomableScrollView(
+                    contentSize: CGSize(
+                        width: viewModel.mapData?.width ?? 4000,
+                        height: viewModel.mapData?.height ?? 4000
+                    ),
+                    centerOnPoint: $cameraTarget
+                ) {
+                    ZStack(alignment: .topLeading) {
+                        if let mapInfo = viewModel.mapData {
+                            Image(mapInfo.imageName)
+                                .resizable()
+                                .frame(
+                                    width: mapInfo.width,
+                                    height: mapInfo.height
+                                )
+                        }
 
-                    // 1. MAPA
-                    if let mapInfo = viewModel.mapData {
-                        Image(mapInfo.imageName)
-                            .resizable()
-                            .frame(width: mapInfo.width, height: mapInfo.height)
-                    } else {
-                        // Placeholder, než se načte
-                        Color.black.frame(width: 4000, height: 4000)
+                        ForEach(viewModel.locations) { location in
+                            LocationMarkerView(location: location)
+                                .position(location.position)
+                                .onTapGesture { selectedLocation = location }
+                        }
+
+                        if let user = viewModel.user {
+                            UserAvatarView(user: user)
+                                .position(viewModel.userPosition)
+                                .id(user.id)
+                                .animation(
+                                    viewModel.isTraveling
+                                        ? .easeInOut(
+                                            duration: viewModel
+                                                .currentTravelDuration
+                                        ) : nil,
+                                    value: viewModel.userPosition
+                                )
+                        }
                     }
+                }
 
-                    // 2. LOKACE
-                    ForEach(viewModel.locations) { location in
-                        LocationMarkerView(location: location)
-                            .position(location.position)
-                            .onTapGesture {
-                                selectedLocation = location
+                VStack {
+                    HStack(alignment: .top) {
+
+                        if let user = viewModel.user {
+                            Button(action: {
+                                showCharacterView = true
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(user.selectedAvatar)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 44, height: 44)
+                                        .clipShape(Circle())
+                                        .overlay(
+                                            Circle().stroke(
+                                                Color.white,
+                                                lineWidth: 2
+                                            )
+                                        )
+                                        .shadow(radius: 4)
+
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        Text(user.username)
+                                            .font(.caption).bold()
+                                            .foregroundColor(.black)
+                                            .shadow(color: .white, radius: 2)
+
+                                        Text("Lvl \(user.level)")
+                                            .font(.caption2).bold()
+                                            .foregroundColor(.blue)
+                                            .shadow(color: .white, radius: 2)
+                                    }
+                                }
+                                .padding(8)
+                                .background(Color.white.opacity(0.85))
+                                .cornerRadius(30)
+                                .shadow(radius: 3)
                             }
-                    }
+                        }
 
-                    // 3. USER AVATAR
-                    if let user = viewModel.user {
-                        UserAvatarView(user: user)
-                            .position(viewModel.userPosition)
-                            .id(user.id)  // Překreslení při změně
-                            .animation(
-                                viewModel.isTraveling
-                                    ? .easeInOut(
-                                        duration: viewModel
-                                            .currentTravelDuration
-                                    ) : nil,
-                                value: viewModel.userPosition
-                            )
+                        Spacer()
+                        
+                        Button(action: { centerOnUser() }) {
+                            Image(systemName: "location.fill")
+                                .font(.title2)
+                                .foregroundColor(.blue)
+                                .padding(12)
+                                .background(Color.white.opacity(0.9))
+                                .clipShape(Circle())
+                                .shadow(radius: 3)
+                        }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 60)
+
+                    Spacer()
                 }
             }
             .ignoresSafeArea()
-            .navigationTitle("Ytonga")
-            .navigationBarTitleDisplayMode(.inline)
-            // Tlačítko pro manuální vycentrování (volitelné, ale užitečné)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        centerOnUser()
-                    }) {
-                        Image(systemName: "location.fill")
-                    }
-                }
-            }
+            .navigationBarHidden(true)
         }
         .task {
-            // 1. Načíst data
             await viewModel.loadMapData(mapId: "map_ytonga_001")
             await viewModel.loadUser()
-
-            // 2. Po krátké prodlevě (aby se stihl vykreslit layout) vycentrujeme na hráče
-            try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5s delay
+            try? await Task.sleep(nanoseconds: 500_000_000)
             centerOnUser()
         }
         .sheet(item: $selectedLocation) { location in
@@ -90,25 +129,34 @@ struct DungeonMapView: View {
                 .presentationDetents([.fraction(0.40)])
                 .presentationDragIndicator(.visible)
         }
-        // Pokud hráč docestuje do cíle, chceme taky vycentrovat?
-        .onChange(of: viewModel.isTraveling) { isTraveling in
-            // Pokud začal cestovat nebo skončil, můžeme centrovat na něj
-            if isTraveling {
-                // Volitelné: Sledovat hráče kamerou během cesty
-                // To by vyžadovalo posílat cameraTarget v timeru, což nedoporučuji pro výkon
-            } else {
-                // Až docestuje, vycentrujeme
-                centerOnUser()
+        .sheet(isPresented: $showCharacterView) {
+            ZStack(alignment: .topTrailing) {
+
+                CharacterView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(UIColor.systemBackground))
+
+                Button(action: {
+                    showCharacterView = false
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundColor(Color(.systemGray2))
+                        .padding(24)
+                        .shadow(radius: 2)
+                }
             }
+            .presentationDetents([.large])
+            .presentationDragIndicator(.visible)
+        }
+        .onChange(of: viewModel.isTraveling) { isTraveling in
+            if !isTraveling { centerOnUser() }
         }
     }
 
-    // Pomocná funkce pro vycentrování
     func centerOnUser() {
-        // Získáme aktuální vizuální pozici hráče z ViewModelu
         let target = viewModel.userPosition
 
-        // Nastavíme trigger, ZoomableScrollView to zachytí a provede animaci
         self.cameraTarget = target
     }
 }
