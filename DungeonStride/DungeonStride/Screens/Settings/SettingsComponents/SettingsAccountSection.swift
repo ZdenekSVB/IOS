@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingsAccountSection: View {
-    @ObservedObject var viewModel: SettingsViewModel // Potřebujeme ViewModel, ale jen jako ObservedObject
+    @ObservedObject var viewModel: SettingsViewModel
     @EnvironmentObject var userService: UserService
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeManager: ThemeManager
@@ -25,7 +25,7 @@ struct SettingsAccountSection: View {
                 )) {
                     SettingsNavigationRow(
                         icon: "person.crop.circle.badge.exclamationmark",
-                        title: "Edit Profile & Security",
+                        title: "Edit Profile & Security", // Lokalizace
                         color: themeManager.accentColor,
                         themeManager: themeManager
                     )

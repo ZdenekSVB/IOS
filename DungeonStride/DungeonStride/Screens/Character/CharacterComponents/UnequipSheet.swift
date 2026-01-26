@@ -17,8 +17,15 @@ struct UnequipSheet: View {
             ItemDetailCard(item: item)
             Text(item.description).font(.caption).foregroundColor(.secondary).multilineTextAlignment(.center).padding(.horizontal)
             Spacer()
-            Button(action: { onUnequip(); dismiss() }) {
-                Label("Sundat (Unequip)", systemImage: "arrow.down.doc.fill").bold().frame(maxWidth: .infinity).padding().background(Color.red.opacity(0.8)).foregroundColor(.white).cornerRadius(12)
+            Button(action: {
+                // Haptika a zvuk sundání
+                HapticManager.shared.lightImpact()
+                SoundManager.shared.playSystemClick()
+                onUnequip()
+                dismiss()
+            }) {
+                Label("Unequip", systemImage: "arrow.down.doc.fill") // Lokalizace
+                    .bold().frame(maxWidth: .infinity).padding().background(Color.red.opacity(0.8)).foregroundColor(.white).cornerRadius(12)
             }.padding()
         }.presentationDetents([.medium])
     }

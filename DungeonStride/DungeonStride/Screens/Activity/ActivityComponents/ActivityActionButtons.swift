@@ -9,6 +9,7 @@ import SwiftUI
 import MapKit
 import Charts
 import CoreLocation
+
 // MARK: - Control Buttons
 struct ActivityActionButtons: View {
     @ObservedObject var activityManager: ActivityManager
@@ -16,12 +17,19 @@ struct ActivityActionButtons: View {
     var userService: UserService
     @EnvironmentObject var questService: QuestService
     
+    // Pro kontrolu nastavení (zvuky/haptika)
+    var hapticsEnabled: Bool { userService.currentUser?.settings.hapticsEnabled ?? true }
+    var soundEnabled: Bool { userService.currentUser?.settings.soundEffectsEnabled ?? true }
+    
     var body: some View {
         HStack(spacing: 20) {
             // START / PAUSE
             Button {
+                // Haptika & Zvuk
+                HapticManager.shared.mediumImpact(enabled: hapticsEnabled)
+                if soundEnabled { SoundManager.shared.playSystemClick() }
+                
                 if activityManager.activityState == .active {
-                    
                     activityManager.pauseActivity()
                 } else {
                     activityManager.startActivity()
@@ -39,6 +47,10 @@ struct ActivityActionButtons: View {
             // STOP
             if activityManager.activityState == .active || activityManager.activityState == .paused {
                 Button {
+                    // Haptika (Silnější pro STOP) & Zvuk
+                    HapticManager.shared.heavyImpact(enabled: hapticsEnabled)
+                    if soundEnabled { SoundManager.shared.playSystemSuccess() } // Nebo jiný zvuk konce
+                    
                     activityManager.finishActivity(
                         userId: authViewModel.currentUserUID,
                         userService: userService,
@@ -59,11 +71,16 @@ struct ActivityActionButtons: View {
             // RESET
             if activityManager.activityState == .finished {
                 Button {
+                    // Haptika & Zvuk
+                    HapticManager.shared.warning(enabled: hapticsEnabled)
+                    if soundEnabled { SoundManager.shared.playSystemClick() }
+                    
                     activityManager.resetActivity()
                 } label: {
                     VStack {
                         Image(systemName: "arrow.counterclockwise")
-                        Text("Reset")
+                        // Lokalizovaný text
+                        Text("Reset", comment: "Label for reset button on activity screen")
                             .font(.caption2)
                             .fontWeight(.bold)
                     }

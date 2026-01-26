@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct MerchantHeaderView: View {
@@ -25,18 +24,18 @@ struct MerchantHeaderView: View {
                     .padding(.leading)
                 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Tajemný Obchodník")
+                    Text("Mysterious Merchant") // Lokalizace
                         .font(.headline)
                         .foregroundColor(.white)
-                    Text("Zboží se mění každých 24 hodin.")
+                    Text("Items reset every 24 hours.") // Lokalizace
                         .font(.caption)
                         .foregroundColor(.gray)
                     
                     // Timer
                     HStack {
                         Image(systemName: "clock")
-                        Text("Reset za: \(timeToNextReset)")
-                            .monospacedDigit() // Aby čísla neposkakovala
+                        Text("Reset in: \(timeToNextReset)") // Lokalizace
+                            .monospacedDigit()
                     }
                     .font(.caption2)
                     .bold()

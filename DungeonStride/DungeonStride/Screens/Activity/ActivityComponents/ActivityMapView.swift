@@ -9,7 +9,6 @@ import MapKit
 import Charts
 import CoreLocation
 
-// MARK: - Map View
 struct ActivityMapView: UIViewRepresentable {
     @Binding var polylineCoordinates: [CLLocationCoordinate2D]
     @Binding var region: MKCoordinateRegion?

@@ -8,10 +8,9 @@
 import SwiftUI
 import MapKit
 
-
 struct StatItem: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     let value: String
     @EnvironmentObject var themeManager: ThemeManager
     

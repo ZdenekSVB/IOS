@@ -5,9 +5,7 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
-
 
 struct PasswordSection: View {
     @Binding var oldPassword: String
@@ -17,19 +15,19 @@ struct PasswordSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("ZMĚNA HESLA (VOLITELNÉ)")
+            Text("CHANGE PASSWORD (OPTIONAL)") // Key pro lokalizaci
                 .font(.caption)
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.secondaryTextColor)
             
             VStack(spacing: 12) {
-                SecureField("Stávající heslo (pro potvrzení)", text: $oldPassword)
+                SecureField("Current Password", text: $oldPassword)
                     .modifier(InputStyle(themeManager: themeManager))
                 
-                SecureField("Nové heslo", text: $newPassword)
+                SecureField("New Password", text: $newPassword)
                     .modifier(InputStyle(themeManager: themeManager))
                 
-                SecureField("Potvrzení nového hesla", text: $confirmPassword)
+                SecureField("Confirm New Password", text: $confirmPassword)
                     .modifier(InputStyle(themeManager: themeManager))
             }
         }

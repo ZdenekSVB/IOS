@@ -23,11 +23,16 @@ struct EditProfileView: View {
                     AvatarSection(
                         selectedAvatar: viewModel.selectedAvatar,
                         accentColor: themeManager.accentColor,
-                        onTap: { showAvatarPicker = true }
+                        onTap: {
+                            // Haptika a zvuk při otevření pickeru
+                            HapticManager.shared.lightImpact()
+                            SoundManager.shared.playSystemClick()
+                            showAvatarPicker = true
+                        }
                     )
                     
                     VStack(alignment: .leading, spacing: 24) {
-                        // 2. Sekce: Základní info (Jméno, Email)
+                        // 2. Sekce: Základní info
                         BasicInfoSection(
                             username: $viewModel.username,
                             email: viewModel.email,
@@ -47,25 +52,35 @@ struct EditProfileView: View {
                     }
                     .padding(.horizontal)
                     
-                    // 4. Sekce: Chybové hlášky a Tlačítko uložení
+                    // 4. Sekce: Akce
                     ActionSection(
                         errorMessage: viewModel.errorMessage,
                         isLoading: viewModel.isLoading,
                         accentColor: themeManager.accentColor,
-                        onSave: { viewModel.saveChanges() }
+                        onSave: {
+                            // Haptika a zvuk při stisku Uložit
+                            HapticManager.shared.mediumImpact()
+                            SoundManager.shared.playSystemClick()
+                            viewModel.saveChanges()
+                        }
                     )
                 }
                 .padding(.vertical, 20)
             }
         }
-        .navigationTitle("Upravit profil")
+        .navigationTitle("Edit Profile") // Lokalizace
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showAvatarPicker) {
             AvatarPickerSheet(selectedAvatar: $viewModel.selectedAvatar)
                 .environmentObject(themeManager)
         }
         .onChange(of: viewModel.saveSuccess) { _, success in
-            if success { dismiss() }
+            if success {
+                // Úspěch!
+                HapticManager.shared.success()
+                SoundManager.shared.playSystemSuccess()
+                dismiss()
+            }
         }
     }
 }

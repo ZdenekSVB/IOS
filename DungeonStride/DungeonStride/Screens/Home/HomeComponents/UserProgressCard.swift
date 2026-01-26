@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 import MapKit
 
@@ -32,7 +31,7 @@ struct UserProgressCard: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("Welcome back!")
+                    Text("Welcome back!", comment: "Greeting on home screen")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
                     Text(userService.currentUser?.username ?? "Adventurer")
@@ -58,7 +57,7 @@ struct UserProgressCard: View {
             if let user = userService.currentUser {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("Next Level")
+                        Text("Next Level", comment: "Label above XP bar")
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
                         Spacer()

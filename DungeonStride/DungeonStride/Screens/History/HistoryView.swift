@@ -26,7 +26,7 @@ struct HistoryView: View {
                 HistoryListContent(viewModel: viewModel)
             }
         }
-        .navigationTitle("Historie")
+        .navigationTitle("History") // Lokalizace
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadData()

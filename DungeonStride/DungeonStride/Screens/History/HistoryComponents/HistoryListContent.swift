@@ -46,7 +46,7 @@ struct HistoryListContent: View {
             Image(systemName: "figure.run.circle")
                 .font(.system(size: 60))
                 .foregroundColor(themeManager.secondaryTextColor)
-            Text("Zatím žádné aktivity.")
+            Text("No activities yet.") // Lokalizace
                 .font(.headline)
                 .foregroundColor(themeManager.secondaryTextColor)
             Spacer()
@@ -59,7 +59,7 @@ struct HistoryListContent: View {
                 let items = viewModel.filteredActivities
                 
                 if items.isEmpty {
-                    Text("V tomto rozmezí nejsou žádné aktivity.")
+                    Text("No activities in this range.") // Lokalizace
                         .foregroundColor(themeManager.secondaryTextColor)
                         .padding(.top, 40)
                 } else {

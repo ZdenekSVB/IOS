@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 import MapKit
 
@@ -18,12 +17,12 @@ struct LastRunCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Last Activity")
+                Text("Last Activity", comment: "Title for last activity card")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
                 Spacer()
                 if let activity = lastActivity {
-                    Text(activity.timeAgo)
+                    Text(activity.timeAgo) // Toto bude potřeba lokalizovat uvnitř modelu RunActivity (např. "2 days ago")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
                 }
@@ -52,7 +51,7 @@ struct LastRunCard: View {
                     VStack {
                         Spacer()
                         HStack {
-                            Text(activity.type.capitalized)
+                            Text(LocalizedStringKey(activity.type.capitalized)) // Lokalizace typu
                                 .font(.caption)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -80,12 +79,13 @@ struct LastRunCard: View {
                     Image(systemName: "figure.run.circle")
                         .font(.system(size: 40))
                         .foregroundColor(themeManager.secondaryTextColor)
-                    Text("No activities yet")
+                    Text("No activities yet", comment: "Empty state title")
                         .font(.subheadline)
                         .foregroundColor(themeManager.secondaryTextColor)
-                    Text("Go to Activity tab to start your first run!")
+                    Text("Go to Activity tab to start your first run!", comment: "Empty state subtitle")
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor.opacity(0.7))
+                        .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)

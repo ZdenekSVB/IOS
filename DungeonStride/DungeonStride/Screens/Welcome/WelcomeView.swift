@@ -9,8 +9,6 @@ import SwiftUI
 
 struct WelcomeView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
-    // Pokud máš WelcomeViewModel, nechej ho, jinak lze logiku mít i přímo zde
-    // @StateObject private var viewModel = WelcomeViewModel()
     
     @State private var showLogin = false
     @State private var showRegister = false
@@ -23,7 +21,6 @@ struct WelcomeView: View {
                 VStack(spacing: 40) {
                     Spacer()
                     
-                    // Logo
                     if let logoImage = UIImage(named: "AppLogo") {
                         Image(uiImage: logoImage)
                             .resizable()
@@ -31,14 +28,12 @@ struct WelcomeView: View {
                             .frame(width: 280, height: 280)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                     } else {
-                        // Fallback, pokud chybí obrázek
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color("Paleta2"))
                             .frame(width: 150, height: 150)
                             .overlay(Text("LOGO").foregroundColor(.white).bold())
                     }
                     
-                    // Tlačítka
                     VStack(spacing: 16) {
                         WelcomeButton(title: "Login", icon: "person.fill", color: Color("Paleta2")) {
                             showLogin = true
@@ -50,13 +45,17 @@ struct WelcomeView: View {
                     }
                     .padding(.horizontal, 40)
                     
-                    // Footer
                     HStack {
-                        Text("Don't have an account?")
+                        Text("Don't have an account?", comment: "Welcome screen footer text")
                             .foregroundColor(Color("Paleta4"))
-                        Button("Sign up") { showRegister = true }
-                            .foregroundColor(Color("Paleta2"))
-                            .fontWeight(.semibold)
+                        Button(action: {
+                            HapticManager.shared.lightImpact() // Haptika
+                            showRegister = true
+                        }) {
+                            Text("Sign up", comment: "Link to registration")
+                                .foregroundColor(Color("Paleta2"))
+                                .fontWeight(.semibold)
+                        }
                     }
                     
                     Spacer()

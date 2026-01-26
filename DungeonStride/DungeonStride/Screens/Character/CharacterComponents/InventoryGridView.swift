@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct InventoryGridView: View {
@@ -18,11 +17,15 @@ struct InventoryGridView: View {
             LazyVGrid(columns: columns, spacing: 15) {
                 ForEach(items) { invItem in
                     InventoryItemCell(item: invItem)
-                        .onTapGesture { onItemClick(invItem) }
+                        .onTapGesture {
+                            // Haptika a zvuk při výběru
+                            HapticManager.shared.lightImpact()
+                            SoundManager.shared.playSystemClick()
+                            onItemClick(invItem)
+                        }
                 }
             }
             .padding()
         }
     }
 }
-

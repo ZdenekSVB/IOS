@@ -5,21 +5,30 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct SettingsRow: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     var value: String = ""
-    var color: Color? = nil // Možnost přepsat barvu ikony
+    var color: Color? = nil
     var showExternalIcon: Bool = false
     
     @ObservedObject var themeManager: ThemeManager
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            // Přidána haptika a zvuk při kliknutí na řádek (např. odkaz)
+            // Ideálně bychom sem měli poslat hapticsEnabled/soundEnabled, ale
+            // jelikož SettingsRow je obecný a ThemeManager to nemá,
+            // můžeme použít default nebo to nechat bez haptiky,
+            // POKUD to není ToggleRow (ten má vlastní).
+            // Pro konzistenci s odkazy (Support) zde dáme light impact.
+            HapticManager.shared.lightImpact()
+            SoundManager.shared.playSystemClick()
+            action()
+        }) {
             HStack {
                 Image(systemName: icon)
                     .foregroundColor(color ?? themeManager.accentColor)
@@ -39,10 +48,6 @@ struct SettingsRow: View {
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor.opacity(0.7))
                 }
-                
-                // Pokud je to čistý Button a ne NavigationLink, často chceme šipku jen pro externí akce,
-                // ale v SettingsRow ji obvykle nedáváme, pokud to není přechod.
-                // Pro sjednocení designu ji zde vynechávám, nebo můžeme přidat parametr.
             }
             .padding()
             .background(themeManager.cardBackgroundColor)

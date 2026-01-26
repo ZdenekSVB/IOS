@@ -9,7 +9,6 @@ import MapKit
 import Charts
 import CoreLocation
 
-// MARK: - Overlay
 struct ErrorOverlay: View {
     let message: String
     var body: some View {

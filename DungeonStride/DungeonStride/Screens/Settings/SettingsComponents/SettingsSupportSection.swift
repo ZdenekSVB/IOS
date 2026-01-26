@@ -5,8 +5,8 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
+
 struct SettingsSupportSection: View {
     @EnvironmentObject var themeManager: ThemeManager
     
@@ -20,7 +20,7 @@ struct SettingsSupportSection: View {
             // Report Problem
             SettingsRow(
                 icon: "exclamationmark.bubble.fill",
-                title: "Report a Problem",
+                title: "Report a Problem", // Lokalizace
                 color: .orange,
                 showExternalIcon: true,
                 themeManager: themeManager
@@ -32,7 +32,7 @@ struct SettingsSupportSection: View {
             NavigationLink(destination: ContactUsView()) {
                 SettingsNavigationRow(
                     icon: "envelope.fill",
-                    title: "Contact Us",
+                    title: "Contact Us", // Lokalizace
                     color: .blue,
                     themeManager: themeManager
                 )
@@ -42,7 +42,7 @@ struct SettingsSupportSection: View {
             NavigationLink(destination: TermsOfServiceView()) {
                 SettingsNavigationRow(
                     icon: "doc.text.fill",
-                    title: "Terms of Service",
+                    title: "Terms of Service", // Lokalizace
                     color: themeManager.secondaryTextColor,
                     themeManager: themeManager
                 )
@@ -51,7 +51,7 @@ struct SettingsSupportSection: View {
             // Privacy
             SettingsRow(
                 icon: "hand.raised.fill",
-                title: "Privacy Policy",
+                title: "Privacy Policy", // Lokalizace
                 color: .gray,
                 showExternalIcon: true,
                 themeManager: themeManager

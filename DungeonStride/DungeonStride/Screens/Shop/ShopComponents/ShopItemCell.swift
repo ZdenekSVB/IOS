@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct ShopItemCell: View {
@@ -43,14 +42,23 @@ struct ShopItemCell: View {
             
             // Info
             if slot.isPurchased {
-                Text("VYPRODÁNO")
+                Text("SOLD OUT") // Lokalizace
                     .font(.caption2)
                     .bold()
                     .foregroundColor(.gray)
                     .padding(.bottom, 10)
             } else {
                 // Cena + Tlačítko
-                Button(action: onBuy) {
+                Button(action: {
+                    // Haptika a zvuk nákupu (cinknutí mincí)
+                    if canAfford {
+                        HapticManager.shared.success()
+                        SoundManager.shared.playSystemSuccess() // Nebo speciální zvuk nákupu
+                        onBuy()
+                    } else {
+                        HapticManager.shared.error() // Zavibrovat chybou, pokud na to nemá (i když je disabled, pro jistotu)
+                    }
+                }) {
                     HStack(spacing: 2) {
                         Text("\(slot.price)")
                         Image(systemName: "dollarsign.circle.fill")

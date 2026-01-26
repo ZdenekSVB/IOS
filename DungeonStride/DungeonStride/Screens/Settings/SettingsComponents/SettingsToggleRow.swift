@@ -5,12 +5,11 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct SettingsToggleRow: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     @Binding var isOn: Bool
     var hapticsEnabled: Bool = true
     @ObservedObject var themeManager: ThemeManager
@@ -30,6 +29,7 @@ struct SettingsToggleRow: View {
                 .labelsHidden()
                 .toggleStyle(SwitchToggleStyle(tint: themeManager.accentColor))
                 .onChange(of: isOn) { _, _ in
+                    // Zde nepotřebujeme SoundManager, protože Toggle má vlastní systémový zvuk
                     HapticManager.shared.lightImpact(enabled: hapticsEnabled)
                 }
         }

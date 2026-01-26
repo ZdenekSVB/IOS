@@ -66,7 +66,7 @@ struct ActivityMapCard: View {
                 Image(systemName: "location.slash.fill")
                     .font(.largeTitle)
                     .foregroundColor(themeManager.secondaryTextColor)
-                Text("Žádná GPS data")
+                Text("No GPS data") // Lokalizace
                     .font(.caption)
                     .foregroundColor(themeManager.secondaryTextColor)
             }

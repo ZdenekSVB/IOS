@@ -16,7 +16,7 @@ struct SettingsPreferencesSection: View {
             
             SettingsToggleRow(
                 icon: "bell.fill",
-                title: "Push Notifications",
+                title: "Push Notifications", // Lokalizace
                 isOn: $viewModel.notificationsEnabled,
                 hapticsEnabled: viewModel.hapticsEnabled,
                 themeManager: themeManager
@@ -25,7 +25,7 @@ struct SettingsPreferencesSection: View {
             
             SettingsToggleRow(
                 icon: "speaker.wave.2.fill",
-                title: "Sound Effects",
+                title: "Sound Effects", // Lokalizace
                 isOn: $viewModel.soundEffects,
                 hapticsEnabled: viewModel.hapticsEnabled,
                 themeManager: themeManager
@@ -34,16 +34,16 @@ struct SettingsPreferencesSection: View {
             
             SettingsToggleRow(
                 icon: "iphone.radiowaves.left.and.right",
-                title: "Haptic Feedback",
+                title: "Haptic Feedback", // Lokalizace
                 isOn: $viewModel.hapticsEnabled,
-                hapticsEnabled: true, // Vždy vibrovat při změně tohoto nastavení
+                hapticsEnabled: true, // Vždy vibrovat při změně tohoto nastavení (feedback)
                 themeManager: themeManager
             )
             .onChange(of: viewModel.hapticsEnabled) { _, _ in viewModel.updateSettings() }
             
             SettingsToggleRow(
                 icon: themeManager.isDarkMode ? "moon.fill" : "sun.max.fill",
-                title: "Dark Mode",
+                title: "Dark Mode", // Lokalizace
                 isOn: Binding(
                     get: { themeManager.isDarkMode },
                     set: { _ in viewModel.toggleDarkMode() }

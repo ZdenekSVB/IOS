@@ -15,7 +15,7 @@ struct SettingsView: View {
     
     init() {
         _viewModel = StateObject(wrappedValue: SettingsViewModel(
-            userService: UserService(), // Zde by správně mělo být injectované, ale pro tento kontext to stačí
+            userService: UserService(),
             authViewModel: AuthViewModel(),
             themeManager: ThemeManager()
         ))
@@ -50,12 +50,15 @@ struct SettingsView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("Settings") // Lokalizace
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .foregroundColor(themeManager.accentColor)
+                    Button("Done") { // Lokalizace
+                        HapticManager.shared.lightImpact()
+                        dismiss()
+                    }
+                    .foregroundColor(themeManager.accentColor)
                 }
             }
             // Inicializace dat
@@ -64,12 +67,13 @@ struct SettingsView: View {
             }
             // Alert pro smazání účtu
             .alert("Delete Account?", isPresented: $viewModel.showDeleteConfirmation) {
-                Button("Cancel", role: .cancel) { }
-                Button("Delete", role: .destructive) {
+                Button("Cancel", role: .cancel) { } // Lokalizace
+                Button("Delete", role: .destructive) { // Lokalizace
+                    HapticManager.shared.warning()
                     viewModel.deleteAccount()
                 }
             } message: {
-                Text("This action cannot be undone. All your progress, items, and stats will be permanently lost.")
+                Text("This action cannot be undone. All your progress, items, and stats will be permanently lost.") // Lokalizace
             }
             // Alert pro chybu
             .alert("Error", isPresented: Binding<Bool>(

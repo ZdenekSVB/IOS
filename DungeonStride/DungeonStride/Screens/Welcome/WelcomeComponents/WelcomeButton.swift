@@ -4,10 +4,11 @@
 //
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
- import SwiftUI
+
+import SwiftUI
 
 struct WelcomeButton: View {
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey pro lokalizaci
     let icon: String
     var isSystemImage: Bool = true
     let color: Color
@@ -15,13 +16,19 @@ struct WelcomeButton: View {
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
-            HStack {
+        Button(action: {
+            // Feedback
+            HapticManager.shared.lightImpact()
+            SoundManager.shared.playSystemClick()
+            action()
+        }) {
+            HStack(spacing: 12) {
                 if isSystemImage {
                     Image(systemName: icon)
                 } else {
-                    Image(icon) // Pro custom assety (např. Google logo)
+                    Image(icon) // Pro custom assety
                         .resizable()
+                        .aspectRatio(contentMode: .fit)
                         .frame(width: 20, height: 20)
                 }
                 
@@ -30,6 +37,7 @@ struct WelcomeButton: View {
             }
             .foregroundColor(textColor)
             .frame(maxWidth: .infinity)
+            .frame(height: 50)
             .padding()
             .background(color)
             .cornerRadius(12)

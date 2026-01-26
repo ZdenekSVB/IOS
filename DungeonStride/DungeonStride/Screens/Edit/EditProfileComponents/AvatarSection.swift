@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct AvatarSection: View {
@@ -35,7 +34,7 @@ struct AvatarSection: View {
                 }
             }
             
-            Text("Změnit avatara")
+            Text("Change Avatar") // Lokalizace
                 .font(.caption)
                 .foregroundColor(accentColor)
         }

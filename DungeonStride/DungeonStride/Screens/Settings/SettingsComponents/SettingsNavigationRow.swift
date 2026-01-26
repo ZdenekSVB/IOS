@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SettingsNavigationRow: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     var color: Color? = nil
     @ObservedObject var themeManager: ThemeManager
     

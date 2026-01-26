@@ -2,14 +2,6 @@
 //  TabBarButton.swift
 //  DungeonStride
 //
-//  Created by Zdeněk Svoboda on 26.01.2026.
-//
-
-
-//
-//  TabBarButton.swift
-//  DungeonStride
-//
 //  Created by Zdeněk Svoboda on 03.11.2025.
 //
 
@@ -17,7 +9,7 @@ import SwiftUI
 
 struct TabBarButton: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     let isSelected: Bool
     let themeManager: ThemeManager
     let action: () -> Void

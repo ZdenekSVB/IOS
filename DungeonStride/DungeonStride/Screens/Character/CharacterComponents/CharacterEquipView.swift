@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct CharacterEquipView: View {
@@ -36,7 +35,12 @@ struct CharacterEquipView: View {
     func slotCell(_ slot: EquipSlot) -> some View {
         EquipSlotCell(slot: slot, item: vm.getEquippedItem(for: slot))
             .onTapGesture {
-                if vm.getEquippedItem(for: slot) != nil { vm.selectedEquippedSlot = slot }
+                if vm.getEquippedItem(for: slot) != nil {
+                    // Haptika při otevření detailu nasazeného itemu
+                    HapticManager.shared.lightImpact()
+                    SoundManager.shared.playSystemClick()
+                    vm.selectedEquippedSlot = slot
+                }
             }
     }
 }

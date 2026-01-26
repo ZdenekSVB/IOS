@@ -29,7 +29,8 @@ struct ActionSection: View {
                 if isLoading {
                     ProgressView().tint(.white)
                 } else {
-                    Text("Uložit změny").bold()
+                    Text("Save Changes") // Lokalizace
+                        .bold()
                 }
             }
             .buttonStyle(PrimaryButtonStyle(backgroundColor: accentColor))

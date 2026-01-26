@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct AvatarPickerSheet: View {
@@ -21,7 +20,7 @@ struct AvatarPickerSheet: View {
             themeManager.backgroundColor.ignoresSafeArea()
             
             VStack(spacing: 20) {
-                Text("Vyberte si hrdinu")
+                Text("Choose Your Hero") // Lokalizace
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
                     .padding(.top, 20)
@@ -34,6 +33,9 @@ struct AvatarPickerSheet: View {
                                 isSelected: selectedAvatar == avatarName,
                                 accentColor: themeManager.accentColor,
                                 onTap: {
+                                    // Výběr avatara
+                                    HapticManager.shared.mediumImpact()
+                                    SoundManager.shared.playSystemClick()
                                     selectedAvatar = avatarName
                                     dismiss()
                                 }
@@ -43,9 +45,12 @@ struct AvatarPickerSheet: View {
                     .padding()
                 }
                 
-                Button("Zrušit") { dismiss() }
-                    .foregroundColor(.red)
-                    .padding(.bottom, 20)
+                Button("Cancel") { // Lokalizace
+                    HapticManager.shared.lightImpact()
+                    dismiss()
+                }
+                .foregroundColor(.red)
+                .padding(.bottom, 20)
             }
         }
         .presentationDetents([.medium, .large])

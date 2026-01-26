@@ -19,13 +19,23 @@ struct LoginView: View {
                         .padding(.top, 60)
                     
                     VStack(spacing: 20) {
-                        AuthTextField(title: "Email", text: $authViewModel.email, isSecure: false)
-                        AuthTextField(title: "Password", text: $authViewModel.password, isSecure: true)
+                        AuthTextField(
+                            title: "Email",
+                            placeholder: "Enter your email",
+                            text: $authViewModel.email,
+                            isSecure: false
+                        )
+                        AuthTextField(
+                            title: "Password",
+                            placeholder: "Enter your password",
+                            text: $authViewModel.password,
+                            isSecure: true
+                        )
                     }
                     .padding(.horizontal)
                     
                     if !authViewModel.errorMessage.isEmpty {
-                        Text(authViewModel.errorMessage)
+                        Text(authViewModel.errorMessage) // Error message obvykle není lokalizovaný klíč, ale text ze serveru
                             .foregroundColor(.red)
                             .font(.caption)
                             .padding(.horizontal)
@@ -44,8 +54,13 @@ struct LoginView: View {
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Back") { dismiss() }
-                        .foregroundColor(Color("Paleta2"))
+                    Button(action: {
+                        HapticManager.shared.lightImpact()
+                        dismiss()
+                    }) {
+                        Text("Back")
+                            .foregroundColor(Color("Paleta2"))
+                    }
                 }
             }
         }

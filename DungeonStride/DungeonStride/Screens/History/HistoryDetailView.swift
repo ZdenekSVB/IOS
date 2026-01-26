@@ -30,7 +30,8 @@ struct HistoryDetailView: View {
                     HStack {
                         Image(systemName: "calendar")
                             .foregroundColor(themeManager.secondaryTextColor)
-                        Text("Aktivita zaznamenána: \(activity.timestamp.formatted(date: .long, time: .shortened))")
+                        // Lokalizace stringu s parametrem data
+                        Text("Recorded on: \(activity.timestamp.formatted(date: .long, time: .shortened))")
                             .font(.caption)
                             .foregroundColor(themeManager.secondaryTextColor)
                     }
@@ -39,7 +40,8 @@ struct HistoryDetailView: View {
                 .padding()
             }
         }
-        .navigationTitle(activity.type.capitalized)
+        // Nadpis aktivity (např. Run, Walk) se lokalizuje sám, pokud jsou v Localizable.strings klíče jako "run", "walk"
+        .navigationTitle(LocalizedStringKey(activity.type.capitalized))
         .navigationBarTitleDisplayMode(.inline)
     }
 }

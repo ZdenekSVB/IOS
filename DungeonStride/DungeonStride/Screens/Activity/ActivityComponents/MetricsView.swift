@@ -9,7 +9,6 @@ import MapKit
 import Charts
 import CoreLocation
 
-// MARK: - Metrics Grid
 struct MetricsView: View {
     @ObservedObject var activityManager: ActivityManager
     let themeManager: ThemeManager

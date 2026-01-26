@@ -9,7 +9,6 @@ import MapKit
 import Charts
 import CoreLocation
 
-// MARK: - Metric Item Component
 struct MetricItem: View {
     let title: String
     let value: String

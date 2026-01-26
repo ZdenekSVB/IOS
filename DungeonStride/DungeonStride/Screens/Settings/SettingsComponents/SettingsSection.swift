@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct SettingsSection<Content: View>: View {
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     @ObservedObject var themeManager: ThemeManager
     let content: Content
     
-    init(title: String, themeManager: ThemeManager, @ViewBuilder content: () -> Content) {
+    init(title: LocalizedStringKey, themeManager: ThemeManager, @ViewBuilder content: () -> Content) {
         self.title = title
         self.themeManager = themeManager
         self.content = content()

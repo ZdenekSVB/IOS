@@ -5,14 +5,13 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct StatCard: View {
     let icon: String
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     let value: String
-    let themeManager: ThemeManager // Přidáno, aby komponenta byla soběstačná
+    let themeManager: ThemeManager
     
     var body: some View {
         VStack(spacing: 12) {

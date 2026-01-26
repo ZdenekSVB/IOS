@@ -12,12 +12,25 @@ struct DateFilterSection: View {
     @ObservedObject var viewModel: HistoryViewModel
     @EnvironmentObject var themeManager: ThemeManager
     
+    // Pro kontrolu nastavení
+    var hapticsEnabled: Bool {
+        // Tady ideálně potřebujeme přístup k settings, ale ThemeManager to nemá přímo public.
+        // Pro zjednodušení předpokládáme true, nebo si to vytáhneme z DIContaineru, pokud to jde.
+        // Nebo jen zavoláme HapticManager, který má uvnitř (pokud jsme ho tak upravili) kontrolu?
+        // V HapticManageru jsme přidali parametr 'enabled', takže to musíme poslat odsud.
+        // Pokud nemáme přístup k userovi, můžeme to nechat na true (systémové nastavení).
+        return true
+    }
+    
     private let now = Date()
     
     var body: some View {
         VStack {
             // Tlačítko pro rozbalení
             Button(action: {
+                HapticManager.shared.lightImpact()
+                SoundManager.shared.playSystemClick()
+                
                 withAnimation {
                     viewModel.isFilterExpanded.toggle()
                 }
@@ -25,7 +38,7 @@ struct DateFilterSection: View {
                 HStack {
                     Image(systemName: "calendar")
                         .foregroundColor(themeManager.accentColor)
-                    Text("Filtrovat podle data")
+                    Text("Filter by Date") // Lokalizace
                         .font(.headline)
                         .foregroundColor(themeManager.primaryTextColor)
                     Spacer()
@@ -42,7 +55,7 @@ struct DateFilterSection: View {
                     let maxStartDate = min(viewModel.filterEndDate, now)
                     
                     // DatePicker OD
-                    datePickerRow(title: "Od:", selection: $viewModel.filterStartDate, range: ...maxStartDate)
+                    datePickerRow(title: "From:", selection: $viewModel.filterStartDate, range: ...maxStartDate)
                         .onChange(of: viewModel.filterStartDate) { _, newDate in
                             if newDate > viewModel.filterEndDate { viewModel.filterEndDate = newDate }
                         }
@@ -50,13 +63,16 @@ struct DateFilterSection: View {
                     let minEndDate = viewModel.filterStartDate
                     
                     // DatePicker DO
-                    datePickerRow(title: "Do:", selection: $viewModel.filterEndDate, range: minEndDate...now)
+                    datePickerRow(title: "To:", selection: $viewModel.filterEndDate, range: minEndDate...now)
                         .onChange(of: viewModel.filterEndDate) { _, newDate in
                             if newDate < viewModel.filterStartDate { viewModel.filterStartDate = newDate }
                         }
                     
                     // Reset Button
-                    Button("Zobrazit vše (Reset)") {
+                    Button("Show All (Reset)") { // Lokalizace
+                        HapticManager.shared.mediumImpact()
+                        SoundManager.shared.playSystemClick()
+                        
                         if let oldest = viewModel.activities.last?.timestamp {
                             viewModel.filterStartDate = oldest
                         }
@@ -81,13 +97,13 @@ struct DateFilterSection: View {
     }
     
     // Helper pro DatePicker
-    private func datePickerRow(title: String, selection: Binding<Date>, range: PartialRangeThrough<Date>) -> some View {
+    private func datePickerRow(title: LocalizedStringKey, selection: Binding<Date>, range: PartialRangeThrough<Date>) -> some View {
         DatePicker(title, selection: selection, in: range, displayedComponents: .date)
             .environment(\.colorScheme, themeManager.isDarkMode ? .dark : .light)
     }
     
     // Helper pro DatePicker (ClosedRange)
-    private func datePickerRow(title: String, selection: Binding<Date>, range: ClosedRange<Date>) -> some View {
+    private func datePickerRow(title: LocalizedStringKey, selection: Binding<Date>, range: ClosedRange<Date>) -> some View {
         DatePicker(title, selection: selection, in: range, displayedComponents: .date)
             .environment(\.colorScheme, themeManager.isDarkMode ? .dark : .light)
     }

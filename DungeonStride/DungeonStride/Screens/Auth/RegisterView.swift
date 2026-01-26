@@ -23,10 +23,10 @@ struct RegisterView: View {
                             .padding(.top, 40)
                         
                         VStack(spacing: 16) {
-                            AuthTextField(title: "Username", text: $authViewModel.username, isSecure: false)
-                            AuthTextField(title: "Email", text: $authViewModel.email, isSecure: false)
-                            AuthTextField(title: "Password", text: $authViewModel.password, isSecure: true)
-                            AuthTextField(title: "Confirm Password", text: $confirmPassword, isSecure: true)
+                            AuthTextField(title: "Username", placeholder: "Choose a username", text: $authViewModel.username, isSecure: false)
+                            AuthTextField(title: "Email", placeholder: "Enter your email", text: $authViewModel.email, isSecure: false)
+                            AuthTextField(title: "Password", placeholder: "Create a password", text: $authViewModel.password, isSecure: true)
+                            AuthTextField(title: "Confirm Password", placeholder: "Repeat password", text: $confirmPassword, isSecure: true)
                         }
                         .padding(.horizontal)
                         
@@ -44,11 +44,16 @@ struct RegisterView: View {
                         .opacity((!isFormValid || authViewModel.isLoading) ? 0.6 : 1.0)
                         
                         HStack {
-                            Text("Already have an account?")
+                            Text("Already have an account?", comment: "Register screen footer")
                                 .foregroundColor(Color("Paleta4"))
-                            Button("Sign In") { onSwitchToLogin() }
-                                .foregroundColor(Color("Paleta2"))
-                                .fontWeight(.semibold)
+                            Button(action: {
+                                HapticManager.shared.lightImpact()
+                                onSwitchToLogin()
+                            }) {
+                                Text("Sign In", comment: "Link to login")
+                                    .foregroundColor(Color("Paleta2"))
+                                    .fontWeight(.semibold)
+                            }
                         }
                         .padding(.top, 8)
                         
@@ -60,8 +65,13 @@ struct RegisterView: View {
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundColor(Color("Paleta2"))
+                    Button(action: {
+                        HapticManager.shared.lightImpact()
+                        dismiss()
+                    }) {
+                        Text("Cancel")
+                            .foregroundColor(Color("Paleta2"))
+                    }
                 }
             }
         }

@@ -9,7 +9,6 @@ import MapKit
 import Charts
 import CoreLocation
 
-// MARK: - Charts
 struct PaceChart: View {
     @ObservedObject var activityManager: ActivityManager
     let themeManager: ThemeManager

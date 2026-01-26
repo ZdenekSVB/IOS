@@ -5,7 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct HistoryLinkView: View {
@@ -22,10 +21,10 @@ struct HistoryLinkView: View {
                     .clipShape(Circle())
                 
                 VStack(alignment: .leading) {
-                    Text("Activity History")
+                    Text("Activity History") // Lokalizace
                         .font(.headline)
                         .foregroundColor(themeManager.primaryTextColor)
-                    Text("View your past runs and stats")
+                    Text("View your past runs and stats") // Lokalizace
                         .font(.caption)
                         .foregroundColor(themeManager.secondaryTextColor)
                 }

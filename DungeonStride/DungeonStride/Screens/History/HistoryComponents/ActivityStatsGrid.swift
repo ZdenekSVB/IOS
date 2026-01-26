@@ -18,28 +18,28 @@ struct ActivityStatsGrid: View {
         
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
             DetailStatCard(
-                title: "Vzdálenost",
+                title: "Distance", // Lokalizace
                 value: units.formatDistance(Int(activity.distanceKm * 1000)),
                 icon: "map.fill",
                 themeManager: themeManager
             )
             
             DetailStatCard(
-                title: "Čas",
+                title: "Time", // Lokalizace
                 value: activity.duration.stringFormat(),
                 icon: "stopwatch.fill",
                 themeManager: themeManager
             )
             
             DetailStatCard(
-                title: "Energie",
+                title: "Energy", // Lokalizace
                 value: "\(activity.calories) kcal",
                 icon: "flame.fill",
                 themeManager: themeManager
             )
             
             DetailStatCard(
-                title: "Tempo",
+                title: "Pace", // Lokalizace
                 value: formatPace(activity.pace, unit: units),
                 icon: "speedometer",
                 themeManager: themeManager

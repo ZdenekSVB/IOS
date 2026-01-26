@@ -18,6 +18,10 @@ struct ActivityView: View {
     var body: some View {
         let currentUnits = userService.currentUser?.settings.units ?? .metric
         let isNautical = currentUnits == .nautical
+        
+        // Načtení nastavení pro feedback
+        let hapticsEnabled = userService.currentUser?.settings.hapticsEnabled ?? true
+        let soundEnabled = userService.currentUser?.settings.soundEffectsEnabled ?? true
 
         ZStack {
             themeManager.backgroundColor.ignoresSafeArea()
@@ -26,7 +30,9 @@ struct ActivityView: View {
                 HStack(spacing: 12) {
                     TerrainToggleButton(
                         isNautical: isNautical,
-                        themeManager: themeManager
+                        themeManager: themeManager,
+                        hapticsEnabled: hapticsEnabled,
+                        soundEnabled: soundEnabled
                     ) {
                         toggleTerrain(current: currentUnits)
                     }
@@ -37,15 +43,19 @@ struct ActivityView: View {
                     ) {
                         if isNautical {
                             ForEach(ActivityType.waterActivities) { type in
-                                Text(type.rawValue).tag(type)
+                                Text(type.rawValue.capitalized).tag(type) // Capitalized pro hezčí výpis
                             }
                         } else {
                             ForEach(ActivityType.landActivities) { type in
-                                Text(type.rawValue).tag(type)
+                                Text(type.rawValue.capitalized).tag(type)
                             }
                         }
                     }
                     .pickerStyle(.segmented)
+                    // Haptika při změně pickeru
+                    .onChange(of: activityManager.selectedActivity) { _, _ in
+                        HapticManager.shared.lightImpact(enabled: hapticsEnabled)
+                    }
                 }
                 .padding()
                 .background(themeManager.cardBackgroundColor)
@@ -57,8 +67,7 @@ struct ActivityView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         ActivityMapView(
-                            polylineCoordinates: $activityManager
-                                .currentPolyline,
+                            polylineCoordinates: $activityManager.currentPolyline,
                             region: $activityManager.currentRegion
                         )
                         .frame(height: 250)
@@ -120,16 +129,16 @@ struct ActivityView: View {
             }
 
             if let error = activityManager.locationError {
-                ErrorOverlay(message: error)
+                // Lokalizovaná chyba
+                ErrorOverlay(message: NSLocalizedString(error, comment: "Location error"))
             }
         }
-        .navigationTitle("Activity")
+        .navigationTitle("Activity") // Lokalizovatelný string
         .navigationBarTitleDisplayMode(.inline)
 
         .onAppear {
             activityManager.validateActivityType(for: currentUnits)
         }
-        // OPRAVA: Nová syntaxe onChange
         .onChange(of: currentUnits) { _, newUnit in
             activityManager.validateActivityType(for: newUnit)
         }
@@ -142,12 +151,9 @@ struct ActivityView: View {
 
         let newSettings = UserSettings(
             isDarkMode: themeManager.isDarkMode,
-            notificationsEnabled: userService.currentUser?.settings
-                .notificationsEnabled ?? true,
-            soundEffectsEnabled: userService.currentUser?.settings
-                .soundEffectsEnabled ?? true,
-            hapticsEnabled: userService.currentUser?.settings.hapticsEnabled
-                ?? true,
+            notificationsEnabled: userService.currentUser?.settings.notificationsEnabled ?? true,
+            soundEffectsEnabled: userService.currentUser?.settings.soundEffectsEnabled ?? true,
+            hapticsEnabled: userService.currentUser?.settings.hapticsEnabled ?? true,
             units: newUnit
         )
 

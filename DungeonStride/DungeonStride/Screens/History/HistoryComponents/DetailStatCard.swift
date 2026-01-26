@@ -9,7 +9,7 @@ import SwiftUI
 import MapKit
 
 struct DetailStatCard: View {
-    let title: String
+    let title: LocalizedStringKey // Změna na LocalizedStringKey
     let value: String
     let icon: String
     let themeManager: ThemeManager
@@ -19,10 +19,11 @@ struct DetailStatCard: View {
             HStack {
                 Image(systemName: icon)
                     .foregroundColor(themeManager.accentColor)
-                Text(title.uppercased())
+                Text(title) // SwiftUI si poradí s LocalizedStringKey
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(themeManager.secondaryTextColor)
+                    .textCase(.uppercase) // Uppercase řešíme zde modifikátorem
             }
             
             Text(value)

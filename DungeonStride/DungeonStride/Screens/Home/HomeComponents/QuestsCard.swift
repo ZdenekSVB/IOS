@@ -8,7 +8,6 @@
 import SwiftUI
 import MapKit
 
-
 struct QuestsCard: View {
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var questService: QuestService
@@ -17,7 +16,7 @@ struct QuestsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Daily Quests")
+                Text("Daily Quests", comment: "Section title")
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
                 Spacer()
@@ -35,7 +34,7 @@ struct QuestsCard: View {
                     .frame(maxWidth: .infinity)
                     .padding()
             } else if questService.dailyQuests.isEmpty {
-                Text("No quests available today")
+                Text("No quests available today", comment: "Empty quests state")
                     .font(.caption)
                     .foregroundColor(themeManager.secondaryTextColor)
                     .frame(maxWidth: .infinity)

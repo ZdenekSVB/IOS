@@ -27,7 +27,7 @@ struct ShopView: View {
                     // --- 2. MŘÍŽKA ZBOŽÍ ---
                     if vm.slots.isEmpty {
                         Spacer()
-                        ProgressView("Otevírám obchod...")
+                        ProgressView("Opening shop...") // Lokalizace
                         Spacer()
                     } else {
                         ScrollView {
@@ -51,7 +51,7 @@ struct ShopView: View {
                     }
                 }
             }
-            .navigationTitle("Obchod")
+            .navigationTitle("Shop") // Lokalizace
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

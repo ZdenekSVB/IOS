@@ -5,11 +5,9 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct ProfileHeaderView: View {
-    // Pouze zobrazujeme, neupravujeme
     @Binding var showSettings: Bool
     let user: User
     let themeManager: ThemeManager
@@ -19,7 +17,12 @@ struct ProfileHeaderView: View {
             // Tlačítko Nastavení
             HStack {
                 Spacer()
-                Button(action: { showSettings = true }) {
+                Button(action: {
+                    // Haptika a zvuk
+                    HapticManager.shared.mediumImpact()
+                    SoundManager.shared.playSystemClick()
+                    showSettings = true
+                }) {
                     Image(systemName: "gearshape.fill")
                         .font(.title2)
                         .foregroundColor(themeManager.accentColor)
@@ -48,6 +51,7 @@ struct ProfileHeaderView: View {
             // Level a XP
             VStack(spacing: 8) {
                 HStack {
+                    // Lokalizovaný string s parametrem (Level %lld)
                     Text("Level \(user.level)")
                         .font(.headline)
                         .foregroundColor(themeManager.accentColor)

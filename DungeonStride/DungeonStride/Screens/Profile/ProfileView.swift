@@ -37,9 +37,16 @@ struct ProfileView: View {
                         // Zde je místo pro další obsah (např. poslední úspěchy atd.)
                     } else {
                         // Loading stav
-                        ProgressView()
-                            .padding()
-                            .tint(themeManager.accentColor)
+                        if authViewModel.currentUserUID == nil {
+                            Text("Not logged in.") // Lokalizace
+                                .foregroundColor(themeManager.secondaryTextColor)
+                                .padding()
+                        } else {
+                            ProgressView("Loading hero...") // Lokalizace
+                                .padding()
+                                .tint(themeManager.accentColor)
+                                .foregroundColor(themeManager.secondaryTextColor)
+                        }
                     }
                 }
                 .padding(.top, 10)

@@ -7,14 +7,17 @@
 
 import SwiftUI
 
-
 struct AuthButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let isLoading: Bool
     let action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticManager.shared.mediumImpact()
+            SoundManager.shared.playSystemClick()
+            action()
+        }) {
             if isLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle(tint: .white))

@@ -18,7 +18,7 @@ struct UnitPickerRow: View {
             Image(systemName: "chart.bar.fill")
                 .foregroundColor(themeManager.accentColor)
                 .frame(width: 30)
-            Text("Units")
+            Text("Units") // Lokalizace
                 .foregroundColor(themeManager.primaryTextColor)
             Spacer()
             Picker("", selection: $selectedUnit) {
@@ -30,6 +30,8 @@ struct UnitPickerRow: View {
             .onChange(of: selectedUnit) { _, _ in
                 onUpdate()
                 HapticManager.shared.mediumImpact(enabled: hapticsEnabled)
+                // Picker (menu style) má systémový zvuk, ale můžeme přidat kliknutí pro jistotu
+                // SoundManager.shared.playSystemClick()
             }
         }
         .padding()

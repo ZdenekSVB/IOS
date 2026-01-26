@@ -5,21 +5,27 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
 import SwiftUI
 
 struct SettingsActionsSection: View {
     @ObservedObject var viewModel: SettingsViewModel
     @EnvironmentObject var themeManager: ThemeManager
     
+    // Pro kontrolu nastavení (zvuky/haptika)
+    var hapticsEnabled: Bool { viewModel.hapticsEnabled }
+    var soundEnabled: Bool { viewModel.soundEffects }
+    
     var body: some View {
         VStack(spacing: 12) {
             Button(action: {
+                // Haptika a zvuk (odhlášení je "negativní/neutrální" akce, dáme medium nebo light)
+                HapticManager.shared.mediumImpact(enabled: hapticsEnabled)
+                if soundEnabled { SoundManager.shared.playSystemClick() }
                 viewModel.logout()
             }) {
                 HStack {
                     Image(systemName: "rectangle.portrait.and.arrow.right")
-                    Text("Log Out")
+                    Text("Log Out") // Lokalizace
                 }
                 .fontWeight(.bold)
                 .foregroundColor(themeManager.primaryTextColor)
@@ -34,11 +40,14 @@ struct SettingsActionsSection: View {
             }
             
             Button(action: {
+                // Haptika (varování)
+                HapticManager.shared.warning(enabled: hapticsEnabled)
+                if soundEnabled { SoundManager.shared.playSystemClick() }
                 viewModel.showDeleteConfirmation = true
             }) {
                 HStack {
                     Image(systemName: "trash.fill")
-                    Text("Delete Account")
+                    Text("Delete Account") // Lokalizace
                 }
                 .font(.caption)
                 .foregroundColor(.red.opacity(0.8))

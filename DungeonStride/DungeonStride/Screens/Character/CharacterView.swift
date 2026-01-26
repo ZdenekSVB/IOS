@@ -16,18 +16,17 @@ struct CharacterView: View {
             ZStack {
                 Color(UIColor.systemGroupedBackground).ignoresSafeArea()
                 
-                // Hlavní obsah (loading / content)
                 if charVM.user == nil {
                     if authVM.currentUserUID == nil {
-                        Text("Nejste přihlášeni.")
+                        Text("Not logged in.") // Lokalizace
                     } else {
-                        ProgressView("Načítám hrdinu...")
+                        ProgressView("Loading hero...") // Lokalizace
                     }
                 } else {
                     mainContent
                 }
             }
-            .navigationTitle(charVM.user?.username ?? "Hrdina")
+            .navigationTitle(charVM.user?.username ?? "Hero") // Lokalizace fallbacku
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -37,7 +36,6 @@ struct CharacterView: View {
                     }
                 }
             }
-            // DATA & LOGIC
             .onAppear {
                 if let uid = authVM.currentUserUID { charVM.fetchData(for: uid) }
             }
@@ -45,7 +43,6 @@ struct CharacterView: View {
                 if let uid = newUid { charVM.fetchData(for: uid) }
                 else { charVM.stopListening() }
             }
-            // MODALS
             .sheet(item: $charVM.selectedItemForCompare) { invItem in
                 if let slot = invItem.item.computedSlot {
                     ComparisonView(
@@ -65,20 +62,21 @@ struct CharacterView: View {
     
     var mainContent: some View {
         VStack(spacing: 0) {
-            // 1. Postava a Sloty
             CharacterEquipView(vm: charVM)
                 .padding(.top, 10)
             
-            // 2. Přepínač
+            // Přepínač s haptikou
             Picker("Menu", selection: $charVM.showInventory) {
-                Text("Statistiky").tag(false)
-                Text("Batoh").tag(true)
+                Text("Stats").tag(false) // Lokalizace
+                Text("Inventory").tag(true) // Lokalizace
             }
             .pickerStyle(.segmented)
             .padding()
             .background(Color(UIColor.secondarySystemBackground))
+            .onChange(of: charVM.showInventory) { _, _ in
+                HapticManager.shared.lightImpact()
+            }
             
-            // 3. Obsah
             if charVM.showInventory {
                 InventoryGridView(items: charVM.inventoryItems) { item in
                     if item.item.computedSlot != nil {

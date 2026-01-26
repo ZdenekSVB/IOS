@@ -32,7 +32,8 @@ struct HistoryRow: View {
             
             // Info
             VStack(alignment: .leading, spacing: 4) {
-                Text(activity.type.capitalized)
+                // Lokalizace názvu aktivity (musí být v Localizable.xcstrings klíče jako "Run", "Walk" atd.)
+                Text(LocalizedStringKey(activity.type.capitalized))
                     .font(.headline)
                     .foregroundColor(themeManager.primaryTextColor)
                 
