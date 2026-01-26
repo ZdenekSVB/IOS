@@ -138,6 +138,31 @@ struct DungeonMapView: View {
             .presentationDetents([.large])
             .presentationDragIndicator(.visible)
         }
+        .fullScreenCover(isPresented: $viewModel.showCombat) {
+            if let user = viewModel.user, let enemy = viewModel.currentEnemy {
+
+                // ZDE BÝVALA CHYBA. Teď vytváříme VM a rovnou předáváme onWin v initu.
+                CombatView(
+                    viewModel: CombatViewModel(
+                        player: user,
+                        enemy: enemy,
+                        onWin: {
+                            print(
+                                "🏆 Hráč vyhrál, aktualizuji DungeonProgress..."
+                            )
+                            viewModel.handleVictory()
+                        }
+                    )
+                )
+
+            } else {
+                // Fallback pro chybu
+                VStack {
+                    Text("Chyba při načítání souboje")
+                    Button("Zavřít") { viewModel.showCombat = false }
+                }
+            }
+        }
         .onChange(of: viewModel.isTraveling) { isTraveling in
             if !isTraveling { centerOnUser() }
         }

@@ -11,7 +11,7 @@ struct LocationDetailSheet: View {
     let location: GameMapLocation
     @ObservedObject var viewModel: DungeonMapViewModel
     @Environment(\.dismiss) var dismiss
-    
+
     var isCurrentLocation: Bool {
         return viewModel.currentUserLocation?.id == location.id
     }
@@ -74,20 +74,37 @@ struct LocationDetailSheet: View {
 
                 Spacer()
 
-                if viewModel.currentUserLocation?.id == location.id {
-                    Button(action: {}) {
-                        HStack {
-                            Image(systemName: "mappin.and.ellipse")
-                            Text("Nacházíš se zde")
+                if isCurrentLocation {
+                    // 1. JSME NA MÍSTĚ
+
+                    if location.locationType == "dungeon" {
+                        // A) JE TO DUNGEON -> Zobrazíme Menu Monster
+                        // Tady vložíme tu komponentu, kterou jsi posílal (DungeonMenuView)
+                        Divider()
+                        DungeonMenuView(
+                            location: location,
+                            viewModel: viewModel
+                        )
+                        .frame(maxHeight: 300)  // Omezíme výšku seznamu
+
+                    } else {
+                        // B) NENÍ TO DUNGEON (Město atd.) -> Klasické "Nacházíš se zde"
+                        Button(action: {}) {
+                            HStack {
+                                Image(systemName: "mappin.and.ellipse")
+                                Text("Nacházíš se zde")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.gray.opacity(0.3))
+                            .foregroundColor(.gray)
+                            .cornerRadius(15)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.3))
-                        .foregroundColor(.gray)
-                        .cornerRadius(15)
+                        .disabled(true)
                     }
-                    .disabled(true)
+
                 } else if viewModel.isTraveling {
+                    // 2. CESTUJEME
                     Button(action: {}) {
                         HStack {
                             ProgressView().padding(.trailing, 8)
@@ -100,7 +117,9 @@ struct LocationDetailSheet: View {
                         .cornerRadius(15)
                     }
                     .disabled(true)
+
                 } else {
+                    // 3. MŮŽEME CESTOVAT
                     Button(action: {
                         dismiss()
                         viewModel.travel(to: location)
@@ -120,7 +139,8 @@ struct LocationDetailSheet: View {
             }
             .padding(.horizontal)
             .padding(.bottom, 20)
-
+            
+            
             Button(action: {
                 dismiss()
             }) {

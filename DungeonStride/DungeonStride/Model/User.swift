@@ -43,6 +43,8 @@ struct User: Identifiable, Codable {
     // MARK: - Computed
 
     var uid: String { id ?? "" }
+    
+    var dungeonProgress: [String: Int] = [:]
 
     var level: Int {
         (totalXP / 100) + 1
@@ -137,7 +139,8 @@ struct User: Identifiable, Codable {
             "shopData": shopData.toFirestore(),
             "createdAt": Timestamp(date: createdAt),
             "updatedAt": Timestamp(date: updatedAt),
-            "lastActiveAt": Timestamp(date: lastActiveAt)
+            "lastActiveAt": Timestamp(date: lastActiveAt),
+            "dungeonProgress": dungeonProgress
         ]
     }
 
@@ -164,6 +167,7 @@ struct User: Identifiable, Codable {
         user.totalXP = data["totalXP"] as? Int ?? 0
         user.totalQuestsCompleted = data["totalQuestsCompleted"] as? Int ?? 0
         user.equippedIds = data["equippedIds"] as? [String: String] ?? [:]
+        user.dungeonProgress = data["dungeonProgress"] as? [String: Int] ?? [:]
 
         if let dict = data["stats"] as? [String: Any] {
             user.stats = PlayerStats.fromFirestore(dict)

@@ -23,6 +23,10 @@ class DungeonMapViewModel: ObservableObject {
 
     @Published var isTraveling = false
 
+    @Published var activeDungeonId: String?
+    @Published var currentEnemy: Enemy?
+    @Published var showCombat = false
+
     private let db = Firestore.firestore()
 
     func loadMapData(mapId: String) async {
@@ -41,7 +45,7 @@ class DungeonMapViewModel: ObservableObject {
                 try? doc.data(as: GameMapLocation.self)
             }
 
-             if currentUserLocation == nil {
+            if currentUserLocation == nil {
                 if let startNode = self.locations.first(where: {
                     $0.locationType == "city"
                 }) {
@@ -91,5 +95,46 @@ class DungeonMapViewModel: ObservableObject {
             self.isTraveling = false
             print("Dorazil jsi do: \(destination.name)")
         }
+    }
+
+    func fetchEnemies(ids: [String]) async -> [Enemy]? {
+        var loadedEnemies: [Enemy] = []
+
+        for id in ids {
+            do {
+                let doc = try await db.collection("enemies").document(id)
+                    .getDocument()
+                if let enemy = try? doc.data(as: Enemy.self) {
+                    loadedEnemies.append(enemy)
+                }
+            } catch {
+                print("Chyba při načítání enemy \(id): \(error)")
+            }
+        }
+        // Seřadíme je podle pořadí v poli IDs (Firestore to může vrátit napřeskáčku)
+        // Ale pro jednoduchost vracíme takto:
+        return loadedEnemies
+    }
+
+    // PŘIDAT: Funkce volaná po vítězství
+    func handleVictory() {
+        guard let user = user, let dungeonId = activeDungeonId else { return }
+
+        // 1. Zvedneme progress
+        let currentProgress = user.dungeonProgress[dungeonId] ?? 0
+        var newProgress = currentProgress + 1
+
+        // Omezíme to na max 3 (pokud máme jen 3 stage)
+        if newProgress > 3 { newProgress = 3 }
+
+        // 2. Lokální update
+        self.user?.dungeonProgress[dungeonId] = newProgress
+
+        // 3. Firestore update
+        db.collection("users").document(user.uid).updateData([
+            "dungeonProgress.\(dungeonId)": newProgress
+        ])
+
+        print("🎉 Progress v \(dungeonId) zvýšen na \(newProgress)")
     }
 }
