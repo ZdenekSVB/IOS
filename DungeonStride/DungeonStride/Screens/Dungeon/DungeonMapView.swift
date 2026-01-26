@@ -43,8 +43,13 @@ struct DungeonMapView: View {
 
                         if let user = viewModel.user {
                             UserAvatarView(user: user)
-                                .position(viewModel.userPosition)
+                                .position(
+                                    x: viewModel.userPosition.x + 40,
+                                    y: viewModel.userPosition.y - 20
+                                )
                                 .id(user.id)
+                                .allowsHitTesting(false)
+
                                 .animation(
                                     viewModel.isTraveling
                                         ? .easeInOut(
