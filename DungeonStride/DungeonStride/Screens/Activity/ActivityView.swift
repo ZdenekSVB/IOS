@@ -3,32 +3,38 @@
 //  DungeonStride
 //
 
-import SwiftUI
 import CoreLocation
+import SwiftUI
 
 struct ActivityView: View {
-    
+
     @StateObject private var activityManager = ActivityManager()
-    
+
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var userService: UserService
     @EnvironmentObject var questService: QuestService
-    
+
     var body: some View {
         let currentUnits = userService.currentUser?.settings.units ?? .metric
         let isNautical = currentUnits == .nautical
-        
+
         ZStack {
             themeManager.backgroundColor.ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
                 HStack(spacing: 12) {
-                    TerrainToggleButton(isNautical: isNautical, themeManager: themeManager) {
+                    TerrainToggleButton(
+                        isNautical: isNautical,
+                        themeManager: themeManager
+                    ) {
                         toggleTerrain(current: currentUnits)
                     }
-                    
-                    Picker("Activity Type", selection: $activityManager.selectedActivity) {
+
+                    Picker(
+                        "Activity Type",
+                        selection: $activityManager.selectedActivity
+                    ) {
                         if isNautical {
                             ForEach(ActivityType.waterActivities) { type in
                                 Text(type.rawValue).tag(type)
@@ -43,29 +49,41 @@ struct ActivityView: View {
                 }
                 .padding()
                 .background(themeManager.cardBackgroundColor)
-                .disabled(activityManager.activityState == .active || activityManager.activityState == .paused)
-                
+                .disabled(
+                    activityManager.activityState == .active
+                        || activityManager.activityState == .paused
+                )
+
                 ScrollView {
                     VStack(spacing: 20) {
-                        ActivityMapView(polylineCoordinates: $activityManager.currentPolyline, region: $activityManager.currentRegion)
-                            .frame(height: 250)
-                            .cornerRadius(16)
-                            .shadow(radius: 5)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(themeManager.accentColor.opacity(0.3), lineWidth: 1)
-                            )
-                        
+                        ActivityMapView(
+                            polylineCoordinates: $activityManager
+                                .currentPolyline,
+                            region: $activityManager.currentRegion
+                        )
+                        .frame(height: 250)
+                        .cornerRadius(16)
+                        .shadow(radius: 5)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(
+                                    themeManager.accentColor.opacity(0.3),
+                                    lineWidth: 1
+                                )
+                        )
+
                         VStack(spacing: 20) {
                             MetricsView(
                                 activityManager: activityManager,
                                 themeManager: themeManager,
                                 units: currentUnits
                             )
-                            
+
                             Divider()
-                                .background(themeManager.secondaryTextColor.opacity(0.3))
-                            
+                                .background(
+                                    themeManager.secondaryTextColor.opacity(0.3)
+                                )
+
                             PaceChart(
                                 activityManager: activityManager,
                                 themeManager: themeManager,
@@ -79,7 +97,7 @@ struct ActivityView: View {
                     }
                     .padding()
                 }
-                
+
                 VStack {
                     ActivityActionButtons(
                         activityManager: activityManager,
@@ -90,17 +108,24 @@ struct ActivityView: View {
                 .padding(.horizontal)
                 .padding(.top, 20)
                 .padding(.bottom, 10)
-                .background(themeManager.backgroundColor.ignoresSafeArea(edges: .bottom))
-                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: -5)
+                .background(
+                    themeManager.backgroundColor.ignoresSafeArea(edges: .bottom)
+                )
+                .shadow(
+                    color: Color.black.opacity(0.1),
+                    radius: 10,
+                    x: 0,
+                    y: -5
+                )
             }
-            
+
             if let error = activityManager.locationError {
                 ErrorOverlay(message: error)
             }
         }
         .navigationTitle("Activity")
         .navigationBarTitleDisplayMode(.inline)
-        
+
         .onAppear {
             activityManager.validateActivityType(for: currentUnits)
         }
@@ -109,22 +134,28 @@ struct ActivityView: View {
             activityManager.validateActivityType(for: newUnit)
         }
     }
-    
+
     private func toggleTerrain(current: DistanceUnit) {
         guard let uid = authViewModel.currentUserUID else { return }
-        
+
         let newUnit: DistanceUnit = (current == .nautical) ? .metric : .nautical
-        
+
         let newSettings = UserSettings(
             isDarkMode: themeManager.isDarkMode,
-            notificationsEnabled: userService.currentUser?.settings.notificationsEnabled ?? true,
-            soundEffectsEnabled: userService.currentUser?.settings.soundEffectsEnabled ?? true,
-            hapticsEnabled: userService.currentUser?.settings.hapticsEnabled ?? true,
+            notificationsEnabled: userService.currentUser?.settings
+                .notificationsEnabled ?? true,
+            soundEffectsEnabled: userService.currentUser?.settings
+                .soundEffectsEnabled ?? true,
+            hapticsEnabled: userService.currentUser?.settings.hapticsEnabled
+                ?? true,
             units: newUnit
         )
-        
+
         Task {
-            try? await userService.updateUserSettings(uid: uid, settings: newSettings)
+            try? await userService.updateUserSettings(
+                uid: uid,
+                settings: newSettings
+            )
         }
     }
 }

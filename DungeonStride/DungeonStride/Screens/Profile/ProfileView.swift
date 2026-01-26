@@ -21,50 +21,30 @@ struct ProfileView: View {
             ScrollView {
                 VStack(spacing: 30) {
                     if let user = userService.currentUser {
-                        // Hlavička s avatarem a tlačítkem nastavení
+                        // 1. Hlavička (Avatar, Jméno, XP)
                         ProfileHeaderView(
                             showSettings: $viewModel.showSettings,
                             user: user,
                             themeManager: themeManager
                         )
                         
-                        // Mřížka se statistikami
+                        // 2. Mřížka statistik
                         StatsGridView(user: user, themeManager: themeManager)
-                        NavigationLink(destination: HistoryView()) {
-                            HStack {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .font(.title2)
-                                    .foregroundColor(.white)
-                                    .frame(width: 40, height: 40)
-                                    .background(themeManager.accentColor)
-                                    .clipShape(Circle())
-                                
-                                VStack(alignment: .leading) {
-                                    Text("Activity History")
-                                        .font(.headline)
-                                        .foregroundColor(themeManager.primaryTextColor)
-                                    Text("View your past runs and stats")
-                                        .font(.caption)
-                                        .foregroundColor(themeManager.secondaryTextColor)
-                                }
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(themeManager.secondaryTextColor)
-                            }
-                            .padding()
-                            .background(themeManager.cardBackgroundColor)
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
                         
-                        // ZDE BYL LOGOUT - ODSTRANĚNO
-                        // Logout je nyní přesunut do SettingsView
+                        // 3. Odkaz na historii
+                        HistoryLinkView(themeManager: themeManager)
+                        
+                        // Zde je místo pro další obsah (např. poslední úspěchy atd.)
                     } else {
+                        // Loading stav
                         ProgressView()
                             .padding()
+                            .tint(themeManager.accentColor)
                     }
                 }
                 .padding(.top, 10)
+                // Přidáme trochu místa dole, aby obsah nebyl schovaný za TabBarem
+                .padding(.bottom, 50)
             }
         }
         .navigationBarHidden(true)
