@@ -40,7 +40,7 @@ struct WelcomeView: View {
                         }
                         
                         WelcomeButton(title: "Login with Google", icon: "globe", isSystemImage: true, color: .white, textColor: .black) {
-                            Task { await authViewModel.signInWithGoogle() }
+                            Task { authViewModel.signInWithGoogle() }
                         }
                     }
                     .padding(.horizontal, 40)
