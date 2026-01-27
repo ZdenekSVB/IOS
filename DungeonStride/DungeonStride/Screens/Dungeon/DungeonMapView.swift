@@ -151,6 +151,12 @@ struct DungeonMapView: View {
                     Spacer()
                 }
 
+                if viewModel.isRuinsActive {
+                    RuinsView(viewModel: viewModel)
+                        .zIndex(50)
+                        .transition(.opacity)
+                }
+
                 if let user = viewModel.user, user.isDead {
                     RevivalView(
                         user: Binding(
@@ -205,6 +211,10 @@ struct DungeonMapView: View {
                                 "🏆 Hráč vyhrál, aktualizuji DungeonProgress..."
                             )
                             viewModel.handleVictory()
+
+                            if viewModel.isRuinsActive {
+                                viewModel.prepareNextRoom()
+                            }
                         }
                     )
                 )

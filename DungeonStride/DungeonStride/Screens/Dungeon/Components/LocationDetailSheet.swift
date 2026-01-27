@@ -93,12 +93,10 @@ struct LocationDetailSheet: View {
                         || location.locationType == "swamp")
                 {
 
-                    // === VARIANTA DUNGEON ===
-                    // Zobrazíme Popis + Seznam hned pod sebou
+                    // === DUNGEON ===
 
-                    VStack(spacing: 15) {  // Mezera mezi popisem a seznamem je jen 15 bodů
+                    VStack(spacing: 15) {
 
-                        // A) Popis (pokud existuje)
                         if let desc = location.description {
                             Text(desc)
                                 .font(.body)
@@ -120,32 +118,60 @@ struct LocationDetailSheet: View {
                 } else {
 
                     ScrollView {
-                        Text(location.description ?? "Žádný popis.")
-                            .font(.body).foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                            .padding()
+                        VStack(spacing: 16) {
+                            Text(location.description ?? "Žádný popis.")
+                                .font(.body).foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.top)
 
-                        if location.locationType == "ruins" {
-                            Text("Ruiny - Brzy přístupné!")
-                                .foregroundColor(.orange)
+                            if location.locationType == "ruins" {
+                                HStack {
+                                    Image(
+                                        systemName: "exclamationmark.triangle"
+                                    )
+                                    Text("Nebezpečná oblast - Roguelike Mód")
+                                }
+                                .font(.subheadline)
+                                .foregroundColor(.purple)
                                 .padding()
+                                .background(Color.purple.opacity(0.1))
+                                .cornerRadius(12)
+                            }
                         }
+                        .padding(.horizontal)
                     }
 
                     Spacer()
 
-                    VStack {
+                    VStack(spacing: 12) {
+
                         if isCurrentLocation {
-                            Button(action: {}) {
-                                HStack {
-                                    Image(systemName: "mappin.and.ellipse")
-                                    Text("Nacházíš se zde")
+                            if location.locationType == "ruins" {
+                                Button(action: {
+                                    dismiss()
+                                    viewModel.enterRuins(location: location)
+                                }) {
+                                    HStack {
+                                        Image(systemName: "flame.fill")
+                                        Text("VSTOUPIT DO RUIN")
+                                    }
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity).padding()
+                                    .background(Color.purple)
+                                    .foregroundColor(.white).cornerRadius(15)
                                 }
-                                .frame(maxWidth: .infinity).padding()
-                                .background(Color.gray.opacity(0.3))
-                                .foregroundColor(.gray).cornerRadius(15)
+                            } else {
+                                Button(action: {}) {
+                                    HStack {
+                                        Image(systemName: "mappin.and.ellipse")
+                                        Text("Nacházíš se zde")
+                                    }
+                                    .frame(maxWidth: .infinity).padding()
+                                    .background(Color.gray.opacity(0.3))
+                                    .foregroundColor(.gray).cornerRadius(15)
+                                }
+                                .disabled(true)
                             }
-                            .disabled(true)
 
                         } else if viewModel.isTraveling {
                             Button(action: {}) {
@@ -160,6 +186,7 @@ struct LocationDetailSheet: View {
                             .disabled(true)
 
                         } else {
+
                             let travelCost = viewModel.calculateTravelCost(
                                 to: location
                             )
@@ -204,7 +231,7 @@ struct LocationDetailSheet: View {
                     .padding(.bottom, 10)
                 }
             }
-            
+
             Button(action: { dismiss() }) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 30))
