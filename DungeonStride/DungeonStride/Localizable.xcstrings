@@ -5,7 +5,14 @@
 
     },
     "%lld" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld"
+          }
+        }
+      }
     },
     "%lld / %lld" : {
       "localizations" : {
@@ -40,7 +47,14 @@
       }
     },
     "%lld MP" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld MP"
+          }
+        }
+      }
     },
     "%lld XP" : {
       "localizations" : {
@@ -157,6 +171,12 @@
     },
     "BOJOVAT" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BOJOVAT"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -197,6 +217,12 @@
     },
     "Cestovat sem" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cestovat Zde"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -207,6 +233,12 @@
     },
     "Cestuji..." : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cestuji…"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -257,6 +289,12 @@
     },
     "Chyba při načítání souboje" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chyba při načítáni boje"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -669,10 +707,29 @@
       }
     },
     "Kniha kouzel" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kniha Kouzel "
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Book of Magic"
+          }
+        }
+      }
     },
     "KONEC" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KONEC"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -703,7 +760,14 @@
       }
     },
     "Lektvary" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lektvary"
+          }
+        }
+      }
     },
     "Level %lld" : {
       "localizations" : {
@@ -837,6 +901,12 @@
     },
     "Nacházíš se zde" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nacházíš se zde"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -847,6 +917,12 @@
     },
     "Načítám monstra..." : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Načítám monstra..."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -855,6 +931,7 @@
         }
       }
     },
+<<<<<<< HEAD
     "Nahrát ITEMY" : {
 
     },
@@ -875,6 +952,8 @@
         }
       }
     },
+=======
+>>>>>>> 3bd48593d88d21ee6bcdefc61d95cfa007fee25b
     "NEW" : {
       "localizations" : {
         "cs" : {
@@ -907,7 +986,20 @@
       }
     },
     "Neznáš žádná kouzla." : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neznáš žádná kouzla."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You don’t know any magical spells"
+          }
+        }
+      }
     },
     "No activities in this range." : {
       "localizations" : {
@@ -1012,7 +1104,20 @@
       }
     },
     "Prázdný batoh" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prázdný batoh"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty Backpack"
+          }
+        }
+      }
     },
     "PREFERENCES" : {
       "localizations" : {
@@ -1047,6 +1152,12 @@
     "Průzkum Dungeonu" : {
       "extractionState" : "stale",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Průzkum Dungeonu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1138,6 +1249,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uložit změny"
+          }
+        }
+      }
+    },
+    "SEED QUESTS (DEV ONLY)" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SEED QUESTS (DEV ONLY)"
           }
         }
       }
@@ -1235,7 +1356,14 @@
       }
     },
     "Soupeř hraje..." : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soupeř hraje..."
+          }
+        }
+      }
     },
     "Speed" : {
       "localizations" : {
@@ -1300,6 +1428,12 @@
     "Tento dungeon je prázdný." : {
       "extractionState" : "stale",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tento dungeon je prázdný."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1439,10 +1573,23 @@
       }
     },
     "VS" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VS"
+          }
+        }
+      }
     },
     "VYBRAT ODMĚNU" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VYBRAT ODMĚNU"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1476,10 +1623,23 @@
       }
     },
     "x%lld" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "x%lld"
+          }
+        }
+      }
     },
     "Zavřít" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zavřít"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1489,10 +1649,36 @@
       }
     },
     "Zpět" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zpět "
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        }
+      }
     },
     "Zvol typ útoku" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zvol typ útoku"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose your Attack"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
