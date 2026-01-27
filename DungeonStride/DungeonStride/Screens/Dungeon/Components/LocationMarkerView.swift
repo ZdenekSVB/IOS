@@ -10,16 +10,6 @@ import SwiftUI
 struct LocationMarkerView: View {
     let location: GameMapLocation
 
-    /*var iconName: String {
-        switch location.locationType {
-        case "city": return "house.fill"
-        case "dungeon": return "skull.fill"
-        case "ruins": return "building.columns.fill"
-        case "swamp": return "drop.fill"
-        default: return "mappin.circle.fill"
-        }
-    }*/
-
     var color: Color {
         switch location.locationType {
         case "city": return .blue
@@ -49,8 +39,7 @@ struct LocationMarkerView: View {
                     Image(location.iconName)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 40, height: 40)
-                    // .foregroundColor(.white) // Odkomentuj, pokud jsou ikony černé siluety
+                        .frame(width: 60, height: 60)
                 } else {
                     // Fallback (aby to nepadlo, když chybí asset)
                     Image(systemName: "mappin.circle.fill")

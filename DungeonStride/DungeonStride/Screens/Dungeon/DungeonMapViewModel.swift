@@ -50,14 +50,7 @@ class DungeonMapViewModel: ObservableObject {
             print("🗺️ Mapa načtena: \(self.locations.count) lokací")
 
             // Nastavení startovní pozice (pokud ještě není)
-            if currentUserLocation == nil {
-                if let startNode = self.locations.first(where: {
-                    $0.locationType == "city"
-                }) {
-                    self.currentUserLocation = startNode
-                    self.userPosition = startNode.position
-                }
-            }
+            restoreUserPosition()
 
         } catch {
             print("❌ Chyba mapy: \(error)")
@@ -73,9 +66,41 @@ class DungeonMapViewModel: ObservableObject {
 
             if let data = snapshot.data() {
                 self.user = User.fromFirestore(documentId: uid, data: data)
+
+                restoreUserPosition()
             }
         } catch {
             print("Chyba načítání uživatele: \(error)")
+        }
+    }
+
+    func restoreUserPosition() {
+        // Musíme mít načtenou mapu i uživatele
+        guard let user = user, !locations.isEmpty else { return }
+
+        // Pokud už máme pozici nastavenou (např. při reloadu), neděláme nic,
+        // aby panáček neposkakoval.
+        if currentUserLocation != nil { return }
+
+        var targetLocation: GameMapLocation?
+
+        // 1. Zkusíme najít uloženou lokaci podle ID (názvu)
+        if let savedId = user.currentLocationId, !savedId.isEmpty {
+            targetLocation = locations.first(where: { $0.name == savedId })
+        }
+
+        // 2. Pokud se nenašla (nebo je nový uživatel), fallback na první město
+        if targetLocation == nil {
+            targetLocation = locations.first(where: {
+                $0.locationType == "city"
+            })
+        }
+
+        // 3. Nastavíme pozici
+        if let target = targetLocation {
+            self.currentUserLocation = target
+            self.userPosition = target.position
+            print("📍 Pozice obnovena na: \(target.name)")
         }
     }
 
@@ -92,13 +117,32 @@ class DungeonMapViewModel: ObservableObject {
         let duration = distance / speed
 
         self.currentTravelDuration = duration
-
         self.userPosition = destination.position
 
         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
             self.currentUserLocation = destination
             self.isTraveling = false
             print("Dorazil jsi do: \(destination.name)")
+
+            self.saveUserLocation(locationName: destination.name)
+        }
+    }
+
+    private func saveUserLocation(locationName: String) {
+        guard let uid = user?.id else { return }
+
+        // 1. Aktualizujeme lokálně
+        self.user?.currentLocationId = locationName
+
+        // 2. Odešleme do Firebase
+        db.collection("users").document(uid).updateData([
+            "currentLocationId": locationName
+        ]) { err in
+            if let err = err {
+                print("❌ Chyba při ukládání pozice: \(err)")
+            } else {
+                print("💾 Pozice uložena: \(locationName)")
+            }
         }
     }
 
@@ -109,33 +153,28 @@ class DungeonMapViewModel: ObservableObject {
             do {
                 let doc = try await db.collection("enemies").document(id)
                     .getDocument()
-                if let enemy = try? doc.data(as: Enemy.self) {
+
+                if var enemy = try? doc.data(as: Enemy.self) {
+                    enemy.id = doc.documentID
                     loadedEnemies.append(enemy)
                 }
             } catch {
                 print("Chyba při načítání enemy \(id): \(error)")
             }
         }
-        // Seřadíme je podle pořadí v poli IDs (Firestore to může vrátit napřeskáčku)
-        // Ale pro jednoduchost vracíme takto:
         return loadedEnemies
     }
 
-    // PŘIDAT: Funkce volaná po vítězství
     func handleVictory() {
         guard let user = user, let dungeonId = activeDungeonId else { return }
 
-        // 1. Zvedneme progress
         let currentProgress = user.dungeonProgress[dungeonId] ?? 0
         var newProgress = currentProgress + 1
 
-        // Omezíme to na max 3 (pokud máme jen 3 stage)
         if newProgress > 3 { newProgress = 3 }
 
-        // 2. Lokální update
         self.user?.dungeonProgress[dungeonId] = newProgress
 
-        // 3. Firestore update
         db.collection("users").document(user.uid).updateData([
             "dungeonProgress.\(dungeonId)": newProgress
         ])

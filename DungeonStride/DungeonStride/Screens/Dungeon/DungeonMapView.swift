@@ -131,7 +131,7 @@ struct DungeonMapView: View {
         }
         .sheet(item: $selectedLocation) { location in
             LocationDetailSheet(location: location, viewModel: viewModel)
-                .presentationDetents([.fraction(0.40)])
+                .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $showCharacterView) {

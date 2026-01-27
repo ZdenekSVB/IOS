@@ -19,7 +19,7 @@ struct LocationDetailSheet: View {
     var iconName: String {
         switch location.locationType {
         case "city": return "house.fill"
-        case "dungeon": return "skull.fill"
+        case "dungeon": return "house.fill"
         case "ruins": return "building.columns.fill"
         case "swamp": return "drop.fill"
         default: return "mappin.circle.fill"
@@ -39,7 +39,6 @@ struct LocationDetailSheet: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 20) {
-                // --- HLAVIČKA ---
                 VStack(spacing: 10) {
                     Image(systemName: iconName)
                         .font(.system(size: 50))
@@ -51,19 +50,17 @@ struct LocationDetailSheet: View {
                     Text(location.name)
                         .font(.title2).bold()
 
-                    // Typ lokace + Obtížnost
                     HStack {
                         Text(location.locationType.uppercased())
                             .font(.caption).fontWeight(.bold)
                             .padding(.horizontal, 10).padding(.vertical, 4)
                             .background(Color.secondary.opacity(0.2))
                             .foregroundColor(.secondary).cornerRadius(8)
-
-                        // Zobrazení lebek podle difficultyTier
+                        
                         if let tier = location.difficultyTier {
                             HStack(spacing: 2) {
                                 ForEach(0..<tier, id: \.self) { _ in
-                                    Image(systemName: "skull.fill")
+                                    Image(systemName: "house.fill")
                                         .font(.caption2)
                                         .foregroundColor(.red)
                                 }
@@ -73,37 +70,27 @@ struct LocationDetailSheet: View {
                     }
                 }
                 .padding(.top, 20)
-
-                Divider()
-
-                // --- POPIS ---
+                
                 ScrollView {
                     Text(location.description ?? "Žádný popis.")
                         .font(.body).foregroundColor(.secondary)
                         .multilineTextAlignment(.center).padding(.horizontal)
                 }
 
-                Spacer()
-
-                // --- AKCE ---
                 if isCurrentLocation {
-                    // Jsme na místě
                     if location.locationType == "dungeon"
                         || location.locationType == "swamp"
                     {
-                        Divider()
                         DungeonMenuView(
                             location: location,
                             viewModel: viewModel
                         )
-                        .frame(maxHeight: 300)
+                        .frame(maxHeight: .infinity)
                     } else if location.locationType == "ruins" {
-                        // Tady později přidáme logiku Ruin (Dveře), zatím placeholder
                         Text("Ruiny - Brzy přístupné!")
                             .foregroundColor(.orange)
                             .padding()
                     } else {
-                        // Město atd.
                         Button(action: {}) {
                             HStack {
                                 Image(systemName: "mappin.and.ellipse")
@@ -117,7 +104,6 @@ struct LocationDetailSheet: View {
                     }
 
                 } else if viewModel.isTraveling {
-                    // Cestujeme
                     Button(action: {}) {
                         HStack {
                             ProgressView().padding(.trailing, 8)
@@ -130,7 +116,6 @@ struct LocationDetailSheet: View {
                     .disabled(true)
 
                 } else {
-                    // Můžeme cestovat
                     Button(action: {
                         dismiss()
                         viewModel.travel(to: location)

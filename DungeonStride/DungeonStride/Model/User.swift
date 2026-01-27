@@ -3,8 +3,8 @@
 //  DungeonStride
 //
 
-import Foundation
 import FirebaseFirestore
+import Foundation
 
 // MARK: - User
 
@@ -17,7 +17,7 @@ struct User: Identifiable, Codable {
 
     // RPG Stats (Síla, Obrana...)
     var stats: PlayerStats = .default
-    
+
     // Statistiky aktivit
     var activityStats: ActivityStats = .empty
     // Denní resetované statistiky
@@ -27,12 +27,12 @@ struct User: Identifiable, Codable {
 
     var coins: Int = 0
     var totalXP: Int = 0
-    
+
     // Počítadlo splněných misí (nové místo achievementů)
     var totalQuestsCompleted: Int = 0
 
     var equippedIds: [String: String] = [:]
-    
+
     // Data obchodu (Definováno v ShopModels.swift)
     var shopData: UserShopData = .empty
 
@@ -43,8 +43,9 @@ struct User: Identifiable, Codable {
     // MARK: - Computed
 
     var uid: String { id ?? "" }
-    
+
     var dungeonProgress: [String: Int] = [:]
+    var currentLocationId: String?
 
     var level: Int {
         (totalXP / 100) + 1
@@ -87,7 +88,7 @@ struct User: Identifiable, Codable {
         coins += amount
         updatedAt = Date()
     }
-    
+
     mutating func incrementQuestCount() {
         totalQuestsCompleted += 1
         updatedAt = Date()
@@ -113,7 +114,7 @@ struct User: Identifiable, Codable {
         activityStats.totalSteps += steps
         activityStats.totalDistance += distance
         activityStats.totalCaloriesBurned += calories
-        
+
         if isRun {
             activityStats.totalRuns += 1
         }
@@ -140,7 +141,8 @@ struct User: Identifiable, Codable {
             "createdAt": Timestamp(date: createdAt),
             "updatedAt": Timestamp(date: updatedAt),
             "lastActiveAt": Timestamp(date: lastActiveAt),
-            "dungeonProgress": dungeonProgress
+            "dungeonProgress": dungeonProgress,
+            "currentLocationId": currentLocationId ?? "",
         ]
     }
 
@@ -159,7 +161,8 @@ struct User: Identifiable, Codable {
             username: username,
             createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date(),
             updatedAt: (data["updatedAt"] as? Timestamp)?.dateValue() ?? Date(),
-            lastActiveAt: (data["lastActiveAt"] as? Timestamp)?.dateValue() ?? Date()
+            lastActiveAt: (data["lastActiveAt"] as? Timestamp)?.dateValue()
+                ?? Date()
         )
 
         user.selectedAvatar = data["selectedAvatar"] as? String ?? "default"
@@ -168,6 +171,10 @@ struct User: Identifiable, Codable {
         user.totalQuestsCompleted = data["totalQuestsCompleted"] as? Int ?? 0
         user.equippedIds = data["equippedIds"] as? [String: String] ?? [:]
         user.dungeonProgress = data["dungeonProgress"] as? [String: Int] ?? [:]
+
+        if let locId = data["currentLocationId"] as? String, !locId.isEmpty {
+            user.currentLocationId = locId
+        }
 
         if let dict = data["stats"] as? [String: Any] {
             user.stats = PlayerStats.fromFirestore(dict)
@@ -180,11 +187,11 @@ struct User: Identifiable, Codable {
         if let dict = data["dailyActivity"] as? [String: Any] {
             user.dailyActivity = DailyActivity.fromFirestore(dict)
         }
-        
+
         if let dict = data["settings"] as? [String: Any] {
             user.settings = UserSettings.fromFirestore(dict)
         }
-        
+
         if let dict = data["shopData"] as? [String: Any] {
             user.shopData = UserShopData.fromFirestore(dict)
         }
@@ -222,7 +229,7 @@ struct PlayerStats: Codable {
             "magicDamage": magicDamage,
             "defense": defense,
             "speed": speed,
-            "evasion": evasion
+            "evasion": evasion,
         ]
     }
 
@@ -257,7 +264,7 @@ struct ActivityStats: Codable {
             "totalRuns": totalRuns,
             "totalDistance": totalDistance,
             "totalCaloriesBurned": totalCaloriesBurned,
-            "totalSteps": totalSteps
+            "totalSteps": totalSteps,
         ]
     }
 
@@ -286,7 +293,7 @@ struct DailyActivity: Codable {
         [
             "dailySteps": dailySteps,
             "dailyDistance": dailyDistance,
-            "dailyCaloriesBurned": dailyCaloriesBurned
+            "dailyCaloriesBurned": dailyCaloriesBurned,
         ]
     }
 
@@ -303,14 +310,14 @@ struct UserSettings: Codable {
     var isDarkMode: Bool
     var notificationsEnabled: Bool
     var soundEffectsEnabled: Bool
-    var hapticsEnabled: Bool // NOVÉ
+    var hapticsEnabled: Bool  // NOVÉ
     var units: DistanceUnit
 
     static let `default` = UserSettings(
         isDarkMode: false,
         notificationsEnabled: true,
         soundEffectsEnabled: true,
-        hapticsEnabled: true, // Defaultně zapnuto
+        hapticsEnabled: true,  // Defaultně zapnuto
         units: .metric
     )
 
@@ -319,8 +326,8 @@ struct UserSettings: Codable {
             "isDarkMode": isDarkMode,
             "notificationsEnabled": notificationsEnabled,
             "soundEffectsEnabled": soundEffectsEnabled,
-            "hapticsEnabled": hapticsEnabled, // NOVÉ
-            "units": units.rawValue
+            "hapticsEnabled": hapticsEnabled,  // NOVÉ
+            "units": units.rawValue,
         ]
     }
 
@@ -329,8 +336,9 @@ struct UserSettings: Codable {
             isDarkMode: data["isDarkMode"] as? Bool ?? false,
             notificationsEnabled: data["notificationsEnabled"] as? Bool ?? true,
             soundEffectsEnabled: data["soundEffectsEnabled"] as? Bool ?? true,
-            hapticsEnabled: data["hapticsEnabled"] as? Bool ?? true, // NOVÉ
-            units: DistanceUnit(rawValue: data["units"] as? String ?? "metric") ?? .metric
+            hapticsEnabled: data["hapticsEnabled"] as? Bool ?? true,  // NOVÉ
+            units: DistanceUnit(rawValue: data["units"] as? String ?? "metric")
+                ?? .metric
         )
     }
 }

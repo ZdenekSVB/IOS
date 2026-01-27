@@ -38,11 +38,10 @@ struct DungeonMenuView: View {
                     VStack(spacing: 12) {
                         ForEach(
                             Array(dungeonEnemies.enumerated()),
-                            id: \.element.id
+                            id: \.offset
                         ) { index, enemy in
                             HStack {
-                                // 1. IKONA
-                                Image(enemy.iconName)  // CamelCase název z DB
+                                Image(enemy.iconName)
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 50, height: 50)
@@ -51,7 +50,6 @@ struct DungeonMenuView: View {
                                     )
                                     .opacity(index > progressIndex ? 0.5 : 1.0)
 
-                                // 2. INFO
                                 VStack(alignment: .leading) {
                                     Text(enemy.name)
                                         .font(.system(size: 16, weight: .bold))
@@ -61,7 +59,6 @@ struct DungeonMenuView: View {
                                             .font(.caption)
                                             .foregroundColor(.secondary)
 
-                                        // Zobrazení rarity barvou
                                         Text(enemy.rarity)
                                             .font(.caption2).bold()
                                             .padding(.horizontal, 6)
@@ -79,7 +76,6 @@ struct DungeonMenuView: View {
 
                                 Spacer()
 
-                                // 3. STAV
                                 if index < progressIndex {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(.green)
@@ -123,16 +119,28 @@ struct DungeonMenuView: View {
     }
 
     func loadEnemies() async {
-        // 1. Načteme IDčka přímo z objektu lokace! (Už žádný hardcoded DungeonContent)
+        print("🔍 NAČÍTÁM ENEMIES PRO: \(location.name)")
+
+        // 1. Zkontrolujeme, co je v IDčkách
         guard let enemyIds = location.enemyIds, !enemyIds.isEmpty else {
+            print("⚠️ Tato lokace nemá žádné enemyIds (nebo je nil)!")
             self.isLoading = false
             return
         }
 
+        print("📋 Seznam IDček k načtení: \(enemyIds)")
+
         // 2. Stáhneme data
         if let loaded = await viewModel.fetchEnemies(ids: enemyIds) {
             self.dungeonEnemies = loaded
+            print("✅ Staženo monster: \(loaded.count)")
+            for enemy in loaded {
+                print("   -> \(enemy.name) (ID: \(enemy.id ?? "nil"))")
+            }
+        } else {
+            print("❌ Nepodařilo se stáhnout žádná monstra.")
         }
+
         self.isLoading = false
     }
 
