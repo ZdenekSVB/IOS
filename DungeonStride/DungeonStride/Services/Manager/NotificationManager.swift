@@ -71,7 +71,7 @@ class NotificationManager: ObservableObject {
         
         // ⚠️ PRO TESTOVÁNÍ: 10. 
         // Až to otestuješ, změň 10 na 172800 (což je 48 hodin).
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: true)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 60, repeats: true)
         
         let request = UNNotificationRequest(identifier: "inactivity_reminder", content: content, trigger: trigger)
         

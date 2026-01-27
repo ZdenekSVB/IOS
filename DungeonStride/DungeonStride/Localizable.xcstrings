@@ -4,6 +4,9 @@
     "" : {
 
     },
+    ")" : {
+
+    },
     "%lld" : {
       "localizations" : {
         "cs" : {
@@ -158,6 +161,9 @@
           }
         }
       }
+    },
+    "Available Points:" : {
+
     },
     "Back" : {
       "localizations" : {
@@ -938,6 +944,7 @@
       }
     },
     "Nahrát ITEMY" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -954,6 +961,7 @@
       }
     },
     "Nahrát MAPU" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -970,6 +978,7 @@
       }
     },
     "Nahrát NEPŘÁTELE" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1270,6 +1279,9 @@
         }
       }
     },
+    "Reroll (50" : {
+
+    },
     "Reset" : {
       "comment" : "Label for reset button on activity screen",
       "localizations" : {
@@ -1377,6 +1389,9 @@
           }
         }
       }
+    },
+    "Shop is empty." : {
+
     },
     "Show All (Reset)" : {
       "localizations" : {

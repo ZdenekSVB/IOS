@@ -14,13 +14,16 @@ struct StatsGridView: View {
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
             
+            // 1. Vzdálenost
             StatCard(
                 icon: "figure.walk",
                 title: "Total Distance", // Lokalizace
+                // Používáme nastavení jednotek uživatele pro formátování
                 value: user.settings.units.formatDistance(user.activityStats.totalDistance),
                 themeManager: themeManager
             )
             
+            // 2. XP
             StatCard(
                 icon: "star.fill",
                 title: "Total XP", // Lokalizace
@@ -28,6 +31,7 @@ struct StatsGridView: View {
                 themeManager: themeManager
             )
             
+            // 3. Počet běhů
             StatCard(
                 icon: "flag.fill",
                 title: "Runs", // Lokalizace
@@ -35,6 +39,7 @@ struct StatsGridView: View {
                 themeManager: themeManager
             )
             
+            // 4. Splněné mise (Quests)
             StatCard(
                 icon: "checkmark.seal.fill",
                 title: "Missions", // Lokalizace

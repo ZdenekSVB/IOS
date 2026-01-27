@@ -11,8 +11,6 @@ import SwiftUI
 @main
 struct DungeonStrideApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    
-    // Sledujeme stav aplikace (Active / Background)
     @Environment(\.scenePhase) var scenePhase
 
     @StateObject private var authViewModel = AuthViewModel()
@@ -35,24 +33,22 @@ struct DungeonStrideApp: App {
                 .environmentObject(themeManager)
                 .environmentObject(userService)
                 .environmentObject(questService)
+                // ZDE: Toto zajistí, že celá aplikace ví o změně režimu
                 .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
+                // ZDE: Přidáme ID i sem, aby se v nejhorším případě překreslilo celé okno
+                .id(themeManager.isDarkMode)
         }
-        // --- TOTO ZDE CHYBĚLO: Reakce na minimalizaci aplikace ---
         .onChange(of: scenePhase) { _, newPhase in
-            switch newPhase {
-            case .background:
-                print("🌑 Appka jde na pozadí -> Plánuji notifikaci")
-                // Zde se plánuje notifikace "Vrať se do hry"
-                NotificationManager.shared.scheduleInactivityReminder()
-                
-            case .active:
-                print("☀️ Appka je aktivní -> Ruším notifikaci a obnovuji denní")
-                NotificationManager.shared.cancelInactivityReminder()
-                // Zároveň se ujistíme, že máme práva (vyžádá si je, pokud chybí)
-                NotificationManager.shared.requestAuthorization()
-                
-            default:
-                break
+            if let user = userService.currentUser, user.settings.notificationsEnabled {
+                switch newPhase {
+                case .background:
+                    NotificationManager.shared.scheduleInactivityReminder()
+                case .active:
+                    NotificationManager.shared.cancelInactivityReminder()
+                    NotificationManager.shared.scheduleDailyNotifications()
+                default:
+                    break
+                }
             }
         }
     }

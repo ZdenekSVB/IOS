@@ -27,6 +27,9 @@ struct User: Identifiable, Codable {
 
     var coins: Int = 0
     var totalXP: Int = 0
+    
+    // --- NOVÉ (Obnoveno po merge konfliktu) ---
+    var statPoints: Int = 0
 
     // Počítadlo splněných misí (nové místo achievementů)
     var totalQuestsCompleted: Int = 0
@@ -80,7 +83,16 @@ struct User: Identifiable, Codable {
     // MARK: - Mutating helpers
 
     mutating func addXP(_ amount: Int) {
+        let oldLevel = level
         totalXP += amount
+        let newLevel = level
+        
+        // Level Up logika: Za každý level dostaneš 1 stat point
+        if newLevel > oldLevel {
+            let levelsGained = newLevel - oldLevel
+            statPoints += levelsGained
+        }
+        
         updatedAt = Date()
     }
 
@@ -135,6 +147,7 @@ struct User: Identifiable, Codable {
             "settings": settings.toFirestore(),
             "coins": coins,
             "totalXP": totalXP,
+            "statPoints": statPoints, // Uložení bodů
             "totalQuestsCompleted": totalQuestsCompleted,
             "equippedIds": equippedIds,
             "shopData": shopData.toFirestore(),
@@ -168,6 +181,7 @@ struct User: Identifiable, Codable {
         user.selectedAvatar = data["selectedAvatar"] as? String ?? "default"
         user.coins = data["coins"] as? Int ?? 0
         user.totalXP = data["totalXP"] as? Int ?? 0
+        user.statPoints = data["statPoints"] as? Int ?? 0 // Načtení bodů
         user.totalQuestsCompleted = data["totalQuestsCompleted"] as? Int ?? 0
         user.equippedIds = data["equippedIds"] as? [String: String] ?? [:]
         user.dungeonProgress = data["dungeonProgress"] as? [String: Int] ?? [:]
@@ -243,6 +257,11 @@ struct PlayerStats: Codable {
             speed: data["speed"] as? Int ?? 10,
             evasion: data["evasion"] as? Double ?? 0.0
         )
+    }
+    
+    // Pomocná metoda pro update user.stats v CharacterViewModel
+    func toDictionary() -> [String: Any] {
+        return toFirestore()
     }
 }
 

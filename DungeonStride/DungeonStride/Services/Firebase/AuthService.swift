@@ -15,10 +15,11 @@ class AuthService: ObservableObject {
     @Published var user: FirebaseAuth.User?
     @Published var isLoggedIn: Bool = false
     
+    // Závislost na UserService
     private var userService: UserService { DIContainer.shared.resolve() }
     
     init() {
-        // OPRAVA: Přiřazení listeneru do '_', aby Xcode nekřičel
+        // Naslouchání změnám stavu přihlášení
         _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             Task { @MainActor [weak self] in
                 self?.user = user
@@ -27,14 +28,14 @@ class AuthService: ObservableObject {
         }
     }
     
+    // MARK: - Core Auth Actions
+    
     func signIn(email: String, password: String) async throws {
-        // OPRAVA: discard result
         _ = try await Auth.auth().signIn(withEmail: email, password: password)
     }
     
     func signUp(email: String, password: String, username: String) async throws {
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
-        // Zde je result použit, takže OK
         _ = try await userService.createUser(uid: result.user.uid, email: email, username: username)
     }
     
@@ -54,14 +55,40 @@ class AuthService: ObservableObject {
         try await user.updatePassword(to: newPassword)
     }
     
+    // --- OPRAVENÁ FUNKCE DELETE ---
     func deleteAccount() async throws {
         guard let user = Auth.auth().currentUser else { return }
+        
+        // 1. BEZPEČNOSTNÍ KONTROLA: Je přihlášení čerstvé?
+        // Pokud se uživatel přihlásil před více než 5 minutami (300 sekund),
+        // nepovolíme smazání a vyzveme ho k novému přihlášení.
+        // Tím zabráníme smazání DB dat předtím, než selže Auth.delete().
+        if let lastSignInDate = user.metadata.lastSignInDate {
+            let timeSinceLogin = Date().timeIntervalSince(lastSignInDate)
+            if timeSinceLogin > 300 { // 5 minut
+                throw NSError(
+                    domain: "Auth",
+                    code: 1,
+                    userInfo: [NSLocalizedDescriptionKey: "Pro smazání účtu je vyžadováno čerstvé přihlášení.\n\nProsím ODHLASTE SE a znovu se přihlaste."]
+                )
+            }
+        }
+        
         let uid = user.uid
         
+        // 2. Pokud je přihlášení čerstvé, můžeme bezpečně smazat data
+        print("🗑 Mazání dat z Firestore...")
         try await Firestore.firestore().collection("users").document(uid).delete()
+        
+        // 3. Nakonec smažeme Auth účet
+        print("🗑 Mazání Auth účtu...")
         try await user.delete()
+        
+        // 4. Lokální úklid
         try signOut()
     }
+    
+    // MARK: - Google Sign In
     
     func signInWithGoogle() async throws {
         guard (FirebaseApp.app()?.options.clientID) != nil else { return }

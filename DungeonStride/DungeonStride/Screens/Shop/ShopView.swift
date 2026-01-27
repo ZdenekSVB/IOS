@@ -10,54 +10,56 @@ import SwiftUI
 struct ShopView: View {
     @StateObject var vm = ShopViewModel()
     @EnvironmentObject var authVM: AuthViewModel
-
-    // Mřížka: 2 sloupce
+    
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
-
+    
     var body: some View {
         NavigationView {
             ZStack {
                 Color(UIColor.systemGroupedBackground).ignoresSafeArea()
-
+                
                 VStack(spacing: 0) {
-
-                    // --- 1. HLAVIČKA OBCHODNÍKA ---
                     MerchantHeaderView(timeToNextReset: vm.timeToNextReset)
-
-                    VStack {
-                        Button("Nahrát ITEMY") {
-                            Task { await DatabaseSeeder().uploadItems() }
+                    
+                    // REROLL BUTTON
+                    if let user = vm.user {
+                        Button(action: {
+                            HapticManager.shared.mediumImpact()
+                            vm.rerollShop()
+                        }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.clockwise")
+                                Text("Reroll (50")
+                                Image(systemName: "dollarsign.circle.fill").foregroundColor(.yellow)
+                                Text(")")
+                            }
+                            .font(.caption).bold()
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
+                            .background(user.coins >= 50 ? Color.blue : Color.gray)
+                            .foregroundColor(.white)
+                            .cornerRadius(20)
+                            .shadow(radius: 2)
                         }
-
-                        Button("Nahrát NEPŘÁTELE") {
-                            Task { await DatabaseSeeder().uploadEnemies() }
-                        }
-
-                        Button("Nahrát MAPU") {
-                            Task { await DatabaseSeeder().uploadMap() }
-                        }
-                        
+                        .disabled(user.coins < 50)
+                        .padding(.top, -20) // Přesah do headeru
+                        .padding(.bottom, 10)
                     }
-
-                    // --- 2. MŘÍŽKA ZBOŽÍ ---
-                    if vm.slots.isEmpty {
-                        Spacer()
-                        ProgressView("Opening shop...")  // Lokalizace
-                        Spacer()
+                    
+                    if vm.isLoading {
+                        Spacer(); ProgressView("Opening shop..."); Spacer()
+                    } else if vm.slots.isEmpty {
+                        Spacer(); Text("Shop is empty.").foregroundColor(.gray); Spacer()
                     } else {
                         ScrollView {
                             LazyVGrid(columns: columns, spacing: 15) {
                                 ForEach(vm.slots) { slot in
-                                    // Zobrazíme jen pokud máme definici itemu
-                                    if let itemDef = vm.masterItems[slot.itemId]
-                                    {
+                                    if let itemDef = vm.masterItems[slot.itemId] {
                                         ShopItemCell(
                                             item: itemDef,
                                             slot: slot,
                                             userCoins: vm.user?.coins ?? 0,
-                                            onBuy: {
-                                                vm.buyItem(slot: slot)
-                                            }
+                                            onBuy: { vm.buyItem(slot: slot) }
                                         )
                                     }
                                 }
@@ -67,22 +69,18 @@ struct ShopView: View {
                     }
                 }
             }
-            .navigationTitle("Shop")  // Lokalizace
+            .navigationTitle("Shop")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
-                        Image(systemName: "dollarsign.circle.fill")
-                            .foregroundColor(.yellow)
-                        Text("\(vm.user?.coins ?? 0)")
-                            .font(.headline)
+                        Image(systemName: "dollarsign.circle.fill").foregroundColor(.yellow)
+                        Text("\(vm.user?.coins ?? 0)").font(.headline)
                     }
                 }
             }
             .onAppear {
-                if let uid = authVM.currentUserUID {
-                    vm.fetchData(userId: uid)
-                }
+                if let uid = authVM.currentUserUID { vm.fetchData(userId: uid) }
             }
         }
     }

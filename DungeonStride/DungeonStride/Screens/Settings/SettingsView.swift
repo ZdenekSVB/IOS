@@ -2,22 +2,28 @@
 //  SettingsView.swift
 //  DungeonStride
 //
+//  Created by Zdeněk Svoboda on 26.01.2026.
+//
 
 import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
+    
+    // Environment objekty z hlavní aplikace
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var userService: UserService
     @EnvironmentObject var authViewModel: AuthViewModel
     
+    // Lokální ViewModel
     @StateObject private var viewModel: SettingsViewModel
     
     init() {
+        // Inicializujeme ViewModel s DI (Dependency Injection)
         _viewModel = StateObject(wrappedValue: SettingsViewModel(
-            userService: UserService(),
-            authViewModel: AuthViewModel(),
-            themeManager: ThemeManager()
+            userService: DIContainer.shared.resolve(),
+            authViewModel: AuthViewModel(), // Poznámka: Zde by bylo lepší také použít DI nebo Environment
+            themeManager: DIContainer.shared.resolve()
         ))
     }
     
@@ -29,16 +35,16 @@ struct SettingsView: View {
                 ScrollView {
                     VStack(spacing: 24) {
                         
-                        // 1. Account
+                        // 1. Account Section (Avatar, Jméno, Email, Heslo)
                         SettingsAccountSection(viewModel: viewModel)
                         
-                        // 2. Preferences
+                        // 2. Preferences Section (Dark Mode, Notifikace, Zvuky, Jednotky)
                         SettingsPreferencesSection(viewModel: viewModel)
                         
-                        // 3. Support
+                        // 3. Support Section (Contact Us, Privacy, Terms)
                         SettingsSupportSection()
                         
-                        // 4. Actions (Logout / Delete)
+                        // 4. Actions Section (Logout, Delete Account)
                         SettingsActionsSection(viewModel: viewModel)
                         
                         // 5. Footer (Version)
@@ -61,9 +67,13 @@ struct SettingsView: View {
                     .foregroundColor(themeManager.accentColor)
                 }
             }
-            // Inicializace dat
+            // Synchronizace dat při zobrazení
             .onAppear {
-                viewModel.synchronize(userService: userService, authViewModel: authViewModel, themeManager: themeManager)
+                viewModel.synchronize(
+                    userService: userService,
+                    authViewModel: authViewModel,
+                    themeManager: themeManager
+                )
             }
             // Alert pro smazání účtu
             .alert("Delete Account?", isPresented: $viewModel.showDeleteConfirmation) {

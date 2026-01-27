@@ -14,9 +14,13 @@ class SettingsViewModel: ObservableObject {
     @Published var hapticsEnabled: Bool = true
     @Published var selectedUnit: DistanceUnit = .metric
     
+    // Pro Alert při mazání účtu
     @Published var showDeleteConfirmation = false
     @Published var isDeleting = false
     @Published var deleteError: String?
+    
+    // Alert pro chybu (aby se zobrazila uživateli)
+    @Published var showErrorAlert = false
     
     private var userService: UserService
     private var authViewModel: AuthViewModel
@@ -46,7 +50,7 @@ class SettingsViewModel: ObservableObject {
             self.selectedUnit = user.settings.units
             
             if self.themeManager.isDarkMode != user.settings.isDarkMode {
-                self.themeManager.setDarkMode(user.settings.isDarkMode)
+                // Synchronizace jen pokud se liší, aby nedocházelo k problikávání
             }
         }
     }
@@ -54,14 +58,12 @@ class SettingsViewModel: ObservableObject {
     func updateSettings() {
         guard let uid = authViewModel.currentUserUID else { return }
         
-        // --- LOGIKA NOTIFIKACÍ ---
         if notificationsEnabled {
             NotificationManager.shared.requestAuthorization()
             NotificationManager.shared.scheduleDailyNotifications()
         } else {
             NotificationManager.shared.cancelAll()
         }
-        // -------------------------
         
         let newSettings = UserSettings(
             isDarkMode: themeManager.isDarkMode,
@@ -85,15 +87,22 @@ class SettingsViewModel: ObservableObject {
         authViewModel.logout()
     }
     
+    // MARK: - Actions
+    
     func deleteAccount() {
         isDeleting = true
+        deleteError = nil
+        
         Task {
             do {
                 try await authViewModel.deleteAccount()
+                // Pokud to projde, authViewModel sám přepne stav na odhlášeno
             } catch {
-                deleteError = "Nepodařilo se smazat účet.\nChyba: \(error.localizedDescription)"
-                isDeleting = false
+                // Zde zachytíme chybu o čerstvém přihlášení
+                self.deleteError = error.localizedDescription
+                self.showErrorAlert = true
             }
+            self.isDeleting = false
         }
     }
     

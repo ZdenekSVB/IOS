@@ -16,7 +16,6 @@ class CharacterViewModel: ObservableObject {
     // UI Stavy
     @Published var showInventory: Bool = false
     @Published var selectedItemForCompare: InventoryItem?
-    
     @Published var selectedEquippedSlot: EquipSlot?
     
     private var db = Firestore.firestore()
@@ -85,7 +84,7 @@ class CharacterViewModel: ObservableObject {
     }
     
     private func startListeningToInventory(userId: String) {
-        print("🔍 Začínám naslouchat inventáři pro user: \(userId)")
+        // print("🔍 Začínám naslouchat inventáři pro user: \(userId)")
         
         inventoryListener = db.collection("users").document(userId).collection("inventory").addSnapshotListener { [weak self] invSnapshot, error in
             guard let self = self else { return }
@@ -96,7 +95,7 @@ class CharacterViewModel: ObservableObject {
             }
             
             guard let invDocs = invSnapshot?.documents else {
-                print("⚠️ Žádné dokumenty v inventáři.")
+                // print("⚠️ Žádné dokumenty v inventáři.")
                 return
             }
             
@@ -112,16 +111,12 @@ class CharacterViewModel: ObservableObject {
                             item: masterItem,
                             quantity: slot.quantity
                         ))
-                    } else {
-                        // Tiché ignorování, nebo logování pro debug
-                        // print("❌ Item '\(slot.itemId)' v Master datech NEEXISTUJE!")
                     }
                 }
             }
             
             DispatchQueue.main.async {
                 self.inventoryItems = loadedInv.sorted { $0.rarityRank > $1.rarityRank }
-                // print("🏁 Finální počet itemů v UI: \(self.inventoryItems.count)")
             }
         }
     }
@@ -135,59 +130,106 @@ class CharacterViewModel: ObservableObject {
         return nil
     }
     
+    // --- Equip s přepočtem statů ---
     func equipItem(_ newItem: InventoryItem) {
         guard let userId = currentUserId, var user = user, let slot = newItem.item.computedSlot else { return }
         
         let slotId = slot.id
+        guard let itemID = newItem.item.id else { return }
         
-        // OPRAVA: Odstraněny nepoužité proměnné newItemId a dbItemId
-        // Kontrolujeme, zda item má ID (což by měl mít z masterItems)
-        guard let itemID = newItem.item.id else {
-            print("❌ Chyba: Item nemá ID, nelze nasadit.")
-            return
+        // 1. Zjistíme starý item a odečteme jeho staty
+        if let oldItemId = user.equippedIds[slotId], let oldItem = masterItems[oldItemId] {
+            applyItemStats(user: &user, item: oldItem, isEquipping: false)
         }
         
-        var newEquipMap = user.equippedIds
+        // 2. Nasadíme nový item
+        user.equippedIds[slotId] = itemID
         
-        // Pokud už tam něco je, měli bychom to teoreticky vrátit do inventáře,
-        // ale v tomto zjednodušeném modelu se equip jen přepíše.
-        // V plné hře bys musel řešit výměnu (swap).
+        // 3. Přičteme staty nového itemu
+        applyItemStats(user: &user, item: newItem.item, isEquipping: true)
         
-        newEquipMap[slotId] = itemID
-        
-        user.equippedIds = newEquipMap
+        // Update lokálně
         self.user = user
         
-        db.collection("users").document(userId).updateData(["equippedIds": newEquipMap])
+        // Update Firestore (uložíme vybavené ID i nové staty)
+        db.collection("users").document(userId).updateData([
+            "equippedIds": user.equippedIds,
+            "stats": user.stats.toDictionary()
+        ])
         
-        print("Equipping \(newItem.item.name) to \(slot.id)")
+        // print("Equipping \(newItem.item.name) to \(slot.id)")
     }
     
-    func upgradeStat(_ stat: String, cost: Int) {
-        guard let userId = currentUserId, let user = user, user.coins >= cost else { return }
+    // --- Unequip s přepočtem statů ---
+    func unequipItem(slot: EquipSlot) {
+        guard let userId = currentUserId, var user = user else { return }
+        
+        // 1. Odečteme staty
+        if let oldItemId = user.equippedIds[slot.id], let oldItem = masterItems[oldItemId] {
+            applyItemStats(user: &user, item: oldItem, isEquipping: false)
+        }
+        
+        // 2. Sundáme item
+        user.equippedIds.removeValue(forKey: slot.id)
+        
+        // Update lokálně
+        self.user = user
+        
+        // Update Firestore
+        db.collection("users").document(userId).updateData([
+            "equippedIds": user.equippedIds,
+            "stats": user.stats.toDictionary()
+        ])
+    }
+    
+    // --- OPRAVENO: Mapování nových názvů statů (physicalDamage, magicDamage, ...) ---
+    private func applyItemStats(user: inout User, item: AItem, isEquipping: Bool) {
+        let multiplier = isEquipping ? 1 : -1
+        
+        // Fyzický útok
+        if let pAtk = item.baseStats.physicalDamage {
+            user.stats.physicalDamage += (pAtk * multiplier)
+        }
+        
+        // Magický útok
+        if let mAtk = item.baseStats.magicDamage {
+            user.stats.magicDamage += (mAtk * multiplier)
+        }
+        
+        // Fyzická obrana (použijeme pro 'defense' ve statsu hráče)
+        // Poznámka: Pokud má hráč rozdělenou obranu, namapuj to přesněji.
+        // Zde sčítám physical + magic defense do jednoho 'defense', pokud hráč nemá separate staty.
+        // Nebo pokud má 'defense', použijeme physicalDefense.
+        if let pDef = item.baseStats.physicalDefense {
+            user.stats.defense += (pDef * multiplier)
+        }
+        
+        // Pokud bys měl v User.stats i 'magicDefense', přidej to sem:
+        // if let mDef = item.baseStats.magicDefense { user.stats.magicDefense += ... }
+        
+        // Zdraví
+        if let hp = item.baseStats.healthBonus {
+            user.stats.maxHP += (hp * multiplier)
+        }
+        
+        // Pojistka proti záporným/nulovým hodnotám
+        user.stats.physicalDamage = max(1, user.stats.physicalDamage)
+        user.stats.magicDamage = max(0, user.stats.magicDamage)
+        user.stats.defense = max(0, user.stats.defense)
+        user.stats.maxHP = max(10, user.stats.maxHP)
+    }
+    
+    // --- Upgrade za Body ---
+    func upgradeStat(_ stat: String, cost: Int = 1) {
+        guard let userId = currentUserId, let user = user, user.statPoints >= cost else { return }
         
         let ref = db.collection("users").document(userId)
         
         ref.updateData([
             "stats.\(stat)": FieldValue.increment(Int64(1)),
-            "coins": FieldValue.increment(Int64(-cost))
+            "statPoints": FieldValue.increment(Int64(-cost)) // Odečteme body
         ])
-    }
-    
-    func unequipItem(slot: EquipSlot) {
-        guard let userId = currentUserId, var user = user else { return }
         
-        // Odstraníme item ze slotu
-        var newEquipMap = user.equippedIds
-        newEquipMap.removeValue(forKey: slot.id)
-        
-        // Update lokálně (aby to zmizelo hned)
-        user.equippedIds = newEquipMap
-        self.user = user
-        
-        // Update Firestore
-        db.collection("users").document(userId).updateData([
-            "equippedIds": newEquipMap
-        ])
+        HapticManager.shared.success()
     }
 }

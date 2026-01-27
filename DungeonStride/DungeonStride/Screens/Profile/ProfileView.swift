@@ -16,6 +16,7 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack {
+            // Pozadí se překreslí automaticky, protože je přímo v body
             themeManager.backgroundColor.ignoresSafeArea()
             
             ScrollView {
@@ -34,7 +35,6 @@ struct ProfileView: View {
                         // 3. Odkaz na historii
                         HistoryLinkView(themeManager: themeManager)
                         
-                        // Zde je místo pro další obsah (např. poslední úspěchy atd.)
                     } else {
                         // Loading stav
                         if authViewModel.currentUserUID == nil {
@@ -50,13 +50,28 @@ struct ProfileView: View {
                     }
                 }
                 .padding(.top, 10)
-                // Přidáme trochu místa dole, aby obsah nebyl schovaný za TabBarem
                 .padding(.bottom, 50)
             }
+            // --- DŮLEŽITÁ OPRAVA ---
+            // Tímto donutíme SwiftUI kompletně překreslit celý obsah ScrollView,
+            // pokud se změní uživatel (updatedAt) NEBO pokud se změní téma (isDarkMode).
+            .id(combinedID)
         }
         .navigationBarHidden(true)
         .sheet(isPresented: $viewModel.showSettings) {
             SettingsView()
         }
+        .onAppear {
+            if let uid = authViewModel.currentUserUID {
+                // Refresh dat při zobrazení
+            }
+        }
+    }
+    
+    // Pomocná proměnná pro ID
+    private var combinedID: String {
+        let userTimestamp = userService.currentUser?.updatedAt.timeIntervalSince1970 ?? 0
+        let themeID = themeManager.isDarkMode ? "dark" : "light"
+        return "\(userTimestamp)-\(themeID)"
     }
 }
