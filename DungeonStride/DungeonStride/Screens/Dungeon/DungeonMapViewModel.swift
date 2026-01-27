@@ -232,27 +232,39 @@ class DungeonMapViewModel: ObservableObject {
         return loadedEnemies
     }
 
-    func handleVictory(enemy: Enemy? = nil) {
-        guard let user = user, let dungeonId = activeDungeonId else { return }
+    func handleVictory() {
+        guard let user = user, let dungeonId = activeDungeonId,
+            let defeatedEnemy = currentEnemy
+        else { return }
 
+        // 1. Zvýšit progress v dungeonu
         let currentProgress = user.dungeonProgress[dungeonId] ?? 0
         var newProgress = currentProgress + 1
-
         if newProgress > 3 { newProgress = 3 }
 
         self.user?.dungeonProgress[dungeonId] = newProgress
-
         db.collection("users").document(user.uid).updateData([
             "dungeonProgress.\(dungeonId)": newProgress
         ])
 
-        print("🎉 Progress v \(dungeonId) zvýšen na \(newProgress)")
-
-        if isRuinsActive, ruinsCurrentRoom == ruinsMaxRooms,
-            let defeatedEnemy = enemy
+        // 2. KONTROLA BOSSE
+        // Zjistíme, jestli byl tento enemy POSLEDNÍ v seznamu pro danou lokaci
+        if let currentLoc = locations.first(where: { $0.name == dungeonId }),
+            let enemyList = currentLoc.enemyIds,
+            let lastEnemyId = enemyList.last
         {
-            print("🐉 Boss poražen! Generuji odměnu...")
-            generateBossLoot(bossName: defeatedEnemy.name)
+
+            // Porovnáváme ID (nebo jméno/iconName, podle toho co používáš jako ID)
+            // V tvém JSONu enemyIds odpovídají iconName/ID
+            if defeatedEnemy.id == lastEnemyId
+                || defeatedEnemy.iconName == lastEnemyId
+            {
+                print("🔥 BOSS PORAŽEN: \(defeatedEnemy.name)")
+                handleBossLoot(
+                    bossName: defeatedEnemy.name,
+                    bossId: lastEnemyId
+                )
+            }
         }
     }
 
@@ -316,34 +328,33 @@ class DungeonMapViewModel: ObservableObject {
     private func resolveDoorEffect(door: RuinsDoor) {
         switch door.type {
         case .combat:
-            // Krátká pauza na "leknutí", pak start
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.handleRuinsCombat(isBoss: false)
             }
-
         case .boss:
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.handleRuinsCombat(isBoss: true)
             }
-
         case .treasure:
-            let gold = Int.random(in: 20...100)
+            // Čím vyšší room, tím víc goldů
+            let multiplier = Double(ruinsCurrentRoom) * 0.5 + 1.0
+            let gold = Int(Double(Int.random(in: 20...100)) * multiplier)
             user?.coins += gold
             updateRuinsLog(msg: "💰 Našel jsi \(gold) zlaťáků!")
-            // Delší pauza na čtení odměny
             prepareNextRoom(delay: 2.0)
 
         case .item:
+            // 🆕 PROGRESIVNÍ LOOT Z TRUHLY
             updateRuinsLog(msg: "Otevíráš starou truhlu...")
             Task {
-                if let item = await fetchRandomItem(
-                    rarity: ["Common", "Uncommon"].randomElement()!
-                ) {
-                    addItemToInventory(
-                        itemId: item.id ?? "",
-                        itemName: item.name
+                // Určíme raritu podle aktuální místnosti a max místností
+                let rarity = determineLootRarity()
+
+                if let item = await fetchRandomItem(rarity: rarity) {
+                    addItemToInventory(item: item)
+                    updateRuinsLog(
+                        msg: "🎒 Získal jsi: \(item.name) (\(item.rarity))"
                     )
-                    updateRuinsLog(msg: "🎒 Získal jsi: \(item.name)!")
                 } else {
                     updateRuinsLog(msg: "Truhla byla prázdná.")
                 }
@@ -351,35 +362,31 @@ class DungeonMapViewModel: ObservableObject {
             }
 
         case .trap:
-            let dmg = Int.random(in: 10...30)
+            // Pasti jsou silnější v pozdějších levelech
+            let baseDmg = Int.random(in: 10...20)
+            let dmg = baseDmg + (ruinsCurrentRoom * 5)
+
             user?.stats.hp -= dmg
             if (user?.stats.hp ?? 0) < 0 { user?.stats.hp = 0 }
 
-            updateRuinsLog(msg: "⚠️ Auu! Past ti ubrala \(dmg) HP.")
-
-            // Otřesení obrazovky (Haptika by byla super)
+            updateRuinsLog(msg: "⚠️ Past! Ztratil jsi \(dmg) HP.")
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.error)
 
             if (user?.stats.hp ?? 0) <= 0 {
-                // Smrt řešíme hned
                 isRuinsActive = false
-                // Tady by se měla zavolat logika smrti, ale to se stane asi až v combatu...
-                // Pokud umře na past, musíš to handlovat.
-                // Prozatím jen zavřeme ruiny a necháme ho s 0 HP (což triggerne Revival v MapView)
             } else {
                 prepareNextRoom(delay: 2.5)
             }
 
         case .heal:
-            let heal = 30
+            let heal = 30 + (ruinsCurrentRoom * 5)
             let max = user?.stats.maxHP ?? 100
             user?.stats.hp = min(max, (user?.stats.hp ?? 0) + heal)
-            updateRuinsLog(msg: "💚 Cítíš úlevu... (+\(heal) HP).")
+            updateRuinsLog(msg: "💚 Studánka tě vyléčila (+\(heal) HP).")
             prepareNextRoom(delay: 2.0)
         }
 
-        // Save
         if let u = user {
             db.collection("users").document(u.uid).updateData([
                 "coins": u.coins,
@@ -403,6 +410,7 @@ class DungeonMapViewModel: ObservableObject {
             enemyId = enemyIds.last!
         } else {
             if enemyIds.count > 1 {
+                // Vybereme náhodného, ale ne posledního (Bosse)
                 enemyId = enemyIds.dropLast().randomElement()!
             } else {
                 enemyId = enemyIds.first!
@@ -421,12 +429,9 @@ class DungeonMapViewModel: ObservableObject {
 
     func prepareNextRoom(delay: Double = 1.5) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-            // Pokud ještě nejsme na konci
             if self.ruinsCurrentRoom <= self.ruinsMaxRooms {
                 self.ruinsLog = "Jdeš hlouběji do ruin..."
             }
-
-            // Krátký fade out efekt dveří?
             withAnimation {
                 self.ruinsCurrentRoom += 1
                 self.generateDoors()
@@ -447,9 +452,10 @@ class DungeonMapViewModel: ObservableObject {
 
     private func fetchRandomItem(rarity: String) async -> AItem? {
         do {
+            // Stáhneme items dané rarity (limit 20 pro variabilitu)
             let snapshot = try await db.collection("items")
                 .whereField("rarity", isEqualTo: rarity)
-                .limit(to: 10)
+                .limit(to: 20)
                 .getDocuments()
 
             let items = snapshot.documents.compactMap {
@@ -457,28 +463,132 @@ class DungeonMapViewModel: ObservableObject {
             }
             return items.randomElement()
         } catch {
-            print("Chyba při fetchování itemu: \(error)")
+            print("Chyba loot: \(error)")
             return nil
         }
     }
 
-    private func addItemToInventory(itemId: String, itemName: String) {
-        guard let uid = user?.id, !itemId.isEmpty else { return }
+    private func determineLootRarity() -> String {
+        let progress = Double(ruinsCurrentRoom) / Double(ruinsMaxRooms)
+        let roll = Int.random(in: 1...100)
+
+        // Začátek (do 30%): Hlavně Common, šance na Uncommon
+        if progress < 0.3 {
+            return roll > 80 ? "Uncommon" : "Common"
+        }
+        // Střed (do 60%): Uncommon, šance na Rare
+        else if progress < 0.6 {
+            if roll > 90 { return "Rare" }
+            return roll > 40 ? "Uncommon" : "Common"
+        }
+        // Konec (do 90%): Rare, šance na Epic
+        else if progress < 0.9 {
+            if roll > 85 { return "Epic" }
+            return roll > 30 ? "Rare" : "Uncommon"
+        }
+        // Finále (Boss room / Předposlední): Epic / Legendary šance
+        else {
+            if roll > 90 { return "Legendary" }
+            return "Epic"
+        }
+    }
+
+    private func fetchItemByNameOrId(_ identifier: String) async -> AItem? {
+        do {
+            let doc = try await db.collection("items").document(identifier)
+                .getDocument()
+            if let item = try? doc.data(as: AItem.self) {
+                return item
+            }
+
+            // Pokud nenajdeme podle ID, zkusíme query podle 'name'
+            let query = try await db.collection("items")
+                .whereField("name", isEqualTo: identifier)
+                .limit(to: 1)
+                .getDocuments()
+
+            return query.documents.first.flatMap {
+                try? $0.data(as: AItem.self)
+            }
+
+        } catch {
+            return nil
+        }
+    }
+
+    private func handleBossLoot(bossName: String, bossId: String) {
+        Task {
+            var droppedItem: AItem? = nil
+
+            // 1. Specifické dropy pro Bosse (Podle ID nebo Jména)
+            switch bossId {
+            case "AncientRedDragon":
+                // Zkusíme stáhnout první item, pokud selže, zkusíme druhý
+                if let item = await fetchItemByNameOrId("DragonscaleMail") {
+                    droppedItem = item
+                } else {
+                    droppedItem = await fetchItemByNameOrId("DragonVisage")
+                }
+
+            case "LichLord":
+                if let item = await fetchItemByNameOrId("CrownOfTheLich") {
+                    droppedItem = item
+                } else {
+                    droppedItem = await fetchItemByNameOrId("StaffOfTheVoid")
+                }
+
+            case "Broodmother":
+                droppedItem = await fetchItemByNameOrId("BroodmothersFang")
+
+            case "DeepSeaTerror":
+                droppedItem = await fetchItemByNameOrId("TridentOfTheDeep")
+
+            case "BanditLeader":
+                droppedItem = await fetchItemByNameOrId("AssassinsBlade")
+
+            case "InfernalDemon":
+                droppedItem = await fetchItemByNameOrId("DemonScythe")
+
+            case "CorruptedTreant":
+                droppedItem = await fetchItemByNameOrId("HeartOfTheForest")
+
+            default:
+                break
+            }
+
+            // 2. Fallback: Náhodný Legendary/Epic
+            if droppedItem == nil {
+                print("🎲 Boss drop fallback...")
+                let rarity = Bool.random() ? "Legendary" : "Epic"
+                droppedItem = await fetchRandomItem(rarity: rarity)
+            }
+
+            // 3. Přidat
+            if let item = droppedItem {
+                addItemToInventory(item: item)
+
+                await MainActor.run {
+                    if isRuinsActive {
+                        self.updateRuinsLog(msg: "🌟 BOSS DROP: \(item.name)!")
+                    }
+                }
+            }
+        }
+    }
+    
+    private func addItemToInventory(item: AItem) {
+        guard let uid = user?.id, let itemId = item.id else { return }
 
         let inventoryRef = db.collection("users").document(uid).collection(
             "inventory"
         ).document(itemId)
 
-        // Použijeme transakci nebo update (pro jednoduchost update s incrementem)
-        // Pokud dokument neexistuje, musíme ho vytvořit
         inventoryRef.getDocument { doc, error in
             if let doc = doc, doc.exists {
-                // Item už má, zvýšíme počet
                 inventoryRef.updateData([
                     "quantity": FieldValue.increment(Int64(1))
                 ])
             } else {
-                // Item nemá, vytvoříme nový
                 inventoryRef.setData([
                     "itemId": itemId,
                     "quantity": 1,
@@ -486,7 +596,7 @@ class DungeonMapViewModel: ObservableObject {
                     "acquiredAt": FieldValue.serverTimestamp(),
                 ])
             }
-            print("🎒 Item přidán: \(itemName)")
+            print("🎒 Item přidán: \(item.name)")
         }
     }
 

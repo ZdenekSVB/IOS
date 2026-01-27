@@ -206,7 +206,7 @@ struct DungeonMapView: View {
                     viewModel: CombatViewModel(
                         player: user,
                         enemy: enemy,
-                        onWin: {
+                        onWin: {_ in 
                             print(
                                 "🏆 Hráč vyhrál, aktualizuji DungeonProgress..."
                             )
@@ -225,7 +225,7 @@ struct DungeonMapView: View {
                 }
             }
         }
-        .onChange(of: viewModel.showCombat) { wasShown, isNowShown in
+        .onChange(of: viewModel.showCombat) { isNowShown in
             if !isNowShown {
                 print("🏁 Souboj skončil. Aktualizuji stav hráče...")
                 Task {
@@ -234,7 +234,7 @@ struct DungeonMapView: View {
                 }
             }
         }
-        .onChange(of: viewModel.isTraveling) { _, isTraveling in
+        .onChange(of: viewModel.isTraveling) { isTraveling in
             if !isTraveling { centerOnUser() }
         }
     }
