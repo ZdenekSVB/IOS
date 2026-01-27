@@ -5,16 +5,15 @@
 
 import Foundation
 import Combine
-import UIKit // Potřeba pro otevírání URL
+import UIKit
 
 @MainActor
 class SettingsViewModel: ObservableObject {
     @Published var notificationsEnabled: Bool = true
     @Published var soundEffects: Bool = true
-    @Published var hapticsEnabled: Bool = true // NOVÉ
+    @Published var hapticsEnabled: Bool = true
     @Published var selectedUnit: DistanceUnit = .metric
     
-    // Pro Alert při mazání účtu
     @Published var showDeleteConfirmation = false
     @Published var isDeleting = false
     @Published var deleteError: String?
@@ -23,7 +22,6 @@ class SettingsViewModel: ObservableObject {
     private var authViewModel: AuthViewModel
     private var themeManager: ThemeManager
     
-    // Verze aplikace
     var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
@@ -44,7 +42,7 @@ class SettingsViewModel: ObservableObject {
         if let user = userService.currentUser {
             self.notificationsEnabled = user.settings.notificationsEnabled
             self.soundEffects = user.settings.soundEffectsEnabled
-            self.hapticsEnabled = user.settings.hapticsEnabled // NOVÉ
+            self.hapticsEnabled = user.settings.hapticsEnabled
             self.selectedUnit = user.settings.units
             
             if self.themeManager.isDarkMode != user.settings.isDarkMode {
@@ -56,11 +54,20 @@ class SettingsViewModel: ObservableObject {
     func updateSettings() {
         guard let uid = authViewModel.currentUserUID else { return }
         
+        // --- LOGIKA NOTIFIKACÍ ---
+        if notificationsEnabled {
+            NotificationManager.shared.requestAuthorization()
+            NotificationManager.shared.scheduleDailyNotifications()
+        } else {
+            NotificationManager.shared.cancelAll()
+        }
+        // -------------------------
+        
         let newSettings = UserSettings(
             isDarkMode: themeManager.isDarkMode,
             notificationsEnabled: notificationsEnabled,
             soundEffectsEnabled: soundEffects,
-            hapticsEnabled: hapticsEnabled, // NOVÉ
+            hapticsEnabled: hapticsEnabled,
             units: selectedUnit
         )
         
@@ -78,16 +85,13 @@ class SettingsViewModel: ObservableObject {
         authViewModel.logout()
     }
     
-    // MARK: - Actions
-    
     func deleteAccount() {
         isDeleting = true
         Task {
             do {
                 try await authViewModel.deleteAccount()
-                // Úspěch = logout se zavolá automaticky v AuthViewModel
             } catch {
-                deleteError = "Nepodařilo se smazat účet. Možná se musíte znovu přihlásit.\nChyba: \(error.localizedDescription)"
+                deleteError = "Nepodařilo se smazat účet.\nChyba: \(error.localizedDescription)"
                 isDeleting = false
             }
         }
@@ -101,7 +105,7 @@ class SettingsViewModel: ObservableObject {
     }
     
     func sendEmail() {
-        let email = "support@dungeonstride.app" // Vymysli si svůj email
+        let email = "support@dungeonstride.app"
         if let url = URL(string: "mailto:\(email)") {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url)
