@@ -19,9 +19,25 @@ struct EquipSlotCell: View {
                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(item?.rarity?.color ?? Color.gray.opacity(0.3), lineWidth: item == nil ? 1 : 2))
             
             if let item = item {
-                Image(systemName: "cube.box.fill").resizable().scaledToFit().frame(width: 30).foregroundColor(item.rarity?.color ?? .gray)
+                // LOGIKA IKON: Pokud obsahuje tečku, je to SF Symbol, jinak Asset
+                if item.iconName.contains(".") {
+                    Image(systemName: item.iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30)
+                        .foregroundColor(item.rarity?.color ?? .gray)
+                } else {
+                    Image(item.iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 35, height: 35)
+                }
             } else {
-                Image(systemName: slot.placeholderIcon).resizable().scaledToFit().frame(width: 20).foregroundColor(.gray.opacity(0.3))
+                Image(systemName: slot.placeholderIcon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20)
+                    .foregroundColor(.gray.opacity(0.3))
             }
         }
     }

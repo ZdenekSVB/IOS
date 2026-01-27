@@ -11,73 +11,76 @@ struct ShopItemCell: View {
     let item: AItem
     let slot: ShopSlot
     let userCoins: Int
-    let onBuy: () -> Void
     
     var canAfford: Bool { userCoins >= slot.price }
     
     var body: some View {
-        VStack {
-            Text(item.name)
-                .font(.caption).bold()
-                .lineLimit(1)
-                .padding(.top, 10)
-                .padding(.horizontal, 5)
-            
+        VStack(spacing: 0) {
+            // HORNÍ ČÁST: Obrázek (roztažený)
             ZStack {
-                Image(systemName: "cube.box.fill") // Placeholder, pokud nemáš assety
-                    .resizable().frame(width: 40, height: 40)
-                    .foregroundColor(item.rarity?.color ?? .gray)
-                    .opacity(slot.isPurchased ? 0.3 : 1.0)
+                Color.clear // Placeholder pro pozadí
+                
+                if item.isSystemIcon {
+                    Image(systemName: item.iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(15) // Systémové ikony potřebují trochu místa
+                        .foregroundColor(item.rarity?.color ?? .gray)
+                } else {
+                    Image(item.iconName)
+                        .resizable()
+                        .scaledToFit()
+                        // ŽÁDNÝ PADDING - ať to vyplní prostor
+                }
+                
+                // Překryv pokud je koupeno
+                if slot.isPurchased {
+                    Color.black.opacity(0.6)
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.largeTitle)
+                        .foregroundColor(.green)
+                        .shadow(radius: 5)
+                }
+            }
+            .frame(height: 80) // Fixní výška pro obrázek
+            .background(Color.white.opacity(0.05)) // Jemné podbarvení
+            
+            // DOLNÍ ČÁST: Info
+            VStack(spacing: 4) {
+                Text(item.name)
+                    .font(.caption2).bold()
+                    .lineLimit(1)
+                    .foregroundColor(.primary)
                 
                 if slot.isPurchased {
-                    Image(systemName: "checkmark.circle.fill")
-                        .resizable().frame(width: 30, height: 30)
-                        .foregroundColor(.green)
-                }
-            }
-            .frame(height: 50)
-            
-            // Fixní prostor pro tlačítko/text
-            ZStack {
-                if slot.isPurchased {
-                    Text("SOLD OUT")
-                        .font(.caption2).bold()
-                        .foregroundColor(.gray)
-                } else {
-                    Button(action: {
-                        if canAfford {
-                            HapticManager.shared.success()
-                            SoundManager.shared.playSystemSuccess()
-                            onBuy()
-                        } else {
-                            HapticManager.shared.error()
-                        }
-                    }) {
-                        HStack(spacing: 2) {
-                            Text("\(slot.price)")
-                            Image(systemName: "dollarsign.circle.fill")
-                        }
+                    Text("OWNED")
                         .font(.caption).bold()
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(canAfford ? Color.green : Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .foregroundColor(.gray)
+                        .padding(.vertical, 4)
+                } else {
+                    HStack(spacing: 2) {
+                        Text("\(slot.price)")
+                        Image(systemName: "dollarsign.circle.fill")
                     }
-                    .disabled(!canAfford)
+                    .font(.caption).bold()
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(canAfford ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
+                    .foregroundColor(canAfford ? .green : .red)
+                    .cornerRadius(6)
                 }
             }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 10)
-            .frame(height: 40) // Rezervujeme místo pro tlačítko
+            .padding(.vertical, 8)
+            .padding(.horizontal, 4)
+            .frame(maxWidth: .infinity)
+            .background(Color(UIColor.secondarySystemBackground))
         }
-        .background(Color(UIColor.secondarySystemBackground))
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(item.rarity?.color.opacity(0.5) ?? .gray, lineWidth: 1)
+                .stroke(item.rarity?.color.opacity(0.6) ?? .gray.opacity(0.3), lineWidth: 2)
         )
-        // DŮLEŽITÉ: Fixní výška celé buňky, aby neskákala
+        // Pevná celková výška
         .frame(height: 140)
     }
 }

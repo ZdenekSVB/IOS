@@ -18,15 +18,15 @@ struct CharacterView: View {
                 
                 if charVM.user == nil {
                     if authVM.currentUserUID == nil {
-                        Text("Not logged in.") // Lokalizace
+                        Text("Not logged in.")
                     } else {
-                        ProgressView("Loading hero...") // Lokalizace
+                        ProgressView("Loading hero...")
                     }
                 } else {
                     mainContent
                 }
             }
-            .navigationTitle(charVM.user?.username ?? "Hero") // Lokalizace fallbacku
+            .navigationTitle(charVM.user?.username ?? "Hero")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -40,24 +40,41 @@ struct CharacterView: View {
                 if let uid = authVM.currentUserUID { charVM.fetchData(for: uid) }
             }
             .onChange(of: authVM.currentUserUID) { _, newUid in
-                if let uid = newUid {
-                    charVM.fetchData(for: uid)
-                } else {
-                    charVM.stopListening()
-                }
+                if let uid = newUid { charVM.fetchData(for: uid) }
+                else { charVM.stopListening() }
             }
-            .sheet(item: $charVM.selectedItemForCompare) { invItem in
-                if let slot = invItem.item.computedSlot {
-                    ComparisonView(
-                        newItem: invItem.item,
-                        currentItem: charVM.getEquippedItem(for: slot),
-                        onEquip: { charVM.equipItem(invItem) }
-                    )
-                }
-            }
+            // ZMĚNA: Použití ItemDetailSheet i pro UNEQUIP (kliknutí na slot)
             .sheet(item: $charVM.selectedEquippedSlot) { slot in
-                if let item = charVM.getEquippedItem(for: slot) {
-                    UnequipSheet(item: item) { charVM.unequipItem(slot: slot) }
+                if let item = charVM.getEquippedItem(for: slot), let user = charVM.user {
+                    // Pro unequip: item je to, co máme na sobě
+                    ItemDetailSheet(
+                        item: item,
+                        equippedItem: item, // Porovnáváme sami se sebou (rozdíl bude 0 -> -hodnota)
+                        user: user,
+                        mode: .unequip(onUnequip: {
+                            charVM.unequipItem(slot: slot)
+                        })
+                    )
+                    .presentationDetents([.medium, .large])
+                }
+            }
+            // Detail pro předmět v BATOHU (Equip / Sell)
+            .sheet(item: $charVM.selectedItemForCompare) { invItem in
+                if let slot = invItem.item.computedSlot, let user = charVM.user {
+                    
+                    let equippedItem = charVM.getEquippedItem(for: slot)
+                    
+                    ItemDetailSheet(
+                        item: invItem.item,
+                        equippedItem: equippedItem,
+                        user: user,
+                        mode: .equip(
+                            onEquip: { charVM.equipItem(invItem) },
+                            onSell: { charVM.sellItem(item: invItem) },
+                            sellPrice: invItem.item.finalSellPrice ?? 10
+                        )
+                    )
+                    .presentationDetents([.medium, .large])
                 }
             }
         }
@@ -68,10 +85,9 @@ struct CharacterView: View {
             CharacterEquipView(vm: charVM)
                 .padding(.top, 10)
             
-            // Přepínač s haptikou
             Picker("Menu", selection: $charVM.showInventory) {
-                Text("Stats").tag(false) // Lokalizace
-                Text("Inventory").tag(true) // Lokalizace
+                Text("Stats").tag(false)
+                Text("Inventory").tag(true)
             }
             .pickerStyle(.segmented)
             .padding()

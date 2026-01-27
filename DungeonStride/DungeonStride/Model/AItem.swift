@@ -9,6 +9,7 @@ import FirebaseFirestore
 import Foundation
 import SwiftUI
 
+// MARK: - Master Item Definition
 struct AItem: Codable, Identifiable {
     @DocumentID var id: String?
 
@@ -19,6 +20,11 @@ struct AItem: Codable, Identifiable {
     let rarity: Rarity?
     let baseStats: ItemStats
     let costs: CostStats
+
+    // Helper: Rozlišení, zda jde o SF Symbol (systémová ikona) nebo Asset
+    var isSystemIcon: Bool {
+        return iconName.contains(".")
+    }
 
     private var effectiveMultiplier: Double {
         return rarity?.multiplier ?? 1
@@ -62,13 +68,10 @@ struct AItem: Codable, Identifiable {
     struct ItemStats: Codable {
         let physicalDamage: Int?
         let magicDamage: Int?
-
         let physicalDefense: Int?
         let magicDefense: Int?
-
         let healthBonus: Int?
         let manaBonus: Int?
-
         let sellPrice: Int?
     }
 
@@ -105,6 +108,84 @@ enum Rarity: String, Codable, CaseIterable {
         case .epic: return .purple
         case .legendary: return .orange
         case .artifact: return .red
+        }
+    }
+}
+
+// MARK: - Inventory Models (JEDINÁ DEFINICE)
+
+// 1. Co je uloženo ve Firestore v kolekci "inventory"
+struct UserInventorySlot: Codable, Identifiable {
+    @DocumentID var id: String?
+    let itemId: String
+    var quantity: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case itemId
+        case quantity
+    }
+}
+
+// 2. Co používáme v UI
+struct InventoryItem: Identifiable, Equatable {
+    let id: String              // ID dokumentu z batohu
+    let item: AItem             // Plná data
+    var quantity: Int
+    
+    var rarityRank: Int {
+        switch item.rarity {
+        case .artifact: return 6
+        case .legendary: return 5
+        case .epic: return 4
+        case .rare: return 3
+        case .uncommon: return 2
+        case .common: return 1
+        case .none: return 0
+        }
+    }
+    
+    static func == (lhs: InventoryItem, rhs: InventoryItem) -> Bool {
+        return lhs.id == rhs.id && lhs.quantity == rhs.quantity
+    }
+}
+
+// MARK: - Equip Slot
+enum EquipSlot: String, CaseIterable, Identifiable {
+    case mainHand = "Weapon"
+    case offHand = "Shield"
+    case head = "Head"
+    case chest = "Chest"
+    case hands = "Hands"
+    case legs = "Legs"
+    case feet = "Feet"
+    
+    var id: String { self.rawValue }
+    
+    var placeholderIcon: String {
+        switch self {
+        case .mainHand: return "sword"
+        case .offHand: return "shield"
+        case .head: return "hat.cap.fill"
+        case .chest: return "tshirt.fill"
+        case .hands: return "hand.raised.fill"
+        case .legs: return "figure.walk"
+        case .feet: return "shoe.fill"
+        }
+    }
+}
+
+extension AItem {
+    var computedSlot: EquipSlot? {
+        switch itemType {
+        case "Weapon":      return .mainHand
+        case "Shield":      return .offHand
+        case "Helmet":      return .head
+        case "Chestplate":  return .chest
+        case "Gloves":      return .hands
+        case "Leggings":    return .legs
+        case "Boots":       return .feet
+        default: return nil
         }
     }
 }

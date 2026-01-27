@@ -11,6 +11,10 @@ struct ShopView: View {
     @StateObject var vm = ShopViewModel()
     @EnvironmentObject var authVM: AuthViewModel
     
+    // Pro zobrazení detailu
+    @State private var selectedShopSlot: ShopSlot?
+    @State private var showDetailSheet = false
+    
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
     
     var body: some View {
@@ -42,7 +46,7 @@ struct ShopView: View {
                             .shadow(radius: 2)
                         }
                         .disabled(user.coins < 50)
-                        .padding(.top, -20) // Přesah do headeru
+                        .padding(.top, -15)
                         .padding(.bottom, 10)
                     }
                     
@@ -53,14 +57,22 @@ struct ShopView: View {
                     } else {
                         ScrollView {
                             LazyVGrid(columns: columns, spacing: 15) {
+                                // ZDE BYLA CHYBA: Používáme prostý ForEach nad polem struktur
+                                // ShopSlot musí být Identifiable (což je)
                                 ForEach(vm.slots) { slot in
                                     if let itemDef = vm.masterItems[slot.itemId] {
-                                        ShopItemCell(
-                                            item: itemDef,
-                                            slot: slot,
-                                            userCoins: vm.user?.coins ?? 0,
-                                            onBuy: { vm.buyItem(slot: slot) }
-                                        )
+                                        // Celá buňka je tlačítko pro detail
+                                        Button(action: {
+                                            self.selectedShopSlot = slot
+                                            self.showDetailSheet = true
+                                        }) {
+                                            ShopItemCell(
+                                                item: itemDef,
+                                                slot: slot,
+                                                userCoins: vm.user?.coins ?? 0
+                                            )
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
                                     }
                                 }
                             }
@@ -81,6 +93,35 @@ struct ShopView: View {
             }
             .onAppear {
                 if let uid = authVM.currentUserUID { vm.fetchData(userId: uid) }
+            }
+            // ZOBRAZENÍ DETAILU
+            .sheet(isPresented: $showDetailSheet) {
+                if let slot = selectedShopSlot,
+                   let item = vm.masterItems[slot.itemId],
+                   let user = vm.user {
+                    
+                    // Zjistíme, co má uživatel na sobě v tomto slotu
+                    // Použijeme bezpečné rozbalení
+                    let equippedItem: AItem? = {
+                        if let slotType = item.computedSlot,
+                           let equippedId = user.equippedIds[slotType.id] {
+                            return vm.masterItems[equippedId]
+                        }
+                        return nil
+                    }()
+                    
+                    ItemDetailSheet(
+                        item: item,
+                        equippedItem: equippedItem,
+                        user: user,
+                        mode: slot.isPurchased
+                            ? .viewOnly // Pokud koupeno, jen prohlížíme
+                            : .buy(price: slot.price, onBuy: {
+                                vm.buyItem(slot: slot)
+                            })
+                    )
+                    .presentationDetents([.medium, .large])
+                }
             }
         }
     }
