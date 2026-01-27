@@ -5,16 +5,16 @@
     "iconName": "BasicFistWraps",
     "itemType": "Weapon",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 8,
-      "defense": null,
+      "physicalDamage": 8,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 40
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 3,
       "energyCost": 5,
       "manaCost": null
     }
@@ -25,16 +25,16 @@
     "iconName": "FastDrawBow",
     "itemType": "Weapon",
     "rarity": "Uncommon",
-    "prerequisite": "Dexterity 5+",
     "baseStats": {
-      "attack": 15,
-      "defense": null,
+      "physicalDamage": 15,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 150
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 4,
       "energyCost": 8,
       "manaCost": null
     }
@@ -45,16 +45,16 @@
     "iconName": "KnightsSword",
     "itemType": "Weapon",
     "rarity": "Rare",
-    "prerequisite": "Strength 12+",
     "baseStats": {
-      "attack": 25,
-      "defense": null,
+      "physicalDamage": 25,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 400
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 5,
       "energyCost": 12,
       "manaCost": null
     }
@@ -65,16 +65,16 @@
     "iconName": "GuardsHalberd",
     "itemType": "Weapon",
     "rarity": "Epic",
-    "prerequisite": "Strength 20+",
     "baseStats": {
-      "attack": 45,
-      "defense": null,
+      "physicalDamage": 45,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 1500
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 6,
       "energyCost": 20,
       "manaCost": null
     }
@@ -85,16 +85,16 @@
     "iconName": "ScytheOfTheMoon",
     "itemType": "Weapon",
     "rarity": "Legendary",
-    "prerequisite": "Level 40+",
     "baseStats": {
-      "attack": 60,
-      "defense": null,
+      "physicalDamage": 50,
+      "magicDamage": 20,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 20,
       "sellPrice": 4000
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 8,
       "energyCost": 30,
       "manaCost": null
     }
@@ -105,16 +105,16 @@
     "iconName": "MastersDagger",
     "itemType": "Weapon",
     "rarity": "Rare",
-    "prerequisite": "Dexterity 15+",
     "baseStats": {
-      "attack": 20,
-      "defense": null,
+      "physicalDamage": 20,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 300
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 4,
       "energyCost": 8,
       "manaCost": null
     }
@@ -125,16 +125,16 @@
     "iconName": "WarriorsHammer",
     "itemType": "Weapon",
     "rarity": "Epic",
-    "prerequisite": "Strength 25+",
     "baseStats": {
-      "attack": 55,
-      "defense": null,
+      "physicalDamage": 55,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 2200
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 7,
       "energyCost": 25,
       "manaCost": null
     }
@@ -145,16 +145,16 @@
     "iconName": "DragonGlaive",
     "itemType": "Weapon",
     "rarity": "Artifact",
-    "prerequisite": "STR/INT 35+",
     "baseStats": {
-      "attack": 80,
-      "defense": null,
+      "physicalDamage": 70,
+      "magicDamage": 30,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 0
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 10,
       "energyCost": 40,
       "manaCost": null
     }
@@ -165,16 +165,16 @@
     "iconName": "ThrowingKnife",
     "itemType": "Weapon",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 6,
-      "defense": null,
+      "physicalDamage": 6,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 20
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 2,
       "energyCost": 3,
       "manaCost": null
     }
@@ -185,16 +185,16 @@
     "iconName": "TwoHandedSword",
     "itemType": "Weapon",
     "rarity": "Uncommon",
-    "prerequisite": "Strength 8+",
     "baseStats": {
-      "attack": 18,
-      "defense": null,
+      "physicalDamage": 18,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 180
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 4,
       "energyCost": 10,
       "manaCost": null
     }
@@ -205,36 +205,36 @@
     "iconName": "BasicHelmet",
     "itemType": "Head",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 5,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 5,
+      "magicDefense": 0,
       "healthBonus": 5,
+      "manaBonus": 0,
       "sellPrice": 30
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 2,
       "energyCost": 0,
       "manaCost": 0
     }
   },
   {
     "name": "Gloves of Strength",
-    "description": "A slight bonus to physical attack.",
+    "description": "Reinforced gloves for better grip.",
     "iconName": "GlovesOfStrength",
     "itemType": "Arms",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 5,
-      "defense": 7,
-      "healthBonus": 0,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 7,
+      "magicDefense": 1,
+      "healthBonus": 5,
+      "manaBonus": 0,
       "sellPrice": 150
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 3,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -245,16 +245,16 @@
     "iconName": "ChainmailArmor",
     "itemType": "Chest",
     "rarity": "Rare",
-    "prerequisite": "Strength 10+",
     "baseStats": {
-      "attack": null,
-      "defense": 18,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 18,
+      "magicDefense": 2,
       "healthBonus": 15,
+      "manaBonus": 0,
       "sellPrice": 400
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 4,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -265,16 +265,16 @@
     "iconName": "MantleOfResilience",
     "itemType": "Chest",
     "rarity": "Epic",
-    "prerequisite": "Intelligence 20+",
     "baseStats": {
-      "attack": null,
-      "defense": 25,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 10,
+      "magicDefense": 25,
       "healthBonus": 25,
+      "manaBonus": 20,
       "sellPrice": 1800
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 5,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -285,16 +285,16 @@
     "iconName": "GoldenShield",
     "itemType": "Shield",
     "rarity": "Legendary",
-    "prerequisite": "Strength 30+",
     "baseStats": {
-      "attack": null,
-      "defense": 45,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 45,
+      "magicDefense": 20,
       "healthBonus": 45,
+      "manaBonus": 0,
       "sellPrice": 6000
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 6,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -305,16 +305,16 @@
     "iconName": "LeatherBoots",
     "itemType": "Feet",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 8,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 8,
+      "magicDefense": 2,
       "healthBonus": 5,
+      "manaBonus": 0,
       "sellPrice": 100
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 3,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -325,16 +325,16 @@
     "iconName": "BeltOfKnowledge",
     "itemType": "Legs",
     "rarity": "Rare",
-    "prerequisite": "Intelligence 15+",
     "baseStats": {
-      "attack": 10,
-      "defense": 5,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 5,
+      "magicDefense": 10,
       "healthBonus": 0,
+      "manaBonus": 20,
       "sellPrice": 350
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 4,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -345,16 +345,16 @@
     "iconName": "CrownOfEnlightenment",
     "itemType": "Head",
     "rarity": "Artifact",
-    "prerequisite": "Intelligence 40+",
     "baseStats": {
-      "attack": null,
-      "defense": 60,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 10,
+      "magicDefense": 60,
       "healthBonus": 60,
+      "manaBonus": 100,
       "sellPrice": 0
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 8,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -365,16 +365,16 @@
     "iconName": "CottonCloak",
     "itemType": "Chest",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 3,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 2,
+      "magicDefense": 3,
       "healthBonus": 2,
+      "manaBonus": 5,
       "sellPrice": 20
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 2,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -385,16 +385,16 @@
     "iconName": "NaturesHide",
     "itemType": "Legs",
     "rarity": "Legendary",
-    "prerequisite": "Dexterity 30+",
     "baseStats": {
-      "attack": null,
-      "defense": 35,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 35,
+      "magicDefense": 35,
       "healthBonus": 55,
+      "manaBonus": 0,
       "sellPrice": 4500
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 7,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -405,16 +405,16 @@
     "iconName": "Fireball",
     "itemType": "Spell",
     "rarity": "Epic",
-    "prerequisite": "Adept Spellcaster",
     "baseStats": {
-      "attack": 40,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": 40,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 800
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 6,
       "energyCost": null,
       "manaCost": 50
     }
@@ -425,16 +425,16 @@
     "iconName": "IceShard",
     "itemType": "Spell",
     "rarity": "Rare",
-    "prerequisite": "Intelligence 15+",
     "baseStats": {
-      "attack": 25,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": 25,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 300
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 4,
       "energyCost": null,
       "manaCost": 30
     }
@@ -445,16 +445,16 @@
     "iconName": "MinorHealingTouch",
     "itemType": "Spell",
     "rarity": "Common",
-    "prerequisite": "Intelligence 3+",
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 10,
+      "manaBonus": 0,
       "sellPrice": 40
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 3,
       "energyCost": null,
       "manaCost": 15
     }
@@ -465,16 +465,16 @@
     "iconName": "LightningBolt",
     "itemType": "Spell",
     "rarity": "Uncommon",
-    "prerequisite": "Intelligence 8+",
     "baseStats": {
-      "attack": 18,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": 18,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 150
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 4,
       "energyCost": null,
       "manaCost": 25
     }
@@ -485,16 +485,16 @@
     "iconName": "MagicShield",
     "itemType": "Spell",
     "rarity": "Rare",
-    "prerequisite": "Intelligence 20+",
     "baseStats": {
-      "attack": null,
-      "defense": 20,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": 20,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 450
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 5,
       "energyCost": null,
       "manaCost": 40
     }
@@ -505,16 +505,16 @@
     "iconName": "Vortex",
     "itemType": "Spell",
     "rarity": "Legendary",
-    "prerequisite": "Level 50+",
     "baseStats": {
-      "attack": 75,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": 75,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 7000
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 10,
       "energyCost": null,
       "manaCost": 120
     }
@@ -525,16 +525,16 @@
     "iconName": "DivineLight",
     "itemType": "Spell",
     "rarity": "Artifact",
-    "prerequisite": "Intelligence 50+",
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 80,
+      "manaBonus": 0,
       "sellPrice": 0
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 12,
       "energyCost": null,
       "manaCost": 150
     }
@@ -545,16 +545,16 @@
     "iconName": "Hypnosis",
     "itemType": "Spell",
     "rarity": "Rare",
-    "prerequisite": "Intelligence 18+",
     "baseStats": {
-      "attack": null,
-      "defense": 0,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 350
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 4,
       "energyCost": null,
       "manaCost": 35
     }
@@ -565,16 +565,16 @@
     "iconName": "Teleportation",
     "itemType": "Spell",
     "rarity": "Epic",
-    "prerequisite": "Intelligence 30+",
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": null,
+      "manaBonus": 0,
       "sellPrice": 1200
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 7,
       "energyCost": null,
       "manaCost": 80
     }
@@ -585,16 +585,16 @@
     "iconName": "ManaDrain",
     "itemType": "Spell",
     "rarity": "Uncommon",
-    "prerequisite": "Intelligence 10+",
     "baseStats": {
-      "attack": 15,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": 15,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 20,
       "sellPrice": 100
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 3,
       "energyCost": null,
       "manaCost": 20
     }
@@ -605,16 +605,16 @@
     "iconName": "HealthPotion",
     "itemType": "Potion",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 30,
+      "manaBonus": 0,
       "sellPrice": 200
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -625,16 +625,16 @@
     "iconName": "ManaPotion",
     "itemType": "Potion",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 30,
       "sellPrice": 120
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -645,16 +645,16 @@
     "iconName": "ElixirOfResilience",
     "itemType": "Potion",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 20,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 20,
+      "magicDefense": 20,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 600
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -665,16 +665,16 @@
     "iconName": "BasicRation",
     "itemType": "Consumable",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": null,
-      "healthBonus": 0,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
+      "healthBonus": 10,
+      "manaBonus": 0,
       "sellPrice": 10
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -685,16 +685,16 @@
     "iconName": "StoneOfReturn",
     "itemType": "Consumable",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 100
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -705,16 +705,16 @@
     "iconName": "IronHelmet",
     "itemType": "Helmet",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 5,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 5,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 20
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 2,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -725,16 +725,16 @@
     "iconName": "IronChestplate",
     "itemType": "Chestplate",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 12,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 12,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 50
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 5,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -745,16 +745,16 @@
     "iconName": "IronGauntlets",
     "itemType": "Gloves",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 1,
-      "defense": 3,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 3,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 15
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 2,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -765,16 +765,16 @@
     "iconName": "IronLeggings",
     "itemType": "Leggings",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 8,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 8,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 35
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 4,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -785,16 +785,16 @@
     "iconName": "IronBoots",
     "itemType": "Boots",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 4,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 4,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 25
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 3,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -805,16 +805,16 @@
     "iconName": "RangerHood",
     "itemType": "Helmet",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 8,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 8,
+      "magicDefense": 2,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 45
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 3,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -825,16 +825,16 @@
     "iconName": "RangerTunic",
     "itemType": "Chestplate",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 18,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 18,
+      "magicDefense": 5,
       "healthBonus": 10,
+      "manaBonus": 0,
       "sellPrice": 100
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 6,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -845,16 +845,16 @@
     "iconName": "ArchersGloves",
     "itemType": "Gloves",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 5,
-      "defense": 5,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 5,
+      "magicDefense": 2,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 40
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 3,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -865,16 +865,16 @@
     "iconName": "LeatherTrousers",
     "itemType": "Leggings",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 12,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 12,
+      "magicDefense": 3,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 60
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 5,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -885,16 +885,16 @@
     "iconName": "SilentBoots",
     "itemType": "Boots",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 6,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 6,
+      "magicDefense": 1,
       "healthBonus": 5,
+      "manaBonus": 0,
       "sellPrice": 50
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 4,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -905,16 +905,16 @@
     "iconName": "KnightsGreathelm",
     "itemType": "Helmet",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 25,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 25,
+      "magicDefense": 2,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 200
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 5,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -925,16 +925,16 @@
     "iconName": "KnightsPlate",
     "itemType": "Chestplate",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 45,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 45,
+      "magicDefense": 5,
       "healthBonus": 50,
+      "manaBonus": 0,
       "sellPrice": 500
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 10,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -945,16 +945,16 @@
     "iconName": "SteelGauntlets",
     "itemType": "Gloves",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 5,
-      "defense": 15,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 15,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 150
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 5,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -965,16 +965,16 @@
     "iconName": "PlateGreaves",
     "itemType": "Leggings",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 30,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 30,
+      "magicDefense": 2,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 250
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 8,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -985,16 +985,16 @@
     "iconName": "ArmoredSabatons",
     "itemType": "Boots",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 12,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 12,
+      "magicDefense": 1,
       "healthBonus": 10,
+      "manaBonus": 0,
       "sellPrice": 180
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 6,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1005,16 +1005,16 @@
     "iconName": "ArcaneHat",
     "itemType": "Helmet",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 15,
-      "defense": 10,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 10,
+      "magicDefense": 30,
       "healthBonus": 0,
+      "manaBonus": 30,
       "sellPrice": 800
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 8,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1025,16 +1025,16 @@
     "iconName": "VoidRobe",
     "itemType": "Chestplate",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 40,
-      "defense": 30,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 10,
+      "magicDefense": 50,
       "healthBonus": 0,
+      "manaBonus": 50,
       "sellPrice": 1500
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 15,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1045,16 +1045,16 @@
     "iconName": "SpellweaverGloves",
     "itemType": "Gloves",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 20,
-      "defense": 8,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 5,
+      "magicDefense": 20,
       "healthBonus": 0,
+      "manaBonus": 20,
       "sellPrice": 600
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 8,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1065,16 +1065,16 @@
     "iconName": "MysticLeggings",
     "itemType": "Leggings",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 10,
-      "defense": 15,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 8,
+      "magicDefense": 25,
       "healthBonus": 0,
+      "manaBonus": 15,
       "sellPrice": 700
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 10,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1085,16 +1085,16 @@
     "iconName": "LevitationBoots",
     "itemType": "Boots",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 10,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 5,
+      "magicDefense": 15,
       "healthBonus": 20,
+      "manaBonus": 10,
       "sellPrice": 650
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 8,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1105,16 +1105,16 @@
     "iconName": "DragonVisage",
     "itemType": "Helmet",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 20,
-      "defense": 60,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 60,
+      "magicDefense": 40,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 5000
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 15,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1125,16 +1125,16 @@
     "iconName": "DragonscaleMail",
     "itemType": "Chestplate",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 120,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 120,
+      "magicDefense": 80,
       "healthBonus": 200,
+      "manaBonus": 0,
       "sellPrice": 10000
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 30,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1145,16 +1145,16 @@
     "iconName": "ClawsOfTheDrake",
     "itemType": "Gloves",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 50,
-      "defense": 40,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 40,
+      "magicDefense": 20,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 4000
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 15,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1165,16 +1165,16 @@
     "iconName": "DragonboneGreaves",
     "itemType": "Leggings",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 80,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 80,
+      "magicDefense": 40,
       "healthBonus": 50,
+      "manaBonus": 0,
       "sellPrice": 4500
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 20,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1185,16 +1185,16 @@
     "iconName": "FirewalkerBoots",
     "itemType": "Boots",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 40,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 40,
+      "magicDefense": 30,
       "healthBonus": 40,
+      "manaBonus": 0,
       "sellPrice": 4200
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 15,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1205,16 +1205,16 @@
     "iconName": "RustySword",
     "itemType": "Weapon",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 10,
-      "defense": null,
+      "physicalDamage": 10,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 15
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 2,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1225,16 +1225,16 @@
     "iconName": "SteelAxe",
     "itemType": "Weapon",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 25,
-      "defense": null,
+      "physicalDamage": 25,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 80
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 5,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1245,16 +1245,16 @@
     "iconName": "ElvenBow",
     "itemType": "Weapon",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 45,
-      "defense": null,
+      "physicalDamage": 45,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 300
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 8,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1265,16 +1265,16 @@
     "iconName": "DemonScythe",
     "itemType": "Weapon",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 80,
-      "defense": null,
+      "physicalDamage": 80,
+      "magicDamage": 10,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 1500
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 15,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1285,16 +1285,16 @@
     "iconName": "Excalibur",
     "itemType": "Weapon",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 200,
-      "defense": null,
+      "physicalDamage": 200,
+      "magicDamage": 20,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 50,
+      "manaBonus": 50,
       "sellPrice": 8000
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 25,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1305,16 +1305,16 @@
     "iconName": "WoodenBuckler",
     "itemType": "Shield",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 5,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 5,
+      "magicDefense": 0,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 20
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 3,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1325,16 +1325,16 @@
     "iconName": "TowerShield",
     "itemType": "Shield",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 30,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 30,
+      "magicDefense": 5,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 250
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 10,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1345,16 +1345,16 @@
     "iconName": "Aegis",
     "itemType": "Shield",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 100,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 100,
+      "magicDefense": 80,
       "healthBonus": 100,
+      "manaBonus": 50,
       "sellPrice": 6000
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 20,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1365,16 +1365,16 @@
     "iconName": "RedApple",
     "itemType": "Consumable",
     "rarity": "Common",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 10,
+      "manaBonus": 0,
       "sellPrice": 5
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 1,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1385,16 +1385,16 @@
     "iconName": "StaminaElixir",
     "itemType": "Consumable",
     "rarity": "Rare",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 120
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1405,16 +1405,16 @@
     "iconName": "Ambrosia",
     "itemType": "Consumable",
     "rarity": "Legendary",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": null,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 500,
+      "manaBonus": 500,
       "sellPrice": 1000
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1425,16 +1425,16 @@
     "iconName": "HuntersTarge",
     "itemType": "Shield",
     "rarity": "Uncommon",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 15,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 15,
+      "magicDefense": 2,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 80
     },
     "costs": {
-      "practiceType": "Squat",
-      "requiredPractice": 5,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1445,16 +1445,16 @@
     "iconName": "Runeguard",
     "itemType": "Shield",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": null,
-      "defense": 60,
+      "physicalDamage": null,
+      "magicDamage": null,
+      "physicalDefense": 60,
+      "magicDefense": 40,
       "healthBonus": 50,
+      "manaBonus": 20,
       "sellPrice": 1200
     },
     "costs": {
-      "practiceType": "PushUp",
-      "requiredPractice": 15,
       "energyCost": 0,
       "manaCost": 0
     }
@@ -1465,18 +1465,338 @@
     "iconName": "PotionOfPower",
     "itemType": "Consumable",
     "rarity": "Epic",
-    "prerequisite": null,
     "baseStats": {
-      "attack": 50,
-      "defense": null,
+      "physicalDamage": 50,
+      "magicDamage": null,
+      "physicalDefense": null,
+      "magicDefense": null,
       "healthBonus": 0,
+      "manaBonus": 0,
       "sellPrice": 500
     },
     "costs": {
-      "practiceType": "SitUp",
-      "requiredPractice": 0,
       "energyCost": 0,
       "manaCost": 0
     }
-  }
+  },
+  {
+      "name": "Oak Staff",
+      "description": "A simple staff for beginners.",
+      "iconName": "OakStaff",
+      "itemType": "Weapon",
+      "rarity": "Common",
+      "baseStats": {
+        "physicalDamage": 5,
+        "magicDamage": 8,
+        "physicalDefense": null,
+        "magicDefense": null,
+        "healthBonus": 0,
+        "manaBonus": 10,
+        "sellPrice": 35
+      },
+      "costs": {
+        "energyCost": 5,
+        "manaCost": null
+      }
+    },
+    {
+      "name": "Crossbow",
+      "description": "Slow reload but high damage.",
+      "iconName": "Crossbow",
+      "itemType": "Weapon",
+      "rarity": "Uncommon",
+      "baseStats": {
+        "physicalDamage": 22,
+        "magicDamage": null,
+        "physicalDefense": null,
+        "magicDefense": null,
+        "healthBonus": 0,
+        "manaBonus": 0,
+        "sellPrice": 120
+      },
+      "costs": {
+        "energyCost": 10,
+        "manaCost": null
+      }
+    },
+    {
+      "name": "Battlemage Hood",
+      "description": "Protects the head while channeling mana.",
+      "iconName": "BattlemageHood",
+      "itemType": "Helmet",
+      "rarity": "Rare",
+      "baseStats": {
+        "physicalDamage": null,
+        "magicDamage": null,
+        "physicalDefense": 15,
+        "magicDefense": 15,
+        "healthBonus": 0,
+        "manaBonus": 20,
+        "sellPrice": 250
+      },
+      "costs": {
+        "energyCost": 0,
+        "manaCost": 0
+      }
+    },
+    {
+      "name": "Druid Robes",
+      "description": "Woven with vines and leaves.",
+      "iconName": "DruidRobes",
+      "itemType": "Chest",
+      "rarity": "Rare",
+      "baseStats": {
+        "physicalDamage": null,
+        "magicDamage": null,
+        "physicalDefense": 12,
+        "magicDefense": 20,
+        "healthBonus": 40,
+        "manaBonus": 10,
+        "sellPrice": 300
+      },
+      "costs": {
+        "energyCost": 0,
+        "manaCost": 0
+      }
+    },
+    {
+      "name": "Assassin's Blade",
+      "description": "Deals massive damage from stealth.",
+      "iconName": "AssassinsBlade",
+      "itemType": "Weapon",
+      "rarity": "Epic",
+      "baseStats": {
+        "physicalDamage": 60,
+        "magicDamage": null,
+        "physicalDefense": null,
+        "magicDefense": null,
+        "healthBonus": 0,
+        "manaBonus": 0,
+        "sellPrice": 1200
+      },
+      "costs": {
+        "energyCost": 15,
+        "manaCost": null
+      }
+    },
+    {
+      "name": "Crystal Wand",
+      "description": "Amplifies magical power.",
+      "iconName": "CrystalWand",
+      "itemType": "Weapon",
+      "rarity": "Epic",
+      "baseStats": {
+        "physicalDamage": 10,
+        "magicDamage": 50,
+        "physicalDefense": null,
+        "magicDefense": null,
+        "healthBonus": 0,
+        "manaBonus": 50,
+        "sellPrice": 1400
+      },
+      "costs": {
+        "energyCost": 10,
+        "manaCost": null
+      }
+    },
+    {
+      "name": "Earthquake",
+      "description": "Shakes the ground to damage all foes.",
+      "iconName": "Earthquake",
+      "itemType": "Spell",
+      "rarity": "Epic",
+      "baseStats": {
+        "physicalDamage": 40,
+        "magicDamage": 40,
+        "physicalDefense": null,
+        "magicDefense": null,
+        "healthBonus": 0,
+        "manaBonus": 0,
+        "sellPrice": 1000
+      },
+      "costs": {
+        "energyCost": null,
+        "manaCost": 80
+      }
+    },
+    {
+      "name": "Blizzard",
+      "description": "Freezes enemies to the bone.",
+      "iconName": "Blizzard",
+      "itemType": "Spell",
+      "rarity": "Legendary",
+      "baseStats": {
+        "physicalDamage": null,
+        "magicDamage": 90,
+        "physicalDefense": null,
+        "magicDefense": null,
+        "healthBonus": 0,
+        "manaBonus": 0,
+        "sellPrice": 5000
+      },
+      "costs": {
+        "energyCost": null,
+        "manaCost": 120
+      }
+    },
+    {
+        "name": "Broodmother's Fang",
+        "description": "Dagger dripping with venom.",
+        "iconName": "BroodmothersFang",
+        "itemType": "Weapon",
+        "rarity": "Epic",
+        "baseStats": {
+          "physicalDamage": 45,
+          "magicDamage": 15,
+          "physicalDefense": null,
+          "magicDefense": null,
+          "healthBonus": 0,
+          "manaBonus": 0,
+          "sellPrice": 2500
+        },
+        "costs": {
+          "energyCost": 12,
+          "manaCost": null
+        }
+      },
+      {
+        "name": "Troll's Club",
+        "description": "Crude but devastatingly heavy.",
+        "iconName": "TrollsClub",
+        "itemType": "Weapon",
+        "rarity": "Epic",
+        "baseStats": {
+          "physicalDamage": 80,
+          "magicDamage": null,
+          "physicalDefense": null,
+          "magicDefense": null,
+          "healthBonus": 0,
+          "manaBonus": 0,
+          "sellPrice": 2000
+        },
+        "costs": {
+          "energyCost": 35,
+          "manaCost": null
+        }
+      },
+      {
+        "name": "Phantom's Veil",
+        "description": "Robe that turns the wearer intangible.",
+        "iconName": "PhantomsVeil",
+        "itemType": "Chest",
+        "rarity": "Epic",
+        "baseStats": {
+          "physicalDamage": null,
+          "magicDamage": null,
+          "physicalDefense": 60,
+          "magicDefense": 10,
+          "healthBonus": 0,
+          "manaBonus": 50,
+          "sellPrice": 3000
+        },
+        "costs": {
+          "energyCost": 0,
+          "manaCost": 0
+        }
+      },
+      {
+        "name": "Shadow Cloak",
+        "description": "Perfect for striking from the dark.",
+        "iconName": "ShadowCloak",
+        "itemType": "Chest",
+        "rarity": "Legendary",
+        "baseStats": {
+          "physicalDamage": 20,
+          "magicDamage": null,
+          "physicalDefense": 30,
+          "magicDefense": 20,
+          "healthBonus": 0,
+          "manaBonus": 0,
+          "sellPrice": 4500
+        },
+        "costs": {
+          "energyCost": 0,
+          "manaCost": 0
+        }
+      },
+      {
+        "name": "Heart of the Forest",
+        "description": "Living wood shield pulsating with life.",
+        "iconName": "HeartOfTheForest",
+        "itemType": "Shield",
+        "rarity": "Legendary",
+        "baseStats": {
+          "physicalDamage": null,
+          "magicDamage": null,
+          "physicalDefense": 80,
+          "magicDefense": 40,
+          "healthBonus": 150,
+          "manaBonus": 50,
+          "sellPrice": 6000
+        },
+        "costs": {
+          "energyCost": 0,
+          "manaCost": 0
+        }
+      },
+      {
+        "name": "Staff of the Void",
+        "description": "Crackles with dark energy.",
+        "iconName": "StaffOfTheVoid",
+        "itemType": "Weapon",
+        "rarity": "Legendary",
+        "baseStats": {
+          "physicalDamage": 20,
+          "magicDamage": 120,
+          "physicalDefense": null,
+          "magicDefense": null,
+          "healthBonus": 0,
+          "manaBonus": 100,
+          "sellPrice": 8000
+        },
+        "costs": {
+          "energyCost": 20,
+          "manaCost": null
+        }
+      },
+      {
+        "name": "Trident of the Deep",
+        "description": "Weapon of the sea gods.",
+        "iconName": "TridentOfTheDeep",
+        "itemType": "Weapon",
+        "rarity": "Legendary",
+        "baseStats": {
+          "physicalDamage": 90,
+          "magicDamage": 60,
+          "physicalDefense": null,
+          "magicDefense": null,
+          "healthBonus": 0,
+          "manaBonus": 0,
+          "sellPrice": 7500
+        },
+        "costs": {
+          "energyCost": 30,
+          "manaCost": null
+        }
+      },
+      {
+        "name": "Crown of the Lich",
+        "description": "Radiates an aura of death and power.",
+        "iconName": "CrownOfTheLich",
+        "itemType": "Head",
+        "rarity": "Artifact",
+        "baseStats": {
+          "physicalDamage": null,
+          "magicDamage": 30,
+          "physicalDefense": 40,
+          "magicDefense": 100,
+          "healthBonus": 0,
+          "manaBonus": 200,
+          "sellPrice": 0
+        },
+        "costs": {
+          "energyCost": 0,
+          "manaCost": 0
+        }
+      }
 ]

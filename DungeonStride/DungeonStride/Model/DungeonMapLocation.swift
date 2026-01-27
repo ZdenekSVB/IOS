@@ -14,6 +14,9 @@ struct DungeonMapLocation: Codable, Identifiable {
     let name: String
     let x: Double
     let y: Double
+    let enemyIds: [String]?
+    let shopTier: Int?
+    let difficultyTier: Int?
     
     var position: CGPoint {
         return CGPoint(x: x, y: y)

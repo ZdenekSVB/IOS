@@ -4,11 +4,13 @@
         "description": "A sticky, slow-moving blob of ooze.",
         "enemyType": "Beast",
         "rarity": "Common",
-        "iconName": "icon_enemy_slime",
+        "iconName": "GreenSlime",
         "combatStats": {
             "hp": 30,
-            "attack": 5,
-            "defense": 0
+            "physicalDamage": 5,
+            "magicDamage": 0,
+            "physicalDefense": 0,
+            "magicDefense": 0
         },
         "rewards": {
             "xp": 10,
@@ -16,15 +18,53 @@
         }
     },
     {
+        "name": "Red Slime",
+        "description": "Bubbling with heat and anger.",
+        "enemyType": "Elemental",
+        "rarity": "Common",
+        "iconName": "RedSlime",
+        "combatStats": {
+            "hp": 40,
+            "physicalDamage": 5,
+            "magicDamage": 5,
+            "physicalDefense": 0,
+            "magicDefense": 5
+        },
+        "rewards": {
+            "xp": 15,
+            "coins": 8
+        }
+    },
+    {
+        "name": "Blue Slime",
+        "description": "Resistant to magical attacks.",
+        "enemyType": "Beast",
+        "rarity": "Common",
+        "iconName": "BlueSlime",
+        "combatStats": {
+            "hp": 50,
+            "physicalDamage": 8,
+            "magicDamage": 0,
+            "physicalDefense": 0,
+            "magicDefense": 20
+        },
+        "rewards": {
+            "xp": 20,
+            "coins": 10
+        }
+    },
+    {
         "name": "Giant Rat",
         "description": "An oversized rodent with sharp teeth.",
         "enemyType": "Beast",
         "rarity": "Common",
-        "iconName": "icon_enemy_rat",
+        "iconName": "GiantRat",
         "combatStats": {
             "hp": 45,
-            "attack": 8,
-            "defense": 2
+            "physicalDamage": 8,
+            "magicDamage": 0,
+            "physicalDefense": 2,
+            "magicDefense": 0
         },
         "rewards": {
             "xp": 15,
@@ -36,11 +76,13 @@
         "description": "Sneaky and quick with a dagger.",
         "enemyType": "Humanoid",
         "rarity": "Uncommon",
-        "iconName": "icon_enemy_goblin",
+        "iconName": "GoblinScout",
         "combatStats": {
             "hp": 80,
-            "attack": 15,
-            "defense": 5
+            "physicalDamage": 15,
+            "magicDamage": 0,
+            "physicalDefense": 5,
+            "magicDefense": 2
         },
         "rewards": {
             "xp": 40,
@@ -48,15 +90,89 @@
         }
     },
     {
+        "name": "Goblin Archer",
+        "description": "Attacks from a distance with a crude bow.",
+        "enemyType": "Humanoid",
+        "rarity": "Uncommon",
+        "iconName": "GoblinArcher",
+        "combatStats": {
+            "hp": 60,
+            "physicalDamage": 20,
+            "magicDamage": 0,
+            "physicalDefense": 2,
+            "magicDefense": 2
+        },
+        "rewards": {
+            "xp": 45,
+            "coins": 30
+        }
+    },
+    {
+        "name": "Goblin Shaman",
+        "description": "Uses weak magic to annoy travelers.",
+        "enemyType": "Humanoid",
+        "rarity": "Rare",
+        "iconName": "GoblinShaman",
+        "combatStats": {
+            "hp": 70,
+            "physicalDamage": 5,
+            "magicDamage": 25,
+            "physicalDefense": 0,
+            "magicDefense": 15
+        },
+        "rewards": {
+            "xp": 60,
+            "coins": 50
+        }
+    },
+    {
+        "name": "Bandit Thug",
+        "description": "Muscle of the bandit camp.",
+        "enemyType": "Humanoid",
+        "rarity": "Uncommon",
+        "iconName": "BanditThug",
+        "combatStats": {
+            "hp": 120,
+            "physicalDamage": 22,
+            "magicDamage": 0,
+            "physicalDefense": 10,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 50,
+            "coins": 40
+        }
+    },
+    {
+        "name": "Bandit Marksman",
+        "description": "Deadly aim with a crossbow.",
+        "enemyType": "Humanoid",
+        "rarity": "Rare",
+        "iconName": "BanditMarksman",
+        "combatStats": {
+            "hp": 90,
+            "physicalDamage": 30,
+            "magicDamage": 0,
+            "physicalDefense": 5,
+            "magicDefense": 5
+        },
+        "rewards": {
+            "xp": 60,
+            "coins": 50
+        }
+    },
+    {
         "name": "Forest Wolf",
         "description": "A fierce predator of the woods.",
         "enemyType": "Beast",
         "rarity": "Uncommon",
-        "iconName": "icon_enemy_wolf",
+        "iconName": "ForestWolf",
         "combatStats": {
             "hp": 100,
-            "attack": 20,
-            "defense": 8
+            "physicalDamage": 20,
+            "magicDamage": 0,
+            "physicalDefense": 5,
+            "magicDefense": 5
         },
         "rewards": {
             "xp": 55,
@@ -68,11 +184,13 @@
         "description": "Animated bones wearing rusted armor.",
         "enemyType": "Undead",
         "rarity": "Rare",
-        "iconName": "icon_enemy_skeleton",
+        "iconName": "SkeletonWarrior",
         "combatStats": {
             "hp": 200,
-            "attack": 35,
-            "defense": 20
+            "physicalDamage": 35,
+            "magicDamage": 0,
+            "physicalDefense": 30,
+            "magicDefense": 5
         },
         "rewards": {
             "xp": 120,
@@ -80,15 +198,71 @@
         }
     },
     {
+        "name": "Skeleton Archer",
+        "description": "Rains arrows from beyond the grave.",
+        "enemyType": "Undead",
+        "rarity": "Rare",
+        "iconName": "SkeletonArcher",
+        "combatStats": {
+            "hp": 150,
+            "physicalDamage": 40,
+            "magicDamage": 0,
+            "physicalDefense": 15,
+            "magicDefense": 5
+        },
+        "rewards": {
+            "xp": 130,
+            "coins": 90
+        }
+    },
+    {
+        "name": "Skeleton Mage",
+        "description": "Crackles with dark energy.",
+        "enemyType": "Undead",
+        "rarity": "Rare",
+        "iconName": "SkeletonMage",
+        "combatStats": {
+            "hp": 140,
+            "physicalDamage": 5,
+            "magicDamage": 50,
+            "physicalDefense": 10,
+            "magicDefense": 40
+        },
+        "rewards": {
+            "xp": 150,
+            "coins": 110
+        }
+    },
+    {
+        "name": "Orc Warrior",
+        "description": "A tough fighter with a shield.",
+        "enemyType": "Humanoid",
+        "rarity": "Rare",
+        "iconName": "OrcWarrior",
+        "combatStats": {
+            "hp": 280,
+            "physicalDamage": 40,
+            "magicDamage": 0,
+            "physicalDefense": 25,
+            "magicDefense": 5
+        },
+        "rewards": {
+            "xp": 160,
+            "coins": 100
+        }
+    },
+    {
         "name": "Orc Berserker",
         "description": "Enraged brute with a massive axe.",
         "enemyType": "Humanoid",
         "rarity": "Rare",
-        "iconName": "icon_enemy_orc",
+        "iconName": "OrcBerserker",
         "combatStats": {
             "hp": 350,
-            "attack": 50,
-            "defense": 10
+            "physicalDamage": 60,
+            "magicDamage": 0,
+            "physicalDefense": 10,
+            "magicDefense": 10
         },
         "rewards": {
             "xp": 180,
@@ -100,11 +274,13 @@
         "description": "A magical construct of living rock.",
         "enemyType": "Construct",
         "rarity": "Epic",
-        "iconName": "icon_enemy_golem",
+        "iconName": "StoneGolem",
         "combatStats": {
             "hp": 800,
-            "attack": 40,
-            "defense": 80
+            "physicalDamage": 60,
+            "magicDamage": 0,
+            "physicalDefense": 100,
+            "magicDefense": 10
         },
         "rewards": {
             "xp": 500,
@@ -112,15 +288,35 @@
         }
     },
     {
+        "name": "Iron Golem",
+        "description": "Forged from heavy metal plates.",
+        "enemyType": "Construct",
+        "rarity": "Epic",
+        "iconName": "IronGolem",
+        "combatStats": {
+            "hp": 600,
+            "physicalDamage": 70,
+            "magicDamage": 0,
+            "physicalDefense": 150,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 550,
+            "coins": 450
+        }
+    },
+    {
         "name": "Dark Necromancer",
         "description": "Master of the dark arts.",
         "enemyType": "Humanoid",
         "rarity": "Epic",
-        "iconName": "icon_enemy_necromancer",
+        "iconName": "DarkNecromancer",
         "combatStats": {
             "hp": 400,
-            "attack": 90,
-            "defense": 15
+            "physicalDamage": 10,
+            "magicDamage": 80,
+            "physicalDefense": 5,
+            "magicDefense": 60
         },
         "rewards": {
             "xp": 600,
@@ -132,11 +328,13 @@
         "description": "Born from the depths of the underworld.",
         "enemyType": "Demon",
         "rarity": "Legendary",
-        "iconName": "icon_enemy_demon",
+        "iconName": "InfernalDemon",
         "combatStats": {
             "hp": 1500,
-            "attack": 120,
-            "defense": 50
+            "physicalDamage": 90,
+            "magicDamage": 90,
+            "physicalDefense": 50,
+            "magicDefense": 50
         },
         "rewards": {
             "xp": 2000,
@@ -148,15 +346,504 @@
         "description": "The apex predator of legends.",
         "enemyType": "Dragon",
         "rarity": "Legendary",
-        "iconName": "icon_enemy_dragon",
+        "iconName": "AncientRedDragon",
         "combatStats": {
-            "hp": 2500,
-            "attack": 200,
-            "defense": 100
+            "hp": 3000,
+            "physicalDamage": 150,
+            "magicDamage": 120,
+            "physicalDefense": 100,
+            "magicDefense": 80
         },
         "rewards": {
             "xp": 5000,
             "coins": 5000
+        }
+    },
+    {
+        "name": "Young Drake",
+        "description": "Not full grown, but still deadly.",
+        "enemyType": "Dragon",
+        "rarity": "Epic",
+        "iconName": "YoungDrake",
+        "combatStats": {
+            "hp": 900,
+            "physicalDamage": 70,
+            "magicDamage": 40,
+            "physicalDefense": 40,
+            "magicDefense": 30
+        },
+        "rewards": {
+            "xp": 800,
+            "coins": 700
+        }
+    },
+    {
+        "name": "Swamp Serpent",
+        "description": "A venomous snake hiding in the mud.",
+        "enemyType": "Beast",
+        "rarity": "Uncommon",
+        "iconName": "SwampSerpent",
+        "combatStats": {
+            "hp": 120,
+            "physicalDamage": 25,
+            "magicDamage": 10,
+            "physicalDefense": 10,
+            "magicDefense": 5
+        },
+        "rewards": {
+            "xp": 70,
+            "coins": 45
+        }
+    },
+    {
+        "name": "Bog Witch",
+        "description": "Uses curses and nature magic.",
+        "enemyType": "Humanoid",
+        "rarity": "Rare",
+        "iconName": "BogWitch",
+        "combatStats": {
+            "hp": 250,
+            "physicalDamage": 5,
+            "magicDamage": 45,
+            "physicalDefense": 5,
+            "magicDefense": 40
+        },
+        "rewards": {
+            "xp": 150,
+            "coins": 100
+        }
+    },
+    {
+        "name": "Arcane Sentinel",
+        "description": "An ancient machine guarding ruins.",
+        "enemyType": "Construct",
+        "rarity": "Rare",
+        "iconName": "ArcaneSentinel",
+        "combatStats": {
+            "hp": 400,
+            "physicalDamage": 40,
+            "magicDamage": 20,
+            "physicalDefense": 60,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 250,
+            "coins": 200
+        }
+    },
+    {
+        "name": "Vengeful Spirit",
+        "description": "A ghost that cannot find peace.",
+        "enemyType": "Undead",
+        "rarity": "Rare",
+        "iconName": "VengefulSpirit",
+        "combatStats": {
+            "hp": 150,
+            "physicalDamage": 0,
+            "magicDamage": 50,
+            "physicalDefense": 999,
+            "magicDefense": 20
+        },
+        "rewards": {
+            "xp": 200,
+            "coins": 100
+        }
+    },
+    {
+        "name": "Water Elemental",
+        "description": "Living water from the shrine.",
+        "enemyType": "Elemental",
+        "rarity": "Epic",
+        "iconName": "WaterElemental",
+        "combatStats": {
+            "hp": 600,
+            "physicalDamage": 30,
+            "magicDamage": 50,
+            "physicalDefense": 30,
+            "magicDefense": 60
+        },
+        "rewards": {
+            "xp": 400,
+            "coins": 350
+        }
+    },
+    {
+        "name": "Fire Elemental",
+        "description": "Pure flame and destruction.",
+        "enemyType": "Elemental",
+        "rarity": "Epic",
+        "iconName": "FireElemental",
+        "combatStats": {
+            "hp": 550,
+            "physicalDamage": 20,
+            "magicDamage": 70,
+            "physicalDefense": 20,
+            "magicDefense": 70
+        },
+        "rewards": {
+            "xp": 450,
+            "coins": 380
+        }
+    },
+    {
+        "name": "Bandit Leader",
+        "description": "The cruel boss of the bandit camp.",
+        "enemyType": "Humanoid",
+        "rarity": "Epic",
+        "iconName": "BanditLeader",
+        "combatStats": {
+            "hp": 700,
+            "physicalDamage": 65,
+            "magicDamage": 0,
+            "physicalDefense": 40,
+            "magicDefense": 10
+        },
+        "rewards": {
+            "xp": 550,
+            "coins": 600
+        }
+    },
+    {
+        "name": "Cultist",
+        "description": "Fanatical follower of dark gods.",
+        "enemyType": "Humanoid",
+        "rarity": "Uncommon",
+        "iconName": "Cultist",
+        "combatStats": {
+            "hp": 80,
+            "physicalDamage": 5,
+            "magicDamage": 30,
+            "physicalDefense": 0,
+            "magicDefense": 20
+        },
+        "rewards": {
+            "xp": 55,
+            "coins": 40
+        }
+    },
+    {
+        "name": "Broodmother",
+        "description": "Queen of the arachnids, fast and deadly.",
+        "enemyType": "Beast",
+        "rarity": "Epic",
+        "iconName": "Broodmother",
+        "combatStats": {
+            "hp": 550,
+            "physicalDamage": 55,
+            "magicDamage": 10,
+            "physicalDefense": 20,
+            "magicDefense": 10
+        },
+        "rewards": {
+            "xp": 450,
+            "coins": 300
+        }
+    },
+    {
+        "name": "Cave Troll",
+        "description": "Slow but incredibly tough. Regenerates wounds.",
+        "enemyType": "Humanoid",
+        "rarity": "Epic",
+        "iconName": "CaveTroll",
+        "combatStats": {
+            "hp": 1200,
+            "physicalDamage": 70,
+            "magicDamage": 0,
+            "physicalDefense": 10,
+            "magicDefense": 10
+        },
+        "rewards": {
+            "xp": 500,
+            "coins": 350
+        }
+    },
+    {
+        "name": "Phantom Knight",
+        "description": "A ghostly warrior immune to normal steel.",
+        "enemyType": "Undead",
+        "rarity": "Epic",
+        "iconName": "PhantomKnight",
+        "combatStats": {
+            "hp": 400,
+            "physicalDamage": 10,
+            "magicDamage": 40,
+            "physicalDefense": 200,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 550,
+            "coins": 400
+        }
+    },
+    {
+        "name": "Shadow Assassin",
+        "description": "Strikes from the shadows, impossible to hit.",
+        "enemyType": "Humanoid",
+        "rarity": "Epic",
+        "iconName": "ShadowAssassin",
+        "combatStats": {
+            "hp": 350,
+            "physicalDamage": 80,
+            "magicDamage": 0,
+            "physicalDefense": 10,
+            "magicDefense": 10
+        },
+        "rewards": {
+            "xp": 600,
+            "coins": 500
+        }
+    },
+    {
+        "name": "Corrupted Treant",
+        "description": "An ancient guardian twisted by dark magic.",
+        "enemyType": "Beast",
+        "rarity": "Legendary",
+        "iconName": "CorruptedTreant",
+        "combatStats": {
+            "hp": 1800,
+            "physicalDamage": 100,
+            "magicDamage": 20,
+            "physicalDefense": 120,
+            "magicDefense": 10
+        },
+        "rewards": {
+            "xp": 3000,
+            "coins": 2500
+        }
+    },
+    {
+        "name": "High Priestess",
+        "description": "Leader of the dark cult. Masters void magic.",
+        "enemyType": "Humanoid",
+        "rarity": "Legendary",
+        "iconName": "HighPriestess",
+        "combatStats": {
+            "hp": 1200,
+            "physicalDamage": 10,
+            "magicDamage": 140,
+            "physicalDefense": 20,
+            "magicDefense": 100
+        },
+        "rewards": {
+            "xp": 3500,
+            "coins": 3000
+        }
+    },
+    {
+        "name": "Deep Sea Terror",
+        "description": "A Lovecraftian horror from the abyss.",
+        "enemyType": "Beast",
+        "rarity": "Legendary",
+        "iconName": "DeepSeaTerror",
+        "combatStats": {
+            "hp": 2200,
+            "physicalDamage": 110,
+            "magicDamage": 60,
+            "physicalDefense": 60,
+            "magicDefense": 60
+        },
+        "rewards": {
+            "xp": 4000,
+            "coins": 4000
+        }
+    },
+    {
+        "name": "Lich Lord",
+        "description": "An immortal mage commanding the undead.",
+        "enemyType": "Undead",
+        "rarity": "Legendary",
+        "iconName": "LichLord",
+        "combatStats": {
+            "hp": 1500,
+            "physicalDamage": 20,
+            "magicDamage": 180,
+            "physicalDefense": 80,
+            "magicDefense": 150
+        },
+        "rewards": {
+            "xp": 4500,
+            "coins": 4500
+        }
+    },
+    {
+        "name": "Bandit Rookie",
+        "description":
+            "Just joined the gang. Doesn't know how to hold a sword properly.",
+        "enemyType": "Humanoid",
+        "rarity": "Common",
+        "iconName": "BanditRookie",
+        "combatStats": {
+            "hp": 50,
+            "physicalDamage": 6,
+            "magicDamage": 0,
+            "physicalDefense": 2,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 12,
+            "coins": 10
+        }
+    },
+    {
+        "name": "Cave Bat",
+        "description": "Screeches loudly and bites.",
+        "enemyType": "Beast",
+        "rarity": "Common",
+        "iconName": "CaveBat",
+        "combatStats": {
+            "hp": 25,
+            "physicalDamage": 7,
+            "magicDamage": 0,
+            "physicalDefense": 0,
+            "magicDefense": 5
+        },
+        "rewards": {
+            "xp": 8,
+            "coins": 2
+        }
+    },
+    {
+        "name": "Wild Boar",
+        "description": "Aggressive beast that charges at sight.",
+        "enemyType": "Beast",
+        "rarity": "Common",
+        "iconName": "WildBoar",
+        "combatStats": {
+            "hp": 60,
+            "physicalDamage": 10,
+            "magicDamage": 0,
+            "physicalDefense": 5,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 20,
+            "coins": 5
+        }
+    },
+    {
+        "name": "Zombie",
+        "description": "Slow, rotting flesh. Hard to put down.",
+        "enemyType": "Undead",
+        "rarity": "Common",
+        "iconName": "Zombie",
+        "combatStats": {
+            "hp": 90,
+            "physicalDamage": 8,
+            "magicDamage": 0,
+            "physicalDefense": 0,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 25,
+            "coins": 5
+        }
+    },
+    {
+        "name": "Kobold Skirmisher",
+        "description": "Small lizard-like creature inhabiting mines.",
+        "enemyType": "Humanoid",
+        "rarity": "Common",
+        "iconName": "KoboldSkirmisher",
+        "combatStats": {
+            "hp": 40,
+            "physicalDamage": 9,
+            "magicDamage": 0,
+            "physicalDefense": 3,
+            "magicDefense": 2
+        },
+        "rewards": {
+            "xp": 15,
+            "coins": 12
+        }
+    },
+    {
+        "name": "Giant Spider",
+        "description": "Web-spinning predator of the dark.",
+        "enemyType": "Beast",
+        "rarity": "Uncommon",
+        "iconName": "GiantSpider",
+        "combatStats": {
+            "hp": 80,
+            "physicalDamage": 18,
+            "magicDamage": 5,
+            "physicalDefense": 8,
+            "magicDefense": 5
+        },
+        "rewards": {
+            "xp": 45,
+            "coins": 20
+        }
+    },
+    {
+        "name": "Orc Grunt",
+        "description": "A lowly foot soldier of the horde.",
+        "enemyType": "Humanoid",
+        "rarity": "Uncommon",
+        "iconName": "OrcGrunt",
+        "combatStats": {
+            "hp": 110,
+            "physicalDamage": 25,
+            "magicDamage": 0,
+            "physicalDefense": 10,
+            "magicDefense": 2
+        },
+        "rewards": {
+            "xp": 55,
+            "coins": 35
+        }
+    },
+    {
+        "name": "Shadow Wisp",
+        "description": "A flickering spirit of dark magic.",
+        "enemyType": "Undead",
+        "rarity": "Uncommon",
+        "iconName": "ShadowWisp",
+        "combatStats": {
+            "hp": 40,
+            "physicalDamage": 0,
+            "magicDamage": 30,
+            "physicalDefense": 50,
+            "magicDefense": 50
+        },
+        "rewards": {
+            "xp": 50,
+            "coins": 15
+        }
+    },
+    {
+        "name": "Mud Golem",
+        "description": "Formed from the swamp muck.",
+        "enemyType": "Construct",
+        "rarity": "Uncommon",
+        "iconName": "MudGolem",
+        "combatStats": {
+            "hp": 150,
+            "physicalDamage": 15,
+            "magicDamage": 0,
+            "physicalDefense": 25,
+            "magicDefense": 0
+        },
+        "rewards": {
+            "xp": 60,
+            "coins": 20
+        }
+    },
+    {
+        "name": "Dark Acolyte",
+        "description": "Apprentice to the dark arts.",
+        "enemyType": "Humanoid",
+        "rarity": "Rare",
+        "iconName": "DarkAcolyte",
+        "combatStats": {
+            "hp": 130,
+            "physicalDamage": 5,
+            "magicDamage": 45,
+            "physicalDefense": 5,
+            "magicDefense": 25
+        },
+        "rewards": {
+            "xp": 100,
+            "coins": 80
         }
     }
 ]
