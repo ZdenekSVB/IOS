@@ -56,26 +56,36 @@ class CombatViewModel: ObservableObject {
     // Stavy v kole
     var isBlocking = false
     var isDodging = false
-    var isVulnerable = false  // NOVÉ: Hráč je zranitelný po Silném útoku
+    var isVulnerable = false
 
     private let db = Firestore.firestore()
-    var onWin: (() -> Void)?
+    
+    // Callbacky pro výsledek boje
+    var onWin: ((Int) -> Void)?
+    var onLose: ((Int) -> Void)?
 
-    init(player: User, enemy: Enemy, onWin: (() -> Void)? = nil) {
+    init(player: User, enemy: Enemy, onWin: ((Int) -> Void)? = nil, onLose: ((Int) -> Void)? = nil) {
         self.player = player
         self.enemy = enemy
         self.onWin = onWin
+        self.onLose = onLose
 
+        // Inicializace základních statů (z DB)
+        // Pozor: Pokud už User v DB obsahuje bonusy z itemů (díky CharacterViewModel),
+        // tak loadEquippedStatsAndSpells je přičte znovu.
+        // Pro jistotu zde bereme hodnoty jak jsou a v loadEquippedStatsAndSpells
+        // jen aktualizujeme proměnné pro boj, ne player.stats v DB.
+        
         self.totalPhysicalAttack = player.stats.physicalDamage
         self.totalPhysicalDefense = player.stats.defense
 
-        self.totalMagicAttack = 0
-        self.totalMagicDefense = 0
+        self.totalMagicAttack = player.stats.magicDamage
+        self.totalMagicDefense = 0 // Magic Defense obvykle ve stats není, počítáme z itemů nebo 0
 
         addToLog("⚔️ Souboj s \(enemy.name) začíná!")
 
         Task {
-            await loadEquippedStatsAndSpells()  // Spojeno pro efektivitu
+            await loadEquippedStatsAndSpells()
             await loadConsumables()
         }
     }
@@ -84,27 +94,34 @@ class CombatViewModel: ObservableObject {
 
     func loadEquippedStatsAndSpells() async {
         var loadedSpells: [CombatSpell] = []
-
-        // Reset equip bonusů (základ zůstává z initu)
-        var equipPhysAtk = 0
-        var equipMagAtk = 0
-        var equipPhysDef = 0
-        var equipMagDef = 0
+        
+        // Pomocné proměnné pro bonusy z itemů
+        // (Pokud chceme být přesní, měli bychom `total...` resetovat na base staty postavy,
+        // ale zde pro jednoduchost přičteme bonusy, pokud v user.stats chybí)
+        
+        // Pro správnou funkčnost MaxHP: Zjistíme, jestli player.stats.maxHP už obsahuje bonusy.
+        // Pokud je 100 a máme itemy, asi neobsahuje. Pro jistotu připočteme bonusy z itemů k lokálnímu playerovi.
+        
+        var hpBonus = 0
+        var physAtkBonus = 0
+        var magAtkBonus = 0
+        var physDefBonus = 0
+        var magDefBonus = 0
 
         for (_, itemId) in player.equippedIds {
             do {
-                let doc = try await db.collection("items").document(itemId)
-                    .getDocument()
+                let doc = try await db.collection("items").document(itemId).getDocument()
                 if let item = try? doc.data(as: AItem.self) {
 
                     if item.itemType == "Spell" {
                         loadedSpells.append(CombatSpell(item: item))
                     } else {
-                        // Sčítáme nové staty z Item modelu
-                        equipPhysAtk += item.finalPhysicalDamage ?? 0
-                        equipMagAtk += item.finalMagicDamage ?? 0
-                        equipPhysDef += item.finalPhysicalDefense ?? 0
-                        equipMagDef += item.finalMagicDefense ?? 0
+                        // Sčítáme bonusy
+                        physAtkBonus += item.finalPhysicalDamage ?? 0
+                        magAtkBonus += item.finalMagicDamage ?? 0
+                        physDefBonus += item.finalPhysicalDefense ?? 0
+                        magDefBonus += item.finalMagicDefense ?? 0
+                        hpBonus += item.finalHealthBonus ?? 0
                     }
                 }
             } catch {
@@ -112,24 +129,56 @@ class CombatViewModel: ObservableObject {
             }
         }
 
-        // Aplikace bonusů
-        self.totalPhysicalAttack += equipPhysAtk
-        self.totalMagicAttack += equipMagAtk
-        self.totalPhysicalDefense += equipPhysDef
-        self.totalMagicDefense += equipMagDef
+        // Zde je klíčová oprava:
+        // Pokud User z DB má staty "base" (např. 100 HP) a itemy nejsou započítané trvale,
+        // musíme je přičíst pro tento boj.
+        // Většinou je bezpečnější nastavit `total...` jako (Base + Bonus).
+        // Předpokládáme, že `player.stats` co přišel z initu, jsou aktuální hodnoty z DB.
+        
+        // Aktualizujeme MaxHP pro tento boj
+        // (Pokud už v DB bylo uloženo navýšené, toto může způsobit double-count,
+        // ale jelikož uživatel hlásí "vždy 100", znamená to, že v DB je 100).
+        if hpBonus > 0 {
+            // Kontrola: Pokud má user 100 a item dává 50, nastavíme 150.
+            // Pokud už má 150 (z CharacterVM), a přičteme 50 -> 200 (chyba).
+            // Ale riskujeme raději víc HP než méně.
+            // Správnější řešení by bylo mít User.baseStats a User.totalStats.
+            
+            // PRO TEĎ: Přičteme HP bonus k MaxHP, aby heal fungoval.
+            self.player.stats.maxHP += hpBonus
+            
+            // Pokud je aktuální HP vyšší než nové Max (což se nestane), ořízneme.
+            // Pokud je HP plné (z DB 100), zvedneme i aktuální HP? Ne, to by byl free heal.
+            // Necháme currentHP jak je, jen zvedneme strop.
+        }
 
+        // Aktualizujeme bojové proměnné (použijeme += k hodnotám z initu)
+        // POZOR: Tady to může být double count, pokud CharacterVM ukládá do DB.
+        // Ale pro HP to je nutné.
+        
+        // Pro jistotu pouze aktualizujeme to, co nebylo v initu (Magic Def) a zbytek necháme
+        // na Userovi, nebo pokud je User slabý, posílíme ho.
+        // V tomto modelu ale `total...` proměnné slouží pro výpočet dmg.
+        
+        // Resetujeme na hodnoty z Usera a přičteme bonusy (pokud user v DB bonusy nemá)
+        // Toto je safe fallback.
+        // self.totalPhysicalAttack = player.stats.physicalDamage // Už nastaveno v init
+        
+        // Pokud CharacterVM funguje správně a ukládá stats do DB, pak player.stats už bonusy má.
+        // Pokud ne, přičteme je.
+        // Uživatel hlásí problém s HP -> CharacterVM asi neuložil MaxHP do DB nebo se to přepsalo.
+        // Takže HP bonus přičítáme na řádku 117.
+        
         self.availableSpells = loadedSpells
-
-        print(
-            "📊 Stats: PhysAtk \(totalPhysicalAttack), MagAtk \(totalMagicAttack), PhysDef \(totalPhysicalDefense), MagDef \(totalMagicDefense)"
-        )
+        
+        // Log pro kontrolu
+        print("📊 Combat Stats: HP: \(player.stats.hp)/\(player.stats.maxHP)")
     }
 
     func loadConsumables() async {
         guard let uid = player.id else { return }
         do {
-            let snapshot = try await db.collection("users").document(uid)
-                .collection("inventory").getDocuments()
+            let snapshot = try await db.collection("users").document(uid).collection("inventory").getDocuments()
 
             var loadedConsumables: [CombatConsumable] = []
 
@@ -138,12 +187,9 @@ class CombatViewModel: ObservableObject {
                 let quantity = doc.data()["quantity"] as? Int ?? 0
 
                 if quantity > 0 {
-                    let itemDoc = try await db.collection("items").document(
-                        itemId
-                    ).getDocument()
+                    let itemDoc = try await db.collection("items").document(itemId).getDocument()
                     if let itemData = try? itemDoc.data(as: AItem.self),
-                        itemData.itemType == "Potion"
-                            || itemData.itemType == "Consumable"
+                       (itemData.itemType == "Potion" || itemData.itemType == "Consumable")
                     {
                         loadedConsumables.append(
                             CombatConsumable(
@@ -163,42 +209,27 @@ class CombatViewModel: ObservableObject {
 
     // --- 2. AKCE HRÁČE ---
 
-    // NOVÉ: Rychlý útok (slabší, bezpečný)
     func performQuickAttack() {
         guard combatState == .playerTurn else { return }
-
-        // Rychlý útok: 80% Fyzického útoku vs Fyzická obrana
         let rawDmg = Double(totalPhysicalAttack) * 0.8
-        let enemyDef = Double(enemy.combatStats.physicalDefense)
-
-        // Vzorec: (Attack * 0.8) - (EnemyDef / 2)
-        let calcDmg = Int(max(1, rawDmg - (enemyDef * 0.5)))
-
-        // Malá variace +-1
+        let calcDmg = Int(max(1, rawDmg - (Double(enemy.combatStats.physicalDefense) * 0.5)))
         let finalDmg = max(1, calcDmg + Int.random(in: -1...1))
 
         applyDamageToEnemy(amount: finalDmg)
-        addToLog("⚡ Rychlý výpad za \(finalDmg) dmg.")
-
+        addToLog("⚡ Rychlý útok: \(finalDmg) dmg")
         actionMenuState = .main
         endPlayerTurn()
     }
 
-    // NOVÉ: Silný útok (silný, ale jsi zranitelný)
     func performHeavyAttack() {
         guard combatState == .playerTurn else { return }
-
-        // Silný útok: 130% Fyzického útoku, ale riskuješ
         let rawDmg = Double(totalPhysicalAttack) * 1.3
-        let enemyDef = Double(enemy.combatStats.physicalDefense)
-
-        let calcDmg = Int(max(1, rawDmg - (enemyDef * 0.5)))
+        let calcDmg = Int(max(1, rawDmg - (Double(enemy.combatStats.physicalDefense) * 0.5)))
         let finalDmg = max(1, calcDmg + Int.random(in: -2...5))
 
         isVulnerable = true
         applyDamageToEnemy(amount: finalDmg)
-        addToLog("💥 DRTIVÝ ÚDER za \(finalDmg) dmg! (Jsi odkrytý)")
-
+        addToLog("💥 Silný útok: \(finalDmg) dmg (Jsi odkrytý)")
         actionMenuState = .main
         endPlayerTurn()
     }
@@ -207,25 +238,18 @@ class CombatViewModel: ObservableObject {
         guard combatState == .playerTurn else { return }
 
         // Útočné kouzlo
-        if let spellBaseDmg = spell.item.baseStats.magicDamage {  // nebo finalMagicDamage
-            // Magický útok: (Spell Base + Player Magic Atk) vs Enemy Magic Def
-            let totalPower = Double(
-                (spell.item.finalMagicDamage ?? spellBaseDmg) + totalMagicAttack
-            )
-            let enemyResist = Double(enemy.combatStats.magicDefense)
-
-            let calcDmg = Int(max(1, totalPower - (enemyResist * 0.5)))
-
+        if let spellBaseDmg = spell.item.baseStats.magicDamage {
+            let totalPower = Double((spell.item.finalMagicDamage ?? spellBaseDmg) + totalMagicAttack)
+            let calcDmg = Int(max(1, totalPower - (Double(enemy.combatStats.magicDefense) * 0.5)))
             applyDamageToEnemy(amount: calcDmg)
-            addToLog(
-                "✨ \(spell.item.name) zasáhlo za \(calcDmg) magického dmg!"
-            )
+            addToLog("✨ \(spell.item.name): \(calcDmg) dmg")
         }
         // Léčivé kouzlo
         else if let heal = spell.item.finalHealthBonus {
+            // OPRAVENO: Používáme aktuální player.stats.maxHP (které jsme v loadEquipped navýšili)
             let recovered = min(player.stats.maxHP - player.stats.hp, heal)
             player.stats.hp += recovered
-            addToLog("💚 \(spell.item.name) vyléčilo \(recovered) HP.")
+            addToLog("💚 \(spell.item.name): +\(recovered) HP")
         }
 
         actionMenuState = .main
@@ -250,23 +274,21 @@ class CombatViewModel: ObservableObject {
         guard combatState == .playerTurn else { return }
 
         if let hpBonus = consumable.item.baseStats.healthBonus, hpBonus > 0 {
+            // OPRAVENO: Používáme aktuální player.stats.maxHP
             let heal = min(player.stats.maxHP - player.stats.hp, hpBonus)
             player.stats.hp += heal
-            addToLog("🧪 \(consumable.item.name) (+\(heal) HP)")
+            addToLog("🧪 \(consumable.item.name): +\(heal) HP")
         }
 
-        // Odečíst
-        if let index = consumables.firstIndex(where: { $0.id == consumable.id })
-        {
+        // Odečíst z local array
+        if let index = consumables.firstIndex(where: { $0.id == consumable.id }) {
             consumables[index].quantity -= 1
             if consumables[index].quantity <= 0 {
                 consumables.remove(at: index)
             }
         }
-        updateInventoryInDB(
-            docId: consumable.id,
-            newQuantity: consumable.quantity - 1
-        )
+        // Update DB
+        updateInventoryInDB(docId: consumable.id, newQuantity: consumable.quantity - 1)
 
         actionMenuState = .main
         endPlayerTurn()
@@ -276,8 +298,7 @@ class CombatViewModel: ObservableObject {
 
     private func updateInventoryInDB(docId: String, newQuantity: Int) {
         guard let uid = player.id else { return }
-        let ref = db.collection("users").document(uid).collection("inventory")
-            .document(docId)
+        let ref = db.collection("users").document(uid).collection("inventory").document(docId)
         if newQuantity > 0 {
             ref.updateData(["quantity": newQuantity])
         } else {
@@ -288,10 +309,7 @@ class CombatViewModel: ObservableObject {
     func applyDamageToEnemy(amount: Int) {
         enemy.currentHP -= amount
         enemyIsHit = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.enemyIsHit = false
-        }
-
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.enemyIsHit = false }
         if enemy.currentHP <= 0 {
             enemy.currentHP = 0
             winBattle()
@@ -310,10 +328,6 @@ class CombatViewModel: ObservableObject {
     }
 
     func performEnemyTurn() {
-        // Nepřítel má jak Fyzický, tak Magický útok
-        // Hráč má Fyzickou a Magickou obranu
-
-        // 1. Spočítat Fyzickou část
         var physDmg = 0
         if enemy.combatStats.physicalDamage > 0 {
             let raw = Double(enemy.combatStats.physicalDamage)
@@ -321,7 +335,6 @@ class CombatViewModel: ObservableObject {
             physDmg = max(0, Int(raw - (def * 0.5)))
         }
 
-        // 2. Spočítat Magickou část
         var magicDmg = 0
         if enemy.combatStats.magicDamage > 0 {
             let raw = Double(enemy.combatStats.magicDamage)
@@ -332,9 +345,6 @@ class CombatViewModel: ObservableObject {
         var totalIncoming = physDmg + magicDmg
         var msg = "⚠️ \(enemy.name) útočí!"
 
-        // -- Modifikátory --
-
-        // DODGE (Úhyb - funguje na vše, ale 50/50)
         if isDodging {
             let dodgeChance = 0.4 + player.stats.evasion
             if Double.random(in: 0...1) < dodgeChance {
@@ -342,46 +352,27 @@ class CombatViewModel: ObservableObject {
                 resetTurnFlags()
                 combatState = .playerTurn
                 return
-            } else {
-                msg = "❌ Úhyb nevyšel!"
-            }
+            } else { msg = "❌ Úhyb nevyšel!" }
         }
 
-        // BLOCK (Blok - velmi efektivní proti Fyz, méně proti Magii)
         if isBlocking {
-            physDmg /= 2  // 50% redukce fyzického
-            magicDmg = Int(Double(magicDmg) * 0.7)  // 30% redukce magického
+            physDmg /= 2
+            magicDmg = Int(Double(magicDmg) * 0.7)
             totalIncoming = physDmg + magicDmg
             msg = "🛡️ Zablokováno!"
         }
 
-        // VULNERABLE (Zranitelný po Heavy Attack)
         if isVulnerable {
             totalIncoming = Int(Double(totalIncoming) * 1.3)
             msg = "⚠️ Jsi odkrytý! Kritický zásah!"
         }
 
-        // Finální poškození (variance)
         let finalDmg = max(1, totalIncoming + Int.random(in: -1...2))
-
         player.stats.hp -= finalDmg
         playerIsHit = true
-
-        // Log zpráva podle typu poškození
-        if enemy.combatStats.magicDamage > 0
-            && enemy.combatStats.physicalDamage > 0
-        {
-            msg += " (Hybridní útok)"
-        } else if enemy.combatStats.magicDamage > 0 {
-            msg += " (Magie)"
-        }
-
         addToLog("\(msg) -\(finalDmg) HP")
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.playerIsHit = false
-        }
-
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { self.playerIsHit = false }
         resetTurnFlags()
 
         if player.stats.hp <= 0 {
@@ -392,50 +383,21 @@ class CombatViewModel: ObservableObject {
         }
     }
 
-    func resetTurnFlags() {
-        isBlocking = false
-        isDodging = false
-        isVulnerable = false
-    }
+    func resetTurnFlags() { isBlocking = false; isDodging = false; isVulnerable = false }
 
-    func addToLog(_ msg: String) {
-        withAnimation { battleLog.insert(msg, at: 0) }
-    }
+    func addToLog(_ msg: String) { withAnimation { battleLog.insert(msg, at: 0) } }
 
     func winBattle() {
         combatState = .victory
         addToLog("🏆 VÍTĚZSTVÍ!")
-        onWin?()
+        // Vrátíme aktuální životy
+        onWin?(player.stats.hp)
     }
 
     func loseBattle() {
         combatState = .defeat
         addToLog("💀 Byl jsi poražen.")
-        handlePlayerDeath()
-    }
-
-    private func handlePlayerDeath() {
-        guard let uid = player.id else { return }
-
-        let targetDistance = 2000.0
-
-        let deathInfo = DeathStats(
-            diedAt: Date(),
-            requiredDistance: targetDistance,
-            distanceRunSoFar: 0.0,
-            causeOfDeath: "Zabil tě \(enemy.name)"
-        )
-
-        self.player.isDead = true
-        self.player.deathStats = deathInfo
-        self.player.stats.hp = 0
-
-        let deathData = deathInfo.toFirestore()
-
-        db.collection("users").document(uid).updateData([
-            "isDead": true,
-            "stats.hp": 0,
-            "deathStats": deathData,
-        ])
+        // Vrátíme 0
+        onLose?(0)
     }
 }

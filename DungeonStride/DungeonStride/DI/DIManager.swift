@@ -44,7 +44,7 @@ final class DIContainer {
 extension DIContainer {
     func registerDependencies() {
         
-        // 1. AuthService (NOVÉ - Místo ViewModelu)
+        // 1. AuthService
         register(AuthService.self, cached: true) {
             MainActor.assumeIsolated {
                 AuthService()
@@ -78,6 +78,11 @@ extension DIContainer {
             LocationManager()
         }
         
+        // PŘIDÁNO: NotificationManager
+        register(NotificationManager.self, cached: true) {
+            NotificationManager.shared
+        }
+        
         // 5. Other Services
         register(QuestService.self, cached: true) {
             QuestService()
@@ -102,3 +107,4 @@ extension DIContainer {
         }
     }
 }
+

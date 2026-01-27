@@ -11,30 +11,25 @@ struct MainMenuGrid: View {
     @ObservedObject var viewModel: CombatViewModel
 
     var body: some View {
-        LazyVGrid(
-            columns: [GridItem(.flexible()), GridItem(.flexible())],
-            spacing: 12  // Menší mezera mezi tlačítky (bylo 15)
-        ) {
-
-            CombatButton(title: "Útok", icon: "sword.fill", color: .red) {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+            
+            CombatButton(title: "Attack", icon: "sword.fill", color: .red) {
                 withAnimation { viewModel.actionMenuState = .attacks }
             }
 
-            CombatButton(title: "Blok", icon: "shield.fill", color: .blue) {
+            CombatButton(title: "Block", icon: "shield.fill", color: .blue) {
                 viewModel.performBlock()
             }
 
-            CombatButton(title: "Batoh", icon: "backpack.fill", color: .orange)
-            {
+            CombatButton(title: "Items", icon: "backpack.fill", color: .orange) {
                 withAnimation { viewModel.actionMenuState = .items }
             }
 
-            CombatButton(title: "Úhyb", icon: "wind", color: .gray) {
+            CombatButton(title: "Dodge", icon: "wind", color: .gray) {
                 viewModel.performDodge()
             }
         }
-        // ZDE JE TA HLAVNÍ ZMĚNA:
-        .padding(.horizontal, 60)  // Bylo 40 -> Teď 60 (větší odstup od krajů)
-        .padding(.top, 15)
+        .padding(.horizontal, 24)
+        .padding(.top, 10)
     }
 }

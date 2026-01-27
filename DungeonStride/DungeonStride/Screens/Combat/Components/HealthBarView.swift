@@ -19,16 +19,34 @@ struct HealthBarView: View {
 
     var body: some View {
         VStack(spacing: 4) {
-            ZStack(alignment: .leading) {
-                Capsule().frame(width: 100, height: 10).foregroundColor(
-                    .gray.opacity(0.5)
-                )
-                Capsule().frame(width: 100 * CGFloat(percent), height: 10)
-                    .foregroundColor(color)
+            // Bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    // Pozadí (šedá)
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(Color.gray.opacity(0.4))
+                        .frame(height: 12)
+                    
+                    // Popředí (barva)
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(
+                            LinearGradient(
+                                colors: [color, color.opacity(0.7)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * CGFloat(percent), height: 12)
+                        .animation(.spring(), value: percent) // Animace změny
+                }
             }
-            Text("\(current)/\(max)")
-                .font(.system(size: 9, weight: .bold))
-                .foregroundColor(.white)
+            .frame(width: 100, height: 12)
+            .shadow(color: color.opacity(0.3), radius: 3)
+            
+            // Text
+            Text("\(current) / \(max)")
+                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                .foregroundColor(.white.opacity(0.9))
         }
     }
 }

@@ -343,6 +343,9 @@
     "Cíl splněn!" : {
 
     },
+    "CLAIM REWARD" : {
+
+    },
     "Close" : {
       "localizations" : {
         "cs" : {
@@ -591,6 +594,9 @@
         }
       }
     },
+    "Enemy Turn..." : {
+
+    },
     "Energie" : {
 
     },
@@ -684,6 +690,9 @@
         }
       }
     },
+    "FINISH" : {
+
+    },
     "From:" : {
       "localizations" : {
         "cs" : {
@@ -755,6 +764,9 @@
         }
       }
     },
+    "Inventory is empty" : {
+
+    },
     "Items reset every 24 hours." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -786,6 +798,7 @@
       }
     },
     "KONEC" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1186,6 +1199,9 @@
     "No special effects." : {
 
     },
+    "No Spells" : {
+
+    },
     "Not logged in." : {
       "localizations" : {
         "cs" : {
@@ -1215,6 +1231,9 @@
           }
         }
       }
+    },
+    "OWNED" : {
+
     },
     "Pace" : {
       "localizations" : {
@@ -1446,6 +1465,9 @@
         }
       }
     },
+    "Select Attack" : {
+
+    },
     "SELL FOR %lld" : {
 
     },
@@ -1514,9 +1536,6 @@
         }
       }
     },
-    "SOLD" : {
-
-    },
     "SOLD OUT" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1539,6 +1558,7 @@
       }
     },
     "Soupeř hraje..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1793,6 +1813,7 @@
 
     },
     "VYBRAT ODMĚNU" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1894,6 +1915,7 @@
       }
     },
     "Zvol typ útoku" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
