@@ -14,50 +14,62 @@ struct RuinsDoorCard: View {
     var body: some View {
         Button(action: action) {
             ZStack {
-                RoundedRectangle(cornerRadius: 15)
-                    .fill(
-                        door.isRevealed ? Color.black.opacity(0.6) : Color.brown
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 2)
-                    )
-                    .shadow(radius: 10)
-
+                // 1. VRSTVA: VNITŘEK (Co je za dveřmi)
+                // Zobrazí se, jen když jsou dveře otevřené (isRevealed)
                 if door.isRevealed {
-                    VStack {
+                    VStack(spacing: 10) {
+                        // Ikona Lootu / Monstra
                         if door.type == .combat || door.type == .boss {
-                            Image(door.type.icon)
+                            Image(door.type.icon)  // Tvoje custom asset ikona
                                 .resizable()
                                 .renderingMode(.template)
                                 .scaledToFit()
-                                .frame(width: 40, height: 40)
+                                .frame(width: 50, height: 50)
                                 .foregroundColor(door.type.color)
                         } else {
                             Image(systemName: door.type.icon)
-                                .font(.system(size: 40))
+                                .font(.system(size: 50))
                                 .foregroundColor(door.type.color)
                         }
 
-                        Text(door.type.rawValue)
-                            .font(.caption).bold()
-                            .foregroundColor(.white)
-                            .padding(.top, 5)
+                        Text(door.type.rawValue.uppercased())
+                            .font(.caption2).bold()
+                            .foregroundColor(door.type.color)
                     }
-                } else {
-                    VStack {
-                        Image(systemName: "door.left.hand.closed")
-                            .font(.system(size: 50))
-                            .foregroundColor(.white.opacity(0.8))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black.opacity(0.8))  // Tmavé pozadí vnitřku
+                    .cornerRadius(10)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(door.type.color, lineWidth: 2)
+                    )
+                    // Animace objevení obsahu
+                    .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                }
 
-                        Text("???")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.5))
-                    }
+                // 2. VRSTVA: DVEŘE (Zavřené / Otevřené)
+                // Pokud jsou isRevealed, zobrazíme obrázek otevřených dveří (nebo je skryjeme, pokud chceš vidět jen loot)
+                // Zde uděláme variantu s obrázky:
+
+                if !door.isRevealed {
+                    Image("door_closed")  // Vlož tento obrázek do Assets!
+                        .resizable()
+                        .scaledToFit()
+                        .cornerRadius(10)
+                        .shadow(color: .black, radius: 5, x: 0, y: 5)
+                        .transition(.opacity)  // Při zmizení se prolne
+                } else {
+                    // Volitelné: Obrázek rámu otevřených dveří přes loot
+                    Image("door_open")  // Vlož tento obrázek do Assets! (Musí mít průhledný střed!)
+                        .resizable()
+                        .scaledToFit()
+                        .allowsHitTesting(false)  // Aby neblokoval
+                        .opacity(0.6)  // Trochu průhledné, aby byl vidět loot
                 }
             }
-            .frame(height: 180)
+            .frame(maxWidth: .infinity)
+            .aspectRatio(0.6, contentMode: .fit)  // Poměr stran dveří
         }
-        .disabled(door.isRevealed)
+        .disabled(door.isRevealed)  // Nelze kliknout znovu
     }
 }

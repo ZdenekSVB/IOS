@@ -755,6 +755,9 @@
         }
       }
     },
+    "Inventory is empty" : {
+
+    },
     "Items reset every 24 hours." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1216,6 +1219,9 @@
         }
       }
     },
+    "OWNED" : {
+
+    },
     "Pace" : {
       "localizations" : {
         "cs" : {
@@ -1513,9 +1519,6 @@
           }
         }
       }
-    },
-    "SOLD" : {
-
     },
     "SOLD OUT" : {
       "extractionState" : "stale",

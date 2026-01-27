@@ -12,21 +12,21 @@ struct RuinsView: View {
 
     var body: some View {
         ZStack {
-            // Pozadí
-            Image("dungeon_bg")  // Ujisti se, že máš tento obrázek v Assets
+            // Tmavé pozadí ruin
+            Image("dungeon_bg")  // Ujisti se, že máš background
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
-                .overlay(Color.black.opacity(0.8))  // Tmavší pro atmosféru
+                .overlay(Color.black.opacity(0.8))  // Ztmavení
 
-            VStack(spacing: 30) {
+            VStack(spacing: 20) {
 
-                // HLAVIČKA
+                // --- HLAVIČKA ---
                 VStack(spacing: 5) {
-                    Text(viewModel.activeDungeonId ?? "Ruiny")
-                        .font(.title).bold()
+                    Text(viewModel.activeDungeonId ?? "Staré Ruiny")
+                        .font(.system(size: 28, weight: .black, design: .serif))
                         .foregroundColor(.white)
-                        .shadow(radius: 5)
+                        .shadow(color: .purple, radius: 10)
 
                     Text(
                         "Místnost \(viewModel.ruinsCurrentRoom) / \(viewModel.ruinsMaxRooms)"
@@ -38,28 +38,45 @@ struct RuinsView: View {
 
                 Spacer()
 
-                // DVEŘE (Grid 3 vedle sebe, nebo 1 pokud Boss)
+                // --- DVEŘE ---
                 HStack(spacing: 15) {
                     ForEach(viewModel.currentDoors) { door in
                         RuinsDoorCard(door: door) {
-                            viewModel.selectDoor(door: door)
+                            // Akce při kliknutí
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                viewModel.selectDoor(door: door)
+                            }
                         }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 20)
+                .frame(height: 250)  // Fixní výška pro dveře
 
                 Spacer()
 
-                // LOG
-                Text(viewModel.ruinsLog)
-                    .font(.body).bold()
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.black.opacity(0.6))
-                    .cornerRadius(10)
-                    .padding(.horizontal)
-                    .padding(.bottom, 50)
+                // --- LOG / INFO ---
+                // Zobrazíme log v hezčím rámečku
+                VStack(spacing: 8) {
+                    Text(viewModel.ruinsLog)
+                        .font(.body).bold()
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 15)
+                                .fill(Color.black.opacity(0.7))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(
+                                            Color.purple.opacity(0.5),
+                                            lineWidth: 1
+                                        )
+                                )
+                        )
+                }
+                .padding(.horizontal, 30)
+                .padding(.bottom, 50)
             }
         }
     }

@@ -232,7 +232,7 @@ class DungeonMapViewModel: ObservableObject {
         return loadedEnemies
     }
 
-    func handleVictory() {
+    func handleVictory(enemy: Enemy? = nil) {
         guard let user = user, let dungeonId = activeDungeonId else { return }
 
         let currentProgress = user.dungeonProgress[dungeonId] ?? 0
@@ -247,6 +247,13 @@ class DungeonMapViewModel: ObservableObject {
         ])
 
         print("🎉 Progress v \(dungeonId) zvýšen na \(newProgress)")
+
+        if isRuinsActive, ruinsCurrentRoom == ruinsMaxRooms,
+            let defeatedEnemy = enemy
+        {
+            print("🐉 Boss poražen! Generuji odměnu...")
+            generateBossLoot(bossName: defeatedEnemy.name)
+        }
     }
 
     // ----- RUINS -----
@@ -294,54 +301,85 @@ class DungeonMapViewModel: ObservableObject {
     func selectDoor(door: RuinsDoor) {
         if door.isRevealed { return }
 
+        // 1. Odhalit dveře (V UI se spustí animace)
         if let index = currentDoors.firstIndex(where: { $0.id == door.id }) {
-            currentDoors[index].isRevealed = true
+            withAnimation {
+                currentDoors[index].isRevealed = true
+            }
         }
 
-        resolveDoorEffect(door: door)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            self.resolveDoorEffect(door: door)
+        }
     }
 
     private func resolveDoorEffect(door: RuinsDoor) {
         switch door.type {
         case .combat:
-            handleRuinsCombat(isBoss: false)
+            // Krátká pauza na "leknutí", pak start
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.handleRuinsCombat(isBoss: false)
+            }
 
         case .boss:
-            handleRuinsCombat(isBoss: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.handleRuinsCombat(isBoss: true)
+            }
 
         case .treasure:
-            let gold = Int.random(in: 20...500)
+            let gold = Int.random(in: 20...100)
             user?.coins += gold
             updateRuinsLog(msg: "💰 Našel jsi \(gold) zlaťáků!")
-            prepareNextRoom()
+            // Delší pauza na čtení odměny
+            prepareNextRoom(delay: 2.0)
 
         case .item:
-            // TODO: Přidat item do inventáře
-            updateRuinsLog(msg: "🎒 Našel jsi předmět! (WIP)")
-            prepareNextRoom()
+            updateRuinsLog(msg: "Otevíráš starou truhlu...")
+            Task {
+                if let item = await fetchRandomItem(
+                    rarity: ["Common", "Uncommon"].randomElement()!
+                ) {
+                    addItemToInventory(
+                        itemId: item.id ?? "",
+                        itemName: item.name
+                    )
+                    updateRuinsLog(msg: "🎒 Získal jsi: \(item.name)!")
+                } else {
+                    updateRuinsLog(msg: "Truhla byla prázdná.")
+                }
+                prepareNextRoom(delay: 2.5)
+            }
 
         case .trap:
             let dmg = Int.random(in: 10...30)
             user?.stats.hp -= dmg
             if (user?.stats.hp ?? 0) < 0 { user?.stats.hp = 0 }
-            updateRuinsLog(msg: "⚠️ Past! Ztratil jsi \(dmg) HP.")
 
-            // Check na smrt
+            updateRuinsLog(msg: "⚠️ Auu! Past ti ubrala \(dmg) HP.")
+
+            // Otřesení obrazovky (Haptika by byla super)
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.error)
+
             if (user?.stats.hp ?? 0) <= 0 {
-                // handleDeath() - to už máš v CombatViewModel, tady jen zavřeme ruiny
+                // Smrt řešíme hned
                 isRuinsActive = false
+                // Tady by se měla zavolat logika smrti, ale to se stane asi až v combatu...
+                // Pokud umře na past, musíš to handlovat.
+                // Prozatím jen zavřeme ruiny a necháme ho s 0 HP (což triggerne Revival v MapView)
             } else {
-                prepareNextRoom()
+                prepareNextRoom(delay: 2.5)
             }
 
         case .heal:
             let heal = 30
             let max = user?.stats.maxHP ?? 100
             user?.stats.hp = min(max, (user?.stats.hp ?? 0) + heal)
-            updateRuinsLog(msg: "💚 Studánka tě vyléčila (+\(heal) HP).")
-            prepareNextRoom()
+            updateRuinsLog(msg: "💚 Cítíš úlevu... (+\(heal) HP).")
+            prepareNextRoom(delay: 2.0)
         }
 
+        // Save
         if let u = user {
             db.collection("users").document(u.uid).updateData([
                 "coins": u.coins,
@@ -381,10 +419,18 @@ class DungeonMapViewModel: ObservableObject {
         }
     }
 
-    func prepareNextRoom() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            self.ruinsCurrentRoom += 1
-            self.generateDoors()
+    func prepareNextRoom(delay: Double = 1.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            // Pokud ještě nejsme na konci
+            if self.ruinsCurrentRoom <= self.ruinsMaxRooms {
+                self.ruinsLog = "Jdeš hlouběji do ruin..."
+            }
+
+            // Krátký fade out efekt dveří?
+            withAnimation {
+                self.ruinsCurrentRoom += 1
+                self.generateDoors()
+            }
         }
     }
 
@@ -398,4 +444,50 @@ class DungeonMapViewModel: ObservableObject {
     private func updateRuinsLog(msg: String) {
         withAnimation { self.ruinsLog = msg }
     }
+
+    private func fetchRandomItem(rarity: String) async -> AItem? {
+        do {
+            let snapshot = try await db.collection("items")
+                .whereField("rarity", isEqualTo: rarity)
+                .limit(to: 10)
+                .getDocuments()
+
+            let items = snapshot.documents.compactMap {
+                try? $0.data(as: AItem.self)
+            }
+            return items.randomElement()
+        } catch {
+            print("Chyba při fetchování itemu: \(error)")
+            return nil
+        }
+    }
+
+    private func addItemToInventory(itemId: String, itemName: String) {
+        guard let uid = user?.id, !itemId.isEmpty else { return }
+
+        let inventoryRef = db.collection("users").document(uid).collection(
+            "inventory"
+        ).document(itemId)
+
+        // Použijeme transakci nebo update (pro jednoduchost update s incrementem)
+        // Pokud dokument neexistuje, musíme ho vytvořit
+        inventoryRef.getDocument { doc, error in
+            if let doc = doc, doc.exists {
+                // Item už má, zvýšíme počet
+                inventoryRef.updateData([
+                    "quantity": FieldValue.increment(Int64(1))
+                ])
+            } else {
+                // Item nemá, vytvoříme nový
+                inventoryRef.setData([
+                    "itemId": itemId,
+                    "quantity": 1,
+                    "equipped": false,
+                    "acquiredAt": FieldValue.serverTimestamp(),
+                ])
+            }
+            print("🎒 Item přidán: \(itemName)")
+        }
+    }
+
 }
