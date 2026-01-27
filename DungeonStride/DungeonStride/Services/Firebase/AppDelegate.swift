@@ -7,6 +7,7 @@ import UIKit
 import Firebase
 import FirebaseMessaging
 import GoogleSignIn
+import UserNotifications // NUTNÝ IMPORT
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     
@@ -14,21 +15,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
         setupFirebaseMessagingForDebug()
-        print("✅ AppDelegate configured - Firebase Messaging ready for debug")
+        
+        // Nastavení delegáta pro notifikace (aby fungovaly v popředí)
+        UNUserNotificationCenter.current().delegate = self
+        
+        print("✅ AppDelegate configured")
         return true
     }
     
     private func setupFirebaseMessagingForDebug() {
         Messaging.messaging().delegate = self
         Messaging.messaging().isAutoInitEnabled = true
-        
-        #if DEBUG
-        print("🔧 DEBUG: Firebase Messaging enabled for debugging")
-        #endif
     }
     
-    // OPRAVA: Pro iOS 9.0 a novější. OpenURLOptionsKey není deprecated v tomto kontextu,
-    // varování bylo pravděpodobně způsobeno špatným Deployment Targetem v projektu.
     func application(_ app: UIApplication,
                      open url: URL,
                      options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
@@ -37,21 +36,32 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        #if DEBUG
-        let tokenString = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
-        print("🔧 DEBUG: APNs token received: \(tokenString)")
-        #endif
+        // Zde by byl kód pro APNs token
+    }
+}
+
+// Rozšíření pro zpracování notifikací přímo v App
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    
+    // Notifikace přijde, když je aplikace ZAPNUTÁ
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // .banner zobrazí notifikaci nahoře, .sound přehraje zvuk
+        completionHandler([.banner, .sound, .badge])
+    }
+    
+    // Uživatel KLIKL na notifikaci
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        print("🔔 Kliknuto na notifikaci")
+        completionHandler()
     }
 }
 
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        #if DEBUG
-        print("🔧 DEBUG: FCM Token: \(fcmToken ?? "nil")")
-        
-        if let token = fcmToken {
-            UserDefaults.standard.set(token, forKey: "debug_fcm_token")
-        }
-        #endif
+        // Firebase messaging delegate
     }
 }

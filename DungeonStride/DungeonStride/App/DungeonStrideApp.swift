@@ -11,12 +11,11 @@ import SwiftUI
 @main
 struct DungeonStrideApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
+    // Sledujeme stav aplikace (Active / Background)
+    @Environment(\.scenePhase) var scenePhase
 
-    // ZMĚNA: AuthViewModel si vytváříme sami (je to jen UI stav),
-    // ale služby taháme z DI (protože jsou to Singletons).
     @StateObject private var authViewModel = AuthViewModel()
-
-    // Služby, které chceme mít dostupné v Environmentu pro celou appku
     @StateObject private var userService: UserService
     @StateObject private var questService: QuestService
     @StateObject private var themeManager: ThemeManager
@@ -24,7 +23,6 @@ struct DungeonStrideApp: App {
     init() {
         FirebaseApp.configure()
 
-        // Zde si vytáhneme hotové instance z DI
         _userService = StateObject(wrappedValue: DIContainer.shared.resolve())
         _questService = StateObject(wrappedValue: DIContainer.shared.resolve())
         _themeManager = StateObject(wrappedValue: DIContainer.shared.resolve())
@@ -33,14 +31,29 @@ struct DungeonStrideApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                // AuthViewModel drží stav přihlášení pro ContentView
                 .environmentObject(authViewModel)
-                // Služby dostupné pro celou aplikaci
                 .environmentObject(themeManager)
                 .environmentObject(userService)
                 .environmentObject(questService)
-
                 .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
+        }
+        // --- TOTO ZDE CHYBĚLO: Reakce na minimalizaci aplikace ---
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .background:
+                print("🌑 Appka jde na pozadí -> Plánuji notifikaci")
+                // Zde se plánuje notifikace "Vrať se do hry"
+                NotificationManager.shared.scheduleInactivityReminder()
+                
+            case .active:
+                print("☀️ Appka je aktivní -> Ruším notifikaci a obnovuji denní")
+                NotificationManager.shared.cancelInactivityReminder()
+                // Zároveň se ujistíme, že máme práva (vyžádá si je, pokud chybí)
+                NotificationManager.shared.requestAuthorization()
+                
+            default:
+                break
+            }
         }
     }
 }
