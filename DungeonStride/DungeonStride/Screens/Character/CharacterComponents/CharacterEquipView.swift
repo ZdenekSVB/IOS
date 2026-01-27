@@ -9,54 +9,90 @@ import SwiftUI
 
 struct CharacterEquipView: View {
     @ObservedObject var vm: CharacterViewModel
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
-        VStack(spacing: 16) {
-            HStack(alignment: .center, spacing: 20) {
-                // LEVÝ SLOUPEC
+        VStack(spacing: 20) {
+            // HORNÍ ČÁST: Armor a Zbraně
+            HStack(alignment: .center, spacing: 16) {
+                // LEVÝ SLOUPEC (Armor)
                 VStack(spacing: 12) {
-                    slotCell(.head); slotCell(.chest); slotCell(.hands); slotCell(.legs)
+                    slotCell(.head)
+                    slotCell(.chest)
+                    slotCell(.legs)
+                    slotCell(.feet)
                 }
                 
-                // PROSTŘEDEK (Avatar + Celkové Staty)
-                VStack(spacing: 12) {
+                // PROSTŘEDEK (Avatar)
+                VStack(spacing: 10) {
                     ZStack {
-                        Circle().fill(Color.blue.opacity(0.1)).frame(width: 130, height: 130)
+                        Circle()
+                            .fill(themeManager.accentColor.opacity(0.1))
+                            .frame(width: 140, height: 140)
                         
                         if let avatarName = vm.user?.selectedAvatar, avatarName != "default" {
                             Image(avatarName)
-                                .resizable().scaledToFit().frame(height: 110).clipShape(Circle())
+                                .resizable().scaledToFill()
+                                .frame(width: 130, height: 130)
+                                .clipShape(Circle())
                         } else {
-                            Image(systemName: "person.fill").resizable().scaledToFit().frame(height: 90).foregroundColor(.gray)
+                            Image(systemName: "person.fill")
+                                .resizable().scaledToFit()
+                                .frame(height: 80)
+                                .foregroundColor(themeManager.secondaryTextColor)
                         }
                     }
-                    .overlay(Circle().stroke(Color.blue.opacity(0.5), lineWidth: 2))
+                    .overlay(Circle().stroke(themeManager.accentColor, lineWidth: 2))
+                    .shadow(radius: 5)
                     
+                    // Level Badge
                     Text("Level \(vm.user?.level ?? 1)")
                         .font(.caption).bold()
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 2)
-                        .background(Color.black.opacity(0.1))
-                        .cornerRadius(5)
-                    
-                    // --- CELKOVÉ STATISTIKY (Přidáno) ---
-                    if let stats = vm.user?.stats {
-                        VStack(spacing: 4) {
-                            statBadge(icon: "flame.fill", value: stats.physicalDamage, color: .red)
-                            statBadge(icon: "shield.fill", value: stats.defense, color: .blue)
-                            statBadge(icon: "sparkles", value: stats.magicDamage, color: .purple)
-                            statBadge(icon: "heart.fill", value: stats.maxHP, color: .green)
-                        }
-                        .padding(8)
-                        .background(Color(UIColor.secondarySystemBackground))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(themeManager.cardBackgroundColor)
+                        .foregroundColor(themeManager.primaryTextColor)
                         .cornerRadius(10)
+                        .shadow(radius: 2)
+                    
+                    // Celkové staty (Malý přehled)
+                    if let stats = vm.user?.stats {
+                        HStack(spacing: 12) {
+                            statBadge(icon: "sword.fill", val: stats.physicalDamage, color: .red)
+                            statBadge(icon: "shield.fill", val: stats.defense, color: .blue)
+                            statBadge(icon: "sparkles", val: stats.magicDamage, color: .purple)
+                        }
+                        .padding(6)
+                        .background(themeManager.cardBackgroundColor.opacity(0.8))
+                        .cornerRadius(8)
                     }
                 }
                 
-                // PRAVÝ SLOUPEC
+                // PRAVÝ SLOUPEC (Ruce + Ostatní)
                 VStack(spacing: 12) {
-                    slotCell(.mainHand); slotCell(.offHand); slotCell(.feet); Spacer().frame(width: 55, height: 55)
+                    slotCell(.mainHand)
+                    slotCell(.offHand)
+                    slotCell(.hands)
+                    // Prázdné místo pro symetrii
+                    Spacer().frame(width: 60, height: 60)
                 }
+            }
+            
+            Divider().background(themeManager.secondaryTextColor.opacity(0.3))
+            
+            // DOLNÍ ČÁST: Spells (Kouzla)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Spells")
+                    .font(.caption).bold()
+                    .foregroundColor(themeManager.secondaryTextColor)
+                    .padding(.leading, 8)
+                
+                HStack(spacing: 20) {
+                    slotCell(.spell1)
+                    slotCell(.spell2)
+                    slotCell(.spell3)
+                }
+                .frame(maxWidth: .infinity)
             }
         }
         .padding()
@@ -73,10 +109,10 @@ struct CharacterEquipView: View {
             }
     }
     
-    func statBadge(icon: String, value: Int, color: Color) -> some View {
-        HStack(spacing: 4) {
+    func statBadge(icon: String, val: Int, color: Color) -> some View {
+        HStack(spacing: 2) {
             Image(systemName: icon).font(.caption2).foregroundColor(color)
-            Text("\(value)").font(.caption2).bold()
+            Text("\(val)").font(.caption2).bold().foregroundColor(themeManager.primaryTextColor)
         }
     }
 }

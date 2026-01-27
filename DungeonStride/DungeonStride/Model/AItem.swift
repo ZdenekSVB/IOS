@@ -149,8 +149,6 @@ struct InventoryItem: Identifiable, Equatable {
         return lhs.id == rhs.id && lhs.quantity == rhs.quantity
     }
 }
-
-// MARK: - Equip Slot
 enum EquipSlot: String, CaseIterable, Identifiable {
     case mainHand = "Weapon"
     case offHand = "Shield"
@@ -159,6 +157,11 @@ enum EquipSlot: String, CaseIterable, Identifiable {
     case hands = "Hands"
     case legs = "Legs"
     case feet = "Feet"
+    
+    // --- NOVÉ SLOTY PRO KOUZLA ---
+    case spell1 = "Spell 1"
+    case spell2 = "Spell 2"
+    case spell3 = "Spell 3"
     
     var id: String { self.rawValue }
     
@@ -171,6 +174,7 @@ enum EquipSlot: String, CaseIterable, Identifiable {
         case .hands: return "hand.raised.fill"
         case .legs: return "figure.walk"
         case .feet: return "shoe.fill"
+        case .spell1, .spell2, .spell3: return "sparkles" // Ikona pro kouzla
         }
     }
 }
@@ -185,6 +189,8 @@ extension AItem {
         case "Gloves":      return .hands
         case "Leggings":    return .legs
         case "Boots":       return .feet
+        // Spell vrací spell1 jako default, logika viewModelu to pak může přehodit do volného slotu
+        case "Spell":       return .spell1
         default: return nil
         }
     }

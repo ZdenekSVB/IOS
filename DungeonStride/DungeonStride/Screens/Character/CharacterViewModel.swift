@@ -9,6 +9,12 @@ import SwiftUI
 import FirebaseFirestore
 
 class CharacterViewModel: ObservableObject {
+    // ... (ZBYTEK KÓDU JE STEJNÝ JAKO PŘEDTÍM, ZMĚNA JEN V equipItem) ...
+    // Zkopíruj si předchozí obsah třídy a nahraď metodu equipItem tímto:
+    
+    // Zde je pouze upravená metoda equipItem, ostatní metody (fetchData, unequipItem, sellItem) zůstávají.
+    // Ale pro jistotu vložím celou třídu, aby to bylo copy-paste.
+    
     @Published var user: User?
     @Published var inventoryItems: [InventoryItem] = []
     @Published var masterItems: [String: AItem] = [:]
@@ -70,7 +76,6 @@ class CharacterViewModel: ObservableObject {
     private func startListeningToInventory(userId: String) {
         inventoryListener = db.collection("users").document(userId).collection("inventory").addSnapshotListener { [weak self] invSnapshot, _ in
             guard let self = self, let invDocs = invSnapshot?.documents else { return }
-            
             var loadedInv: [InventoryItem] = []
             for doc in invDocs {
                 if let slot = try? doc.data(as: UserInventorySlot.self),
@@ -91,7 +96,21 @@ class CharacterViewModel: ObservableObject {
     
     // --- LOGIKA EQUIP ---
     func equipItem(_ newItem: InventoryItem) {
-        guard let userId = currentUserId, var user = user, let slot = newItem.item.computedSlot else { return }
+        guard let userId = currentUserId, var user = user else { return }
+        
+        // Zjistíme správný slot. Pokud je to Spell, hledáme první volný ze 3.
+        var targetSlot: EquipSlot? = newItem.item.computedSlot
+        
+        if newItem.item.itemType == "Spell" {
+            // Hledáme volný slot pro kouzlo
+            if user.equippedIds[EquipSlot.spell1.id] == nil { targetSlot = .spell1 }
+            else if user.equippedIds[EquipSlot.spell2.id] == nil { targetSlot = .spell2 }
+            else if user.equippedIds[EquipSlot.spell3.id] == nil { targetSlot = .spell3 }
+            else { targetSlot = .spell1 } // Všechny plné -> nahradíme první
+        }
+        
+        guard let slot = targetSlot else { return } // Item nemá slot (např. Potion) - Potiony se neequipují, ale rovnou použijí v boji, nebo jen leží v batohu.
+        
         let slotId = slot.id
         guard let itemID = newItem.item.id else { return }
         
@@ -99,15 +118,18 @@ class CharacterViewModel: ObservableObject {
         let userRef = db.collection("users").document(userId)
         let inventoryRef = userRef.collection("inventory")
         
+        // 1. UNEQUIP OLD (vrátit do batohu)
         if let oldItemId = user.equippedIds[slotId], let oldItem = masterItems[oldItemId] {
             applyItemStats(user: &user, item: oldItem, isEquipping: false)
             let newInvDoc = inventoryRef.document()
             batch.setData(["itemId": oldItemId, "quantity": 1], forDocument: newInvDoc)
         }
         
+        // 2. EQUIP NEW
         user.equippedIds[slotId] = itemID
         applyItemStats(user: &user, item: newItem.item, isEquipping: true)
         
+        // 3. REMOVE FROM INVENTORY
         let itemRef = inventoryRef.document(newItem.id)
         if newItem.quantity > 1 {
             batch.updateData(["quantity": newItem.quantity - 1], forDocument: itemRef)
@@ -115,12 +137,14 @@ class CharacterViewModel: ObservableObject {
             batch.deleteDocument(itemRef)
         }
         
+        // 4. COMMIT
         batch.updateData(["equippedIds": user.equippedIds, "stats": user.stats.toDictionary()], forDocument: userRef)
         batch.commit()
-        self.user = user
+        
+        self.user = user // Optimistický update
     }
     
-    // --- LOGIKA UNEQUIP ---
+    // --- UNEQUIP ---
     func unequipItem(slot: EquipSlot) {
         guard let userId = currentUserId, var user = user,
               let oldItemId = user.equippedIds[slot.id],
@@ -140,7 +164,7 @@ class CharacterViewModel: ObservableObject {
         self.user = user
     }
     
-    // --- LOGIKA PRODEJE ---
+    // --- SELL ---
     func sellItem(item: InventoryItem) {
         guard let userId = currentUserId else { return }
         let sellPrice = item.item.finalSellPrice ?? 10
@@ -149,10 +173,8 @@ class CharacterViewModel: ObservableObject {
         let userRef = db.collection("users").document(userId)
         let itemRef = userRef.collection("inventory").document(item.id)
         
-        // Přičíst peníze
         batch.updateData(["coins": FieldValue.increment(Int64(sellPrice))], forDocument: userRef)
         
-        // Odebrat z inventáře
         if item.quantity > 1 {
             batch.updateData(["quantity": item.quantity - 1], forDocument: itemRef)
         } else {
@@ -160,7 +182,6 @@ class CharacterViewModel: ObservableObject {
         }
         
         batch.commit()
-        print("💰 Prodal jsi \(item.item.name) za \(sellPrice)")
     }
     
     private func applyItemStats(user: inout User, item: AItem, isEquipping: Bool) {

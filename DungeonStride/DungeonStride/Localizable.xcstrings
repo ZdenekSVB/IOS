@@ -169,7 +169,14 @@
       }
     },
     "Available Points:" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dostupné body:"
+          }
+        }
+      }
     },
     "Back" : {
       "localizations" : {
@@ -275,6 +282,12 @@
         }
       }
     },
+    "Change on Equip" : {
+
+    },
+    "Change on Unequip" : {
+
+    },
     "CHANGE PASSWORD (OPTIONAL)" : {
       "localizations" : {
         "cs" : {
@@ -321,15 +334,21 @@
         }
       }
     },
-<<<<<<< HEAD
     "Chybí ti %@ energie." : {
 
     },
     "Cíl splněn!" : {
-=======
-    "Close" : {
->>>>>>> 4ae4728d1656316a2396ed26bd97b5f40ee31786
 
+    },
+    "Close" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zavřít"
+          }
+        }
+      }
     },
     "Compare Equipment" : {
       "localizations" : {
@@ -545,6 +564,9 @@
           }
         }
       }
+    },
+    "EFFECTS" : {
+
     },
     "Email" : {
       "localizations" : {
@@ -1145,6 +1167,9 @@
         }
       }
     },
+    "No special effects." : {
+
+    },
     "Not logged in." : {
       "localizations" : {
         "cs" : {
@@ -1174,9 +1199,6 @@
           }
         }
       }
-    },
-    "OWNED" : {
-
     },
     "Pace" : {
       "localizations" : {
@@ -1475,6 +1497,9 @@
         }
       }
     },
+    "SOLD" : {
+
+    },
     "SOLD OUT" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1531,6 +1556,9 @@
           }
         }
       }
+    },
+    "Spells" : {
+
     },
     "Start activity to see data" : {
       "localizations" : {
@@ -1642,9 +1670,6 @@
         }
       }
     },
-    "Total after change" : {
-
-    },
     "Total Distance" : {
       "localizations" : {
         "cs" : {
@@ -1687,6 +1712,9 @@
           }
         }
       }
+    },
+    "USE" : {
+
     },
     "Username" : {
       "localizations" : {

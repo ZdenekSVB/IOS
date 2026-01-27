@@ -10,35 +10,31 @@ import SwiftUI
 struct EquipSlotCell: View {
     let slot: EquipSlot
     let item: AItem?
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(UIColor.secondarySystemBackground))
-                .frame(width: 55, height: 55)
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(item?.rarity?.color ?? Color.gray.opacity(0.3), lineWidth: item == nil ? 1 : 2))
+            // Prázdný slot
+            RoundedRectangle(cornerRadius: 16)
+                .fill(themeManager.cardBackgroundColor)
+                .frame(width: 60, height: 60)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                )
             
             if let item = item {
-                // LOGIKA IKON: Pokud obsahuje tečku, je to SF Symbol, jinak Asset
-                if item.iconName.contains(".") {
-                    Image(systemName: item.iconName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30)
-                        .foregroundColor(item.rarity?.color ?? .gray)
-                } else {
-                    Image(item.iconName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 35, height: 35)
-                }
+                // Pokud je item nasazen, použijeme naši unifikovanou ikonu
+                ItemIconView(item: item, size: 60)
             } else {
+                // Placeholder
                 Image(systemName: slot.placeholderIcon)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 20)
-                    .foregroundColor(.gray.opacity(0.3))
+                    .frame(width: 24)
+                    .foregroundColor(themeManager.secondaryTextColor.opacity(0.3))
             }
         }
+        .shadow(color: Color.black.opacity(0.1), radius: 3)
     }
 }
