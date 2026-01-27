@@ -157,6 +157,12 @@
     },
     "BOJOVAT" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BOJOVAT"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1125,6 +1131,9 @@
           }
         }
       }
+    },
+    "SEED QUESTS (DEV ONLY)" : {
+
     },
     "Segment" : {
       "localizations" : {
