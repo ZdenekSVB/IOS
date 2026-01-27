@@ -9,27 +9,28 @@ import SwiftUI
 
 struct AuthTextField: View {
     let title: LocalizedStringKey
-    let placeholder: LocalizedStringKey // Nový parametr pro placeholder
+    let placeholder: LocalizedStringKey
     @Binding var text: String
     let isSecure: Bool
+    var testID: String? = nil
     
-    // Init pro zpětnou kompatibilitu, pokud chceš jen title
-    init(title: LocalizedStringKey, text: Binding<String>, isSecure: Bool) {
-        self.title = title
-        // Vytvoříme placeholder jako "Enter your [title]"
-        // Poznámka: Toto je složitější na lokalizaci, lepší je poslat celý string.
-        // Pro teď to necháme takto, ale ideálně bys měl posílat placeholder zvlášť.
-        self.placeholder = "Enter text"
-        self._text = text
-        self.isSecure = isSecure
+    // Detekce testovacího režimu
+    private var isTesting: Bool {
+        CommandLine.arguments.contains("UITesting")
     }
     
-    // Init s explicitním placeholderem (doporučeno)
-    init(title: LocalizedStringKey, placeholder: LocalizedStringKey, text: Binding<String>, isSecure: Bool) {
+    // Init se vším
+    init(title: LocalizedStringKey, placeholder: LocalizedStringKey, text: Binding<String>, isSecure: Bool, testID: String? = nil) {
         self.title = title
         self.placeholder = placeholder
         self._text = text
         self.isSecure = isSecure
+        self.testID = testID
+    }
+    
+    // Zpětná kompatibilita
+    init(title: LocalizedStringKey, text: Binding<String>, isSecure: Bool) {
+        self.init(title: title, placeholder: "Enter text", text: text, isSecure: isSecure, testID: nil)
     }
     
     var body: some View {
@@ -42,11 +43,17 @@ struct AuthTextField: View {
                 SecureField(placeholder, text: $text)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+                    // POKUD TESTUJEME, VYPNEME AUTOFILL A SUGGESTIONS
+                    .textContentType(isTesting ? .oneTimeCode : .password)
+                    .accessibilityIdentifier(testID ?? "")
             } else {
                 TextField(placeholder, text: $text)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
+                    .autocorrectionDisabled(true)
+                    .textContentType(isTesting ? .oneTimeCode : .emailAddress)
+                    .accessibilityIdentifier(testID ?? "")
             }
         }
     }

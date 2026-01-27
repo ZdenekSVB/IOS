@@ -23,10 +23,14 @@ struct RegisterView: View {
                             .padding(.top, 40)
                         
                         VStack(spacing: 16) {
-                            AuthTextField(title: "Username", placeholder: "Choose a username", text: $authViewModel.username, isSecure: false)
-                            AuthTextField(title: "Email", placeholder: "Enter your email", text: $authViewModel.email, isSecure: false)
-                            AuthTextField(title: "Password", placeholder: "Create a password", text: $authViewModel.password, isSecure: true)
-                            AuthTextField(title: "Confirm Password", placeholder: "Repeat password", text: $confirmPassword, isSecure: true)
+                            // PŘIDÁNA ID PRO TESTY
+                            AuthTextField(title: "Username", placeholder: "Choose a username", text: $authViewModel.username, isSecure: false, testID: "usernameField")
+                            
+                            AuthTextField(title: "Email", placeholder: "Enter your email", text: $authViewModel.email, isSecure: false, testID: "emailField")
+                            
+                            AuthTextField(title: "Password", placeholder: "Create a password", text: $authViewModel.password, isSecure: true, testID: "passwordField")
+                            
+                            AuthTextField(title: "Confirm Password", placeholder: "Repeat password", text: $confirmPassword, isSecure: true, testID: "confirmPasswordField")
                         }
                         .padding(.horizontal)
                         
@@ -42,6 +46,8 @@ struct RegisterView: View {
                         }
                         .disabled(!isFormValid || authViewModel.isLoading)
                         .opacity((!isFormValid || authViewModel.isLoading) ? 0.6 : 1.0)
+                        // PŘIDÁNO ID PRO TLAČÍTKO
+                        .accessibilityIdentifier("registerButton")
                         
                         HStack {
                             Text("Already have an account?", comment: "Register screen footer")
