@@ -19,7 +19,7 @@ struct LocationDetailSheet: View {
     var iconName: String {
         switch location.locationType {
         case "city": return "house.fill"
-        case "dungeon": return "skull"
+        case "dungeon": return "skull_icon"
         case "ruins": return "building.columns.fill"
         case "swamp": return "drop.fill"
         default: return "mappin.circle.fill"
@@ -40,12 +40,25 @@ struct LocationDetailSheet: View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 0) {
                 VStack(spacing: 10) {
-                    Image(systemName: iconName)
-                        .font(.system(size: 50))
-                        .foregroundColor(iconColor)
-                        .padding()
-                        .background(iconColor.opacity(0.1))
-                        .clipShape(Circle())
+                    if location.locationType == "dungeon" {
+                        Image("skull_icon")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 50, height: 50)
+                            .foregroundColor(iconColor)  // Funguje, pokud je obrázek "Render As: Template"
+                            .padding()
+                            .background(iconColor.opacity(0.1))
+                            .clipShape(Circle())
+                            .padding(.top, 20)
+                    } else {
+                        Image(systemName: iconName)
+                            .font(.system(size: 50))
+                            .foregroundColor(iconColor)
+                            .padding()
+                            .background(iconColor.opacity(0.1))
+                            .clipShape(Circle())
+                            .padding(.top, 20)
+                    }
 
                     Text(location.name)
                         .font(.title2).bold()
@@ -60,8 +73,10 @@ struct LocationDetailSheet: View {
                         if let tier = location.difficultyTier {
                             HStack(spacing: 2) {
                                 ForEach(0..<tier, id: \.self) { _ in
-                                    Image(systemName: "skull")
-                                        .font(.caption2)
+                                    Image("skull_icon")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 14, height: 14)  
                                         .foregroundColor(.red)
                                 }
                             }
