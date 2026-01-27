@@ -7,6 +7,9 @@
     "-" : {
 
     },
+    "???" : {
+
+    },
     ")" : {
 
     },
@@ -955,6 +958,16 @@
         }
       }
     },
+    "Místnost %lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Místnost %1$lld / %2$lld"
+          }
+        }
+      }
+    },
     "Mysterious Merchant" : {
       "localizations" : {
         "cs" : {
@@ -1047,6 +1060,9 @@
           }
         }
       }
+    },
+    "Nebezpečná oblast - Roguelike Mód" : {
+
     },
     "Nepřítel útočí..." : {
       "extractionState" : "stale",
@@ -1373,6 +1389,7 @@
 
     },
     "Ruiny - Brzy přístupné!" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1771,6 +1788,9 @@
           }
         }
       }
+    },
+    "VSTOUPIT DO RUIN" : {
+
     },
     "VYBRAT ODMĚNU" : {
       "localizations" : {

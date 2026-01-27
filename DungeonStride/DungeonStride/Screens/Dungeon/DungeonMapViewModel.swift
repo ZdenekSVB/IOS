@@ -27,6 +27,12 @@ class DungeonMapViewModel: ObservableObject {
     @Published var currentEnemy: Enemy?
     @Published var showCombat = false
 
+    @Published var isRuinsActive: Bool = false
+    @Published var ruinsCurrentRoom: Int = 1
+    @Published var ruinsMaxRooms: Int = 5
+    @Published var currentDoors: [RuinsDoor] = []
+    @Published var ruinsLog: String = "Vstupuješ do temných ruin..."
+
     private let db = Firestore.firestore()
 
     func loadMapData(mapId: String) async {
@@ -241,5 +247,155 @@ class DungeonMapViewModel: ObservableObject {
         ])
 
         print("🎉 Progress v \(dungeonId) zvýšen na \(newProgress)")
+    }
+
+    // ----- RUINS -----
+
+    func enterRuins(location: GameMapLocation) {
+        self.activeDungeonId = location.name
+        self.ruinsCurrentRoom = 1
+        self.ruinsMaxRooms = 3 + (location.difficultyTier ?? 1)
+        self.ruinsLog = "Vstoupil jsi do: \(location.name)"
+        self.isRuinsActive = true
+
+        generateDoors()
+    }
+
+    func generateDoors() {
+        if ruinsCurrentRoom > ruinsMaxRooms {
+            completeRuins()
+            return
+        }
+
+        if ruinsCurrentRoom == ruinsMaxRooms {
+            self.currentDoors = [RuinsDoor(type: .boss)]
+            self.ruinsLog = "Cítíš přítomnost silného nepřítele..."
+            return
+        }
+
+        var newDoors: [RuinsDoor] = []
+        for _ in 0..<3 {
+            newDoors.append(RuinsDoor(type: pickRandomDoorType()))
+        }
+        self.currentDoors = newDoors
+    }
+
+    private func pickRandomDoorType() -> RuinsDoorType {
+        let roll = Int.random(in: 1...100)
+        switch roll {
+        case 1...30: return .combat  // 30% Boj
+        case 31...50: return .treasure  // 20% Poklad
+        case 51...65: return .item  // 15% Item
+        case 66...85: return .trap  // 20% Trap
+        default: return .heal  // 15% Heal
+        }
+    }
+
+    func selectDoor(door: RuinsDoor) {
+        if door.isRevealed { return }
+
+        if let index = currentDoors.firstIndex(where: { $0.id == door.id }) {
+            currentDoors[index].isRevealed = true
+        }
+
+        resolveDoorEffect(door: door)
+    }
+
+    private func resolveDoorEffect(door: RuinsDoor) {
+        switch door.type {
+        case .combat:
+            handleRuinsCombat(isBoss: false)
+
+        case .boss:
+            handleRuinsCombat(isBoss: true)
+
+        case .treasure:
+            let gold = Int.random(in: 20...500)
+            user?.coins += gold
+            updateRuinsLog(msg: "💰 Našel jsi \(gold) zlaťáků!")
+            prepareNextRoom()
+
+        case .item:
+            // TODO: Přidat item do inventáře
+            updateRuinsLog(msg: "🎒 Našel jsi předmět! (WIP)")
+            prepareNextRoom()
+
+        case .trap:
+            let dmg = Int.random(in: 10...30)
+            user?.stats.hp -= dmg
+            if (user?.stats.hp ?? 0) < 0 { user?.stats.hp = 0 }
+            updateRuinsLog(msg: "⚠️ Past! Ztratil jsi \(dmg) HP.")
+
+            // Check na smrt
+            if (user?.stats.hp ?? 0) <= 0 {
+                // handleDeath() - to už máš v CombatViewModel, tady jen zavřeme ruiny
+                isRuinsActive = false
+            } else {
+                prepareNextRoom()
+            }
+
+        case .heal:
+            let heal = 30
+            let max = user?.stats.maxHP ?? 100
+            user?.stats.hp = min(max, (user?.stats.hp ?? 0) + heal)
+            updateRuinsLog(msg: "💚 Studánka tě vyléčila (+\(heal) HP).")
+            prepareNextRoom()
+        }
+
+        if let u = user {
+            db.collection("users").document(u.uid).updateData([
+                "coins": u.coins,
+                "stats.hp": u.stats.hp,
+            ])
+        }
+    }
+
+    private func handleRuinsCombat(isBoss: Bool) {
+        guard let locName = activeDungeonId,
+            let loc = locations.first(where: { $0.name == locName }),
+            let enemyIds = loc.enemyIds, !enemyIds.isEmpty
+        else {
+            updateRuinsLog(msg: "Nikdo tu není.")
+            prepareNextRoom()
+            return
+        }
+
+        let enemyId: String
+        if isBoss {
+            enemyId = enemyIds.last!
+        } else {
+            if enemyIds.count > 1 {
+                enemyId = enemyIds.dropLast().randomElement()!
+            } else {
+                enemyId = enemyIds.first!
+            }
+        }
+
+        Task {
+            if let enemies = await fetchEnemies(ids: [enemyId]),
+                let enemy = enemies.first
+            {
+                self.currentEnemy = enemy
+                self.showCombat = true
+            }
+        }
+    }
+
+    func prepareNextRoom() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            self.ruinsCurrentRoom += 1
+            self.generateDoors()
+        }
+    }
+
+    func completeRuins() {
+        self.ruinsLog = "🎉 Ruiny vyčištěny!"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.isRuinsActive = false
+        }
+    }
+
+    private func updateRuinsLog(msg: String) {
+        withAnimation { self.ruinsLog = msg }
     }
 }
