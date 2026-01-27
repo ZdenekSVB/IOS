@@ -35,7 +35,7 @@ struct LoginView: View {
                     .padding(.horizontal)
                     
                     if !authViewModel.errorMessage.isEmpty {
-                        Text(authViewModel.errorMessage) // Error message obvykle není lokalizovaný klíč, ale text ze serveru
+                        Text(authViewModel.errorMessage)
                             .foregroundColor(.red)
                             .font(.caption)
                             .padding(.horizontal)
@@ -61,6 +61,7 @@ struct LoginView: View {
                         Text("Back")
                             .foregroundColor(Color("Paleta2"))
                     }
+                    .accessibilityIdentifier(.loginBackButton) // <--- ZMĚNA
                 }
             }
         }

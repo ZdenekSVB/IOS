@@ -2,8 +2,6 @@
 //  WelcomeView.swift
 //  DungeonStride
 //
-//  Created by Vít Čevelík on 14.10.2025.
-//
 
 import SwiftUI
 
@@ -21,6 +19,7 @@ struct WelcomeView: View {
                 VStack(spacing: 40) {
                     Spacer()
                     
+                    // Logo logic...
                     if let logoImage = UIImage(named: "AppLogo") {
                         Image(uiImage: logoImage)
                             .resizable()
@@ -38,6 +37,7 @@ struct WelcomeView: View {
                         WelcomeButton(title: "Login", icon: "person.fill", color: Color("Paleta2")) {
                             showLogin = true
                         }
+                        .accessibilityIdentifier(.welcomeLoginButton) // <--- ZMĚNA
                         
                         WelcomeButton(title: "Login with Google", icon: "globe", isSystemImage: true, color: .white, textColor: .black) {
                             Task { authViewModel.signInWithGoogle() }
@@ -49,13 +49,14 @@ struct WelcomeView: View {
                         Text("Don't have an account?", comment: "Welcome screen footer text")
                             .foregroundColor(Color("Paleta4"))
                         Button(action: {
-                            HapticManager.shared.lightImpact() // Haptika
+                            HapticManager.shared.lightImpact()
                             showRegister = true
                         }) {
                             Text("Sign up", comment: "Link to registration")
                                 .foregroundColor(Color("Paleta2"))
                                 .fontWeight(.semibold)
                         }
+                        .accessibilityIdentifier(.welcomeSignUpButton) // <--- ZMĚNA
                     }
                     
                     Spacer()
