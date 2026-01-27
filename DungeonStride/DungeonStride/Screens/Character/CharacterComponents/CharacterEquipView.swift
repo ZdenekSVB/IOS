@@ -55,16 +55,25 @@ struct CharacterEquipView: View {
                         .cornerRadius(10)
                         .shadow(radius: 2)
                     
-                    // Celkové staty (Malý přehled)
+                    // CELKOVÉ STATISTIKY (Sjednocené se StatsView)
                     if let stats = vm.user?.stats {
-                        HStack(spacing: 12) {
-                            statBadge(icon: "sword.fill", val: stats.physicalDamage, color: .red)
+                        HStack(spacing: 8) {
+                            // Síla / Útok (Červená - Flame)
+                            statBadge(icon: "flame.fill", val: stats.physicalDamage, color: .red)
+                            
+                            // Obrana (Modrá - Shield)
                             statBadge(icon: "shield.fill", val: stats.defense, color: .blue)
+                            
+                            // HP (Zelená - Heart)
                             statBadge(icon: "sparkles", val: stats.magicDamage, color: .purple)
+                            
+                            // HP (Zelená - Heart)
+                            statBadge(icon: "heart.fill", val: stats.maxHP, color: .green)
                         }
-                        .padding(6)
-                        .background(themeManager.cardBackgroundColor.opacity(0.8))
-                        .cornerRadius(8)
+                        .padding(8)
+                        .background(themeManager.cardBackgroundColor)
+                        .cornerRadius(12)
+                        .shadow(color: Color.black.opacity(0.05), radius: 2)
                     }
                 }
                 
@@ -73,7 +82,7 @@ struct CharacterEquipView: View {
                     slotCell(.mainHand)
                     slotCell(.offHand)
                     slotCell(.hands)
-                    // Prázdné místo pro symetrii
+                    // Spacer pro symetrii
                     Spacer().frame(width: 60, height: 60)
                 }
             }
@@ -110,9 +119,11 @@ struct CharacterEquipView: View {
     }
     
     func statBadge(icon: String, val: Int, color: Color) -> some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 3) {
             Image(systemName: icon).font(.caption2).foregroundColor(color)
-            Text("\(val)").font(.caption2).bold().foregroundColor(themeManager.primaryTextColor)
+            Text("\(val)")
+                .font(.caption2).bold()
+                .foregroundColor(themeManager.primaryTextColor)
         }
     }
 }

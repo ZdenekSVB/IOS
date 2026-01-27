@@ -10,17 +10,22 @@ import SwiftUI
 struct CharacterView: View {
     @StateObject var charVM = CharacterViewModel()
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var themeManager: ThemeManager // DŮLEŽITÉ
     
     var body: some View {
         NavigationView {
             ZStack {
-                Color(UIColor.systemGroupedBackground).ignoresSafeArea()
+                // 1. POZADÍ PODLE TÉMATU (NE BÍLÉ)
+                themeManager.backgroundColor.ignoresSafeArea()
                 
                 if charVM.user == nil {
                     if authVM.currentUserUID == nil {
                         Text("Not logged in.")
+                            .foregroundColor(themeManager.secondaryTextColor)
                     } else {
                         ProgressView("Loading hero...")
+                            .tint(themeManager.accentColor)
+                            .foregroundColor(themeManager.secondaryTextColor)
                     }
                 } else {
                     mainContent
@@ -32,7 +37,9 @@ struct CharacterView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
                         Image(systemName: "dollarsign.circle.fill").foregroundColor(.yellow)
-                        Text("\(charVM.user?.coins ?? 0)").font(.headline)
+                        Text("\(charVM.user?.coins ?? 0)")
+                            .font(.headline)
+                            .foregroundColor(themeManager.primaryTextColor)
                     }
                 }
             }
@@ -43,25 +50,9 @@ struct CharacterView: View {
                 if let uid = newUid { charVM.fetchData(for: uid) }
                 else { charVM.stopListening() }
             }
-            // ZMĚNA: Použití ItemDetailSheet i pro UNEQUIP (kliknutí na slot)
-            .sheet(item: $charVM.selectedEquippedSlot) { slot in
-                if let item = charVM.getEquippedItem(for: slot), let user = charVM.user {
-                    // Pro unequip: item je to, co máme na sobě
-                    ItemDetailSheet(
-                        item: item,
-                        equippedItem: item, // Porovnáváme sami se sebou (rozdíl bude 0 -> -hodnota)
-                        user: user,
-                        mode: .unequip(onUnequip: {
-                            charVM.unequipItem(slot: slot)
-                        })
-                    )
-                    .presentationDetents([.medium, .large])
-                }
-            }
-            // Detail pro předmět v BATOHU (Equip / Sell)
+            // Detail / Equip / Sell
             .sheet(item: $charVM.selectedItemForCompare) { invItem in
                 if let slot = invItem.item.computedSlot, let user = charVM.user {
-                    
                     let equippedItem = charVM.getEquippedItem(for: slot)
                     
                     ItemDetailSheet(
@@ -77,25 +68,42 @@ struct CharacterView: View {
                     .presentationDetents([.medium, .large])
                 }
             }
+            // Unequip (kliknutí na slot)
+            .sheet(item: $charVM.selectedEquippedSlot) { slot in
+                if let item = charVM.getEquippedItem(for: slot), let user = charVM.user {
+                    ItemDetailSheet(
+                        item: item,
+                        equippedItem: item,
+                        user: user,
+                        mode: .unequip(onUnequip: {
+                            charVM.unequipItem(slot: slot)
+                        })
+                    )
+                    .presentationDetents([.medium, .large])
+                }
+            }
         }
     }
     
     var mainContent: some View {
         VStack(spacing: 0) {
+            // Equip Grid
             CharacterEquipView(vm: charVM)
                 .padding(.top, 10)
             
+            // Picker (Přepínač)
             Picker("Menu", selection: $charVM.showInventory) {
                 Text("Stats").tag(false)
                 Text("Inventory").tag(true)
             }
             .pickerStyle(.segmented)
             .padding()
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(themeManager.backgroundColor) // Pozadí pickeru
             .onChange(of: charVM.showInventory) { _, _ in
                 HapticManager.shared.lightImpact()
             }
             
+            // Obsah (Grid nebo List)
             if charVM.showInventory {
                 InventoryGridView(items: charVM.inventoryItems) { item in
                     if item.item.computedSlot != nil {

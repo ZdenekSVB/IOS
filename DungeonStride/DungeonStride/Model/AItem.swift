@@ -149,6 +149,7 @@ struct InventoryItem: Identifiable, Equatable {
         return lhs.id == rhs.id && lhs.quantity == rhs.quantity
     }
 }
+
 enum EquipSlot: String, CaseIterable, Identifiable {
     case mainHand = "Weapon"
     case offHand = "Shield"
@@ -174,23 +175,23 @@ enum EquipSlot: String, CaseIterable, Identifiable {
         case .hands: return "hand.raised.fill"
         case .legs: return "figure.walk"
         case .feet: return "shoe.fill"
-        case .spell1, .spell2, .spell3: return "sparkles" // Ikona pro kouzla
+        case .spell1, .spell2, .spell3: return "sparkles"
         }
     }
 }
 
 extension AItem {
     var computedSlot: EquipSlot? {
+        // ZDE BYLA CHYBA: Přidali jsme podporu pro "Head" a "Chest" z JSONu
         switch itemType {
-        case "Weapon":      return .mainHand
-        case "Shield":      return .offHand
-        case "Helmet":      return .head
-        case "Chestplate":  return .chest
-        case "Gloves":      return .hands
-        case "Leggings":    return .legs
-        case "Boots":       return .feet
-        // Spell vrací spell1 jako default, logika viewModelu to pak může přehodit do volného slotu
-        case "Spell":       return .spell1
+        case "Weapon":          return .mainHand
+        case "Shield":          return .offHand
+        case "Helmet", "Head":  return .head   // <--- Oprava (bere Helmet i Head)
+        case "Chestplate", "Chest": return .chest // <--- Oprava (bere Chestplate i Chest)
+        case "Gloves", "Hands": return .hands
+        case "Leggings", "Legs": return .legs
+        case "Boots", "Feet":   return .feet
+        case "Spell":           return .spell1
         default: return nil
         }
     }

@@ -14,14 +14,25 @@ struct StatRow: View {
     let cost: Int
     let icon: String
     let color: Color
-    let currency: Int // Zde posíláme statPoints
+    let currency: Int
     let action: (String, Int) -> Void
+    
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         HStack {
-            Label { Text(title) } icon: { Image(systemName: icon).foregroundColor(color) }
+            Label {
+                Text(title).foregroundColor(themeManager.primaryTextColor)
+            } icon: {
+                Image(systemName: icon).foregroundColor(color)
+            }
+            
             Spacer()
-            Text("\(value)").bold()
+            
+            Text("\(value)")
+                .bold()
+                .foregroundColor(themeManager.primaryTextColor)
+                .padding(.trailing, 8)
             
             Button(action: {
                 if currency >= cost {
@@ -34,12 +45,11 @@ struct StatRow: View {
             }) {
                 Image(systemName: "plus.circle.fill")
                     .font(.title2)
-                    .foregroundColor(currency >= cost ? .green : .gray.opacity(0.3))
+                    .foregroundColor(currency >= cost ? .green : themeManager.secondaryTextColor.opacity(0.3))
             }
             .disabled(currency < cost)
             .buttonStyle(PlainButtonStyle())
-            .padding(.leading, 8)
         }
-        .padding(.vertical, 4)
+        .padding()
     }
 }

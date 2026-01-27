@@ -10,6 +10,7 @@ import SwiftUI
 struct ShopView: View {
     @StateObject var vm = ShopViewModel()
     @EnvironmentObject var authVM: AuthViewModel
+    @EnvironmentObject var themeManager: ThemeManager // Přidáno pro barvy
     
     // Pro zobrazení detailu
     @State private var selectedShopSlot: ShopSlot?
@@ -20,7 +21,8 @@ struct ShopView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color(UIColor.systemGroupedBackground).ignoresSafeArea()
+                // Pozadí celé obrazovky podle tématu
+                themeManager.backgroundColor.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     MerchantHeaderView(timeToNextReset: vm.timeToNextReset)
@@ -38,30 +40,35 @@ struct ShopView: View {
                                 Text(")")
                             }
                             .font(.caption).bold()
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, 12)
-                            .background(user.coins >= 50 ? Color.blue : Color.gray)
+                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(user.coins >= 50 ? themeManager.accentColor : Color.gray)
                             .foregroundColor(.white)
                             .cornerRadius(20)
                             .shadow(radius: 2)
                         }
                         .disabled(user.coins < 50)
-                        .padding(.top, -15)
+                        .padding(.top, -20) // Aby tlačítko "plavalo" přes hranici headeru
                         .padding(.bottom, 10)
+                        .zIndex(1) // Aby bylo nad obsahem
                     }
                     
                     if vm.isLoading {
-                        Spacer(); ProgressView("Opening shop..."); Spacer()
+                        Spacer()
+                        ProgressView("Opening shop...")
+                            .tint(themeManager.accentColor)
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Spacer()
                     } else if vm.slots.isEmpty {
-                        Spacer(); Text("Shop is empty.").foregroundColor(.gray); Spacer()
+                        Spacer()
+                        Text("Shop is empty.")
+                            .foregroundColor(themeManager.secondaryTextColor)
+                        Spacer()
                     } else {
                         ScrollView {
                             LazyVGrid(columns: columns, spacing: 15) {
-                                // ZDE BYLA CHYBA: Používáme prostý ForEach nad polem struktur
-                                // ShopSlot musí být Identifiable (což je)
                                 ForEach(vm.slots) { slot in
                                     if let itemDef = vm.masterItems[slot.itemId] {
-                                        // Celá buňka je tlačítko pro detail
                                         Button(action: {
                                             self.selectedShopSlot = slot
                                             self.showDetailSheet = true
@@ -77,6 +84,7 @@ struct ShopView: View {
                                 }
                             }
                             .padding()
+                            .padding(.bottom, 20)
                         }
                     }
                 }
@@ -87,21 +95,20 @@ struct ShopView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
                         Image(systemName: "dollarsign.circle.fill").foregroundColor(.yellow)
-                        Text("\(vm.user?.coins ?? 0)").font(.headline)
+                        Text("\(vm.user?.coins ?? 0)")
+                            .font(.headline)
+                            .foregroundColor(themeManager.primaryTextColor)
                     }
                 }
             }
             .onAppear {
                 if let uid = authVM.currentUserUID { vm.fetchData(userId: uid) }
             }
-            // ZOBRAZENÍ DETAILU
             .sheet(isPresented: $showDetailSheet) {
                 if let slot = selectedShopSlot,
                    let item = vm.masterItems[slot.itemId],
                    let user = vm.user {
                     
-                    // Zjistíme, co má uživatel na sobě v tomto slotu
-                    // Použijeme bezpečné rozbalení
                     let equippedItem: AItem? = {
                         if let slotType = item.computedSlot,
                            let equippedId = user.equippedIds[slotType.id] {
@@ -115,7 +122,7 @@ struct ShopView: View {
                         equippedItem: equippedItem,
                         user: user,
                         mode: slot.isPurchased
-                            ? .viewOnly // Pokud koupeno, jen prohlížíme
+                            ? .viewOnly
                             : .buy(price: slot.price, onBuy: {
                                 vm.buyItem(slot: slot)
                             })

@@ -11,66 +11,76 @@ struct ShopItemCell: View {
     let item: AItem
     let slot: ShopSlot
     let userCoins: Int
-    @EnvironmentObject var themeManager: ThemeManager
+    
+    @EnvironmentObject var themeManager: ThemeManager // Použijeme themeManager
     
     var canAfford: Bool { userCoins >= slot.price }
     
     var body: some View {
-        // Pokud je koupeno, zobrazíme jen prázdnou "SOLD" buňku
-        if slot.isPurchased {
-            VStack {
-                Spacer()
-                Text("SOLD")
-                    .font(.headline)
-                    .fontWeight(.heavy)
-                    .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
-                    .rotationEffect(.degrees(-15))
-                Spacer()
-            }
-            .frame(height: 160)
-            .frame(maxWidth: .infinity)
-            .background(themeManager.cardBackgroundColor.opacity(0.5))
-            .cornerRadius(16)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    .background(Color.clear) // Klikatelnost
-            )
-        } else {
-            // Standardní buňka
-            VStack(spacing: 12) {
-                // Ikona
-                ItemIconView(item: item, size: 80)
-                    .shadow(radius: 4)
-                    .padding(.top, 10)
+        VStack(spacing: 0) {
+            // HORNÍ ČÁST: Obrázek
+            ZStack {
+                Color.clear
                 
-                VStack(spacing: 4) {
-                    Text(item.name)
-                        .font(.caption).bold()
-                        .foregroundColor(themeManager.primaryTextColor)
-                        .lineLimit(1)
-                    
-                    // Cena
-                    HStack(spacing: 4) {
-                        Text("\(slot.price)")
-                            .font(.subheadline).bold()
-                        Image(systemName: "dollarsign.circle.fill")
-                            .font(.caption)
-                    }
-                    .foregroundColor(canAfford ? .green : .red)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(themeManager.backgroundColor)
-                    .cornerRadius(8)
+                if item.isSystemIcon {
+                    Image(systemName: item.iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(15)
+                        .foregroundColor(item.rarity?.color ?? .gray)
+                } else {
+                    Image(item.iconName)
+                        .resizable()
+                        .scaledToFit()
                 }
-                .padding(.bottom, 10)
-                .padding(.horizontal, 4)
+                
+                if slot.isPurchased {
+                    Color.black.opacity(0.6)
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.largeTitle)
+                        .foregroundColor(.green)
+                        .shadow(radius: 5)
+                }
             }
-            .frame(height: 160)
+            .frame(height: 80)
+            .background(themeManager.backgroundColor.opacity(0.3)) // Jemné podbarvení
+            
+            // DOLNÍ ČÁST: Info
+            VStack(spacing: 4) {
+                Text(item.name)
+                    .font(.caption2).bold()
+                    .lineLimit(1)
+                    .foregroundColor(themeManager.primaryTextColor)
+                
+                if slot.isPurchased {
+                    Text("OWNED")
+                        .font(.caption).bold()
+                        .foregroundColor(themeManager.secondaryTextColor)
+                        .padding(.vertical, 4)
+                } else {
+                    HStack(spacing: 2) {
+                        Text("\(slot.price)")
+                        Image(systemName: "dollarsign.circle.fill")
+                    }
+                    .font(.caption).bold()
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(canAfford ? Color.green.opacity(0.2) : Color.red.opacity(0.2))
+                    .foregroundColor(canAfford ? .green : .red)
+                    .cornerRadius(6)
+                }
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 4)
             .frame(maxWidth: .infinity)
-            .background(themeManager.cardBackgroundColor)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .background(themeManager.cardBackgroundColor) // Barva karty z tématu
         }
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(item.rarity?.color.opacity(0.6) ?? themeManager.secondaryTextColor.opacity(0.2), lineWidth: 2)
+        )
+        .frame(height: 140)
+        .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 2)
     }
 }

@@ -10,22 +10,39 @@ import SwiftUI
 struct InventoryGridView: View {
     let items: [InventoryItem]
     let onItemClick: (InventoryItem) -> Void
-    let columns = [GridItem(.adaptive(minimum: 70), spacing: 15)]
+    
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    let columns = [GridItem(.adaptive(minimum: 75), spacing: 15)]
     
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 15) {
-                ForEach(items) { invItem in
-                    InventoryItemCell(item: invItem)
-                        .onTapGesture {
-                            // Haptika a zvuk při výběru
-                            HapticManager.shared.lightImpact()
-                            SoundManager.shared.playSystemClick()
-                            onItemClick(invItem)
-                        }
+            if items.isEmpty {
+                VStack {
+                    Spacer(minLength: 50)
+                    Image(systemName: "backpack")
+                        .font(.largeTitle)
+                        .foregroundColor(themeManager.secondaryTextColor.opacity(0.5))
+                        .padding(.bottom, 10)
+                    Text("Inventory is empty")
+                        .foregroundColor(themeManager.secondaryTextColor)
                 }
+                .frame(maxWidth: .infinity)
+            } else {
+                LazyVGrid(columns: columns, spacing: 20) {
+                    ForEach(items) { invItem in
+                        InventoryItemCell(item: invItem)
+                            .onTapGesture {
+                                HapticManager.shared.lightImpact()
+                                SoundManager.shared.playSystemClick()
+                                onItemClick(invItem)
+                            }
+                    }
+                }
+                .padding()
+                .padding(.bottom, 20)
             }
-            .padding()
         }
+        .background(themeManager.backgroundColor) // Pozadí ScrollView
     }
 }
