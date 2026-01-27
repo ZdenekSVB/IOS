@@ -59,17 +59,34 @@ struct CombatView: View {
                             color: .green
                         )
 
-                        HStack(spacing: 15) {
-                            Label(
-                                "\(viewModel.totalAttack)",
-                                systemImage: "sword.fill"
-                            )
-                            Label(
-                                "\(viewModel.totalDefense)",
-                                systemImage: "shield.fill"
-                            )
+                        VStack(spacing: 2) {
+                            // Fyzické (Bílá)
+                            HStack(spacing: 8) {
+                                Label(
+                                    "\(viewModel.totalPhysicalAttack)",
+                                    systemImage: "sword.fill"
+                                )
+                                Label(
+                                    "\(viewModel.totalPhysicalDefense)",
+                                    systemImage: "shield.fill"
+                                )
+                            }
+                            .foregroundColor(.white.opacity(0.9))
+
+                            // Magické (Cyan)
+                            HStack(spacing: 8) {
+                                Label(
+                                    "\(viewModel.totalMagicAttack)",
+                                    systemImage: "flame.fill"
+                                )
+                                Label(
+                                    "\(viewModel.totalMagicDefense)",
+                                    systemImage: "sparkles"
+                                )
+                            }
+                            .foregroundColor(.cyan.opacity(0.9))
                         }
-                        .font(.caption2).foregroundColor(.white.opacity(0.8))
+                        .font(.system(size: 10, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
 
@@ -91,12 +108,12 @@ struct CombatView: View {
 
                     // PRAVÁ STRANA: NEPŘÍTEL
                     VStack(spacing: 8) {
+                        // Avatar + Hit efekt
                         ZStack {
-                            Circle().fill(Color.black.opacity(0.5)).frame(
-                                width: 85,
-                                height: 85
-                            )
+                            Circle().fill(Color.black.opacity(0.5))
+                                .frame(width: 85, height: 85)
 
+                            // Používáme iconName z modelu Enemy (Assets)
                             Image(viewModel.enemy.iconName)
                                 .resizable().scaledToFit()
                                 .frame(width: 80, height: 80)
@@ -107,28 +124,48 @@ struct CombatView: View {
                                 .clipShape(Circle())
                         )
 
+                        // Jméno
                         Text(viewModel.enemy.name)
                             .font(.caption).bold().foregroundColor(.red)
                             .shadow(radius: 2)
                             .lineLimit(1)
 
+                        // Health Bar
                         HealthBarView(
                             current: viewModel.enemy.currentHP,
                             max: viewModel.enemy.combatStats.hp,
                             color: .red
                         )
 
-                        HStack(spacing: 15) {
-                            Label(
-                                "\(viewModel.enemy.combatStats.attack)",
-                                systemImage: "sword.fill"
-                            )
-                            Label(
-                                "\(viewModel.enemy.combatStats.defense)",
-                                systemImage: "shield.fill"
-                            )
+                        // --- STATY NEPŘÍTELE (Fyzické vs Magické) ---
+                        VStack(spacing: 2) {
+                            // Fyzické
+                            HStack(spacing: 8) {
+                                Label(
+                                    "\(viewModel.enemy.combatStats.physicalDamage)",
+                                    systemImage: "sword.fill"
+                                )
+                                Label(
+                                    "\(viewModel.enemy.combatStats.physicalDefense)",
+                                    systemImage: "shield.fill"
+                                )
+                            }
+                            .foregroundColor(.white.opacity(0.9))
+
+                            // Magické
+                            HStack(spacing: 8) {
+                                Label(
+                                    "\(viewModel.enemy.combatStats.magicDamage)",
+                                    systemImage: "flame.fill"
+                                )
+                                Label(
+                                    "\(viewModel.enemy.combatStats.magicDefense)",
+                                    systemImage: "sparkles"
+                                )
+                            }
+                            .foregroundColor(.cyan.opacity(0.9))
                         }
-                        .font(.caption2).foregroundColor(.white.opacity(0.8))
+                        .font(.system(size: 10, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
                 }

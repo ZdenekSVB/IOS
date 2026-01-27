@@ -855,6 +855,15 @@
         }
       }
     },
+    "Nahrát ITEMY" : {
+
+    },
+    "Nahrát MAPU" : {
+
+    },
+    "Nahrát NEPŘÁTELE" : {
+
+    },
     "Nepřítel útočí..." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -1036,6 +1045,7 @@
       }
     },
     "Průzkum Dungeonu" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1044,6 +1054,9 @@
           }
         }
       }
+    },
+    "Průzkum: %@" : {
+
     },
     "Push Notifications" : {
       "localizations" : {
@@ -1105,6 +1118,9 @@
           }
         }
       }
+    },
+    "Ruiny - Brzy přístupné!" : {
+
     },
     "Runs" : {
       "localizations" : {
@@ -1282,6 +1298,7 @@
       }
     },
     "Tento dungeon je prázdný." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1433,6 +1450,9 @@
           }
         }
       }
+    },
+    "Vypadá to, že je tu klid..." : {
+
     },
     "We're here to help!" : {
       "localizations" : {

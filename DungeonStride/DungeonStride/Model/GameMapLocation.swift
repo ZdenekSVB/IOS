@@ -19,7 +19,8 @@ struct GameMapLocation: Codable, Identifiable, Equatable {
     let enemyIds: [String]?
     let shopTier: Int?
     let difficultyTier: Int?
-
+    let iconName: String
+    
     var position: CGPoint {
         return CGPoint(x: x, y: y)
     }

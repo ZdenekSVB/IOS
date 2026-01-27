@@ -9,8 +9,8 @@ import SwiftUI
 
 struct LocationMarkerView: View {
     let location: GameMapLocation
-    
-    var iconName: String {
+
+    /*var iconName: String {
         switch location.locationType {
         case "city": return "house.fill"
         case "dungeon": return "skull.fill"
@@ -18,8 +18,8 @@ struct LocationMarkerView: View {
         case "swamp": return "drop.fill"
         default: return "mappin.circle.fill"
         }
-    }
-    
+    }*/
+
     var color: Color {
         switch location.locationType {
         case "city": return .blue
@@ -29,25 +29,45 @@ struct LocationMarkerView: View {
         default: return .gray
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 5) {
-            Image(systemName: iconName)
-                .font(.system(size: 44))
-                .padding(12)
-                .background(color.opacity(0.8))
-                .foregroundColor(.white)
-                .clipShape(Circle())
-                .overlay(Circle().stroke(Color.white, lineWidth: 3))
-                .shadow(radius: 5)
-            
+
+            ZStack {
+                // Pozadí
+                Circle()
+                    .fill(color.opacity(0.8))
+                    .frame(width: 60, height: 60)
+                    .overlay(
+                        Circle().stroke(Color.white, lineWidth: 3)
+                    )
+                    .shadow(radius: 5)
+
+                // Ikona
+                if UIImage(named: location.iconName) != nil {
+                    // Pokud existuje v Assets
+                    Image(location.iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                    // .foregroundColor(.white) // Odkomentuj, pokud jsou ikony černé siluety
+                } else {
+                    // Fallback (aby to nepadlo, když chybí asset)
+                    Image(systemName: "mappin.circle.fill")
+                        .font(.system(size: 30))
+                        .foregroundColor(.white)
+                }
+            }
+
             Text(location.name)
-                .font(.system(size: 14, weight: .bold))
-                .padding(6)
-                .background(Color.black.opacity(0.6))
+                .font(.system(size: 12, weight: .bold))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.black.opacity(0.7))
                 .foregroundColor(.white)
-                .cornerRadius(6)
+                .cornerRadius(8)
+                .lineLimit(1)
         }
-        .offset(y: -40)
+        .offset(y: -30)
     }
 }

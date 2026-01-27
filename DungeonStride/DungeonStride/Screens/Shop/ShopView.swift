@@ -10,31 +10,47 @@ import SwiftUI
 struct ShopView: View {
     @StateObject var vm = ShopViewModel()
     @EnvironmentObject var authVM: AuthViewModel
-    
+
     // Mřížka: 2 sloupce
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color(UIColor.systemGroupedBackground).ignoresSafeArea()
-                
+
                 VStack(spacing: 0) {
-                    
+
                     // --- 1. HLAVIČKA OBCHODNÍKA ---
                     MerchantHeaderView(timeToNextReset: vm.timeToNextReset)
-                    
+
+                    VStack {
+                        Button("Nahrát ITEMY") {
+                            Task { await DatabaseSeeder().uploadItems() }
+                        }
+
+                        Button("Nahrát NEPŘÁTELE") {
+                            Task { await DatabaseSeeder().uploadEnemies() }
+                        }
+
+                        Button("Nahrát MAPU") {
+                            Task { await DatabaseSeeder().uploadMap() }
+                        }
+                        
+                    }
+
                     // --- 2. MŘÍŽKA ZBOŽÍ ---
                     if vm.slots.isEmpty {
                         Spacer()
-                        ProgressView("Opening shop...") // Lokalizace
+                        ProgressView("Opening shop...")  // Lokalizace
                         Spacer()
                     } else {
                         ScrollView {
                             LazyVGrid(columns: columns, spacing: 15) {
                                 ForEach(vm.slots) { slot in
                                     // Zobrazíme jen pokud máme definici itemu
-                                    if let itemDef = vm.masterItems[slot.itemId] {
+                                    if let itemDef = vm.masterItems[slot.itemId]
+                                    {
                                         ShopItemCell(
                                             item: itemDef,
                                             slot: slot,
@@ -51,7 +67,7 @@ struct ShopView: View {
                     }
                 }
             }
-            .navigationTitle("Shop") // Lokalizace
+            .navigationTitle("Shop")  // Lokalizace
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

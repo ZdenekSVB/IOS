@@ -39,6 +39,7 @@ struct LocationDetailSheet: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 20) {
+                // --- HLAVIČKA ---
                 VStack(spacing: 10) {
                     Image(systemName: iconName)
                         .font(.system(size: 50))
@@ -48,78 +49,88 @@ struct LocationDetailSheet: View {
                         .clipShape(Circle())
 
                     Text(location.name)
-                        .font(.title2)
-                        .bold()
+                        .font(.title2).bold()
 
-                    Text(location.locationType.uppercased())
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color.secondary.opacity(0.2))
-                        .foregroundColor(.secondary)
-                        .cornerRadius(8)
+                    // Typ lokace + Obtížnost
+                    HStack {
+                        Text(location.locationType.uppercased())
+                            .font(.caption).fontWeight(.bold)
+                            .padding(.horizontal, 10).padding(.vertical, 4)
+                            .background(Color.secondary.opacity(0.2))
+                            .foregroundColor(.secondary).cornerRadius(8)
+
+                        // Zobrazení lebek podle difficultyTier
+                        if let tier = location.difficultyTier {
+                            HStack(spacing: 2) {
+                                ForEach(0..<tier, id: \.self) { _ in
+                                    Image(systemName: "skull.fill")
+                                        .font(.caption2)
+                                        .foregroundColor(.red)
+                                }
+                            }
+                            .padding(.leading, 8)
+                        }
+                    }
                 }
                 .padding(.top, 20)
 
                 Divider()
 
+                // --- POPIS ---
                 ScrollView {
                     Text(location.description ?? "Žádný popis.")
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                        .font(.body).foregroundColor(.secondary)
+                        .multilineTextAlignment(.center).padding(.horizontal)
                 }
 
                 Spacer()
 
+                // --- AKCE ---
                 if isCurrentLocation {
-                    // 1. JSME NA MÍSTĚ
-
-                    if location.locationType == "dungeon" {
-                        // A) JE TO DUNGEON -> Zobrazíme Menu Monster
-                        // Tady vložíme tu komponentu, kterou jsi posílal (DungeonMenuView)
+                    // Jsme na místě
+                    if location.locationType == "dungeon"
+                        || location.locationType == "swamp"
+                    {
                         Divider()
                         DungeonMenuView(
                             location: location,
                             viewModel: viewModel
                         )
-                        .frame(maxHeight: 300)  // Omezíme výšku seznamu
-
+                        .frame(maxHeight: 300)
+                    } else if location.locationType == "ruins" {
+                        // Tady později přidáme logiku Ruin (Dveře), zatím placeholder
+                        Text("Ruiny - Brzy přístupné!")
+                            .foregroundColor(.orange)
+                            .padding()
                     } else {
-                        // B) NENÍ TO DUNGEON (Město atd.) -> Klasické "Nacházíš se zde"
+                        // Město atd.
                         Button(action: {}) {
                             HStack {
                                 Image(systemName: "mappin.and.ellipse")
                                 Text("Nacházíš se zde")
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
+                            .frame(maxWidth: .infinity).padding()
                             .background(Color.gray.opacity(0.3))
-                            .foregroundColor(.gray)
-                            .cornerRadius(15)
+                            .foregroundColor(.gray).cornerRadius(15)
                         }
                         .disabled(true)
                     }
 
                 } else if viewModel.isTraveling {
-                    // 2. CESTUJEME
+                    // Cestujeme
                     Button(action: {}) {
                         HStack {
                             ProgressView().padding(.trailing, 8)
                             Text("Cestuji...")
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                        .frame(maxWidth: .infinity).padding()
                         .background(Color.orange.opacity(0.8))
-                        .foregroundColor(.white)
-                        .cornerRadius(15)
+                        .foregroundColor(.white).cornerRadius(15)
                     }
                     .disabled(true)
 
                 } else {
-                    // 3. MŮŽEME CESTOVAT
+                    // Můžeme cestovat
                     Button(action: {
                         dismiss()
                         viewModel.travel(to: location)
@@ -127,23 +138,18 @@ struct LocationDetailSheet: View {
                         HStack {
                             Image(systemName: "figure.walk")
                             Text("Cestovat sem")
-                                .fontWeight(.bold)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                        .frame(maxWidth: .infinity).padding()
                         .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(15)
+                        .foregroundColor(.white).cornerRadius(15)
                     }
                 }
             }
             .padding(.horizontal)
             .padding(.bottom, 20)
-            
-            
-            Button(action: {
-                dismiss()
-            }) {
+
+            // Křížek
+            Button(action: { dismiss() }) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 30))
                     .foregroundColor(Color(.systemGray3))

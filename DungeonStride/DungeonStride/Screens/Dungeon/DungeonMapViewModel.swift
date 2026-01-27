@@ -31,11 +31,13 @@ class DungeonMapViewModel: ObservableObject {
 
     func loadMapData(mapId: String) async {
         do {
+            // 1. Hlavní dokument
             let mapSnapshot = try await db.collection("game_maps").document(
                 mapId
             ).getDocument()
             self.mapData = try mapSnapshot.data(as: GameMap.self)
 
+            // 2. Subkolekce
             let locationsSnapshot = try await db.collection("game_maps")
                 .document(mapId)
                 .collection("locations")
@@ -45,6 +47,9 @@ class DungeonMapViewModel: ObservableObject {
                 try? doc.data(as: GameMapLocation.self)
             }
 
+            print("🗺️ Mapa načtena: \(self.locations.count) lokací")
+
+            // Nastavení startovní pozice (pokud ještě není)
             if currentUserLocation == nil {
                 if let startNode = self.locations.first(where: {
                     $0.locationType == "city"
@@ -55,7 +60,7 @@ class DungeonMapViewModel: ObservableObject {
             }
 
         } catch {
-            print("Chyba mapy: \(error)")
+            print("❌ Chyba mapy: \(error)")
         }
     }
 
