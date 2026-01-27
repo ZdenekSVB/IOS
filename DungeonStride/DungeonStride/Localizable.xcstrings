@@ -292,7 +292,7 @@
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chyba při načítáni boje"
+            "value" : "Chyba při načítání boje"
           }
         },
         "en" : {
@@ -711,7 +711,7 @@
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kniha Kouzel "
+            "value" : "Kniha Kouzel"
           }
         },
         "en" : {
@@ -765,6 +765,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lektvary"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potions"
           }
         }
       }
@@ -931,19 +937,63 @@
         }
       }
     },
-<<<<<<< HEAD
     "Nahrát ITEMY" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nahrát ITEMY"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload ITEMS"
+          }
+        }
+      }
     },
     "Nahrát MAPU" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nahrát MAPU"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload MAP"
+          }
+        }
+      }
     },
     "Nahrát NEPŘÁTELE" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nahrát NEPŘÁTELE"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload ENEMIES"
+          }
+        }
+      }
     },
     "Nepřítel útočí..." : {
       "extractionState" : "stale",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nepřítel útočí..."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -952,8 +1002,6 @@
         }
       }
     },
-=======
->>>>>>> 3bd48593d88d21ee6bcdefc61d95cfa007fee25b
     "NEW" : {
       "localizations" : {
         "cs" : {
@@ -1167,7 +1215,20 @@
       }
     },
     "Průzkum: %@" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Průzkum: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exploration: %@"
+          }
+        }
+      }
     },
     "Push Notifications" : {
       "localizations" : {
@@ -1231,7 +1292,20 @@
       }
     },
     "Ruiny - Brzy přístupné!" : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruiny - Brzy přístupné!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ruins - Coming Soon!"
+          }
+        }
+      }
     },
     "Runs" : {
       "localizations" : {
@@ -1254,6 +1328,7 @@
       }
     },
     "SEED QUESTS (DEV ONLY)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1361,6 +1436,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Soupeř hraje..."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enemy turn..."
           }
         }
       }
@@ -1579,6 +1660,12 @@
             "state" : "translated",
             "value" : "VS"
           }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VS"
+          }
         }
       }
     },
@@ -1599,7 +1686,20 @@
       }
     },
     "Vypadá to, že je tu klid..." : {
-
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vypadá to, že je tu klid..."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It looks quiet here..."
+          }
+        }
+      }
     },
     "We're here to help!" : {
       "localizations" : {
@@ -1629,6 +1729,12 @@
             "state" : "translated",
             "value" : "x%lld"
           }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "x%lld"
+          }
         }
       }
     },
@@ -1653,7 +1759,7 @@
         "cs" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zpět "
+            "value" : "Zpět"
           }
         },
         "en" : {
@@ -1681,5 +1787,5 @@
       }
     }
   },
-  "version" : "1.1"
+  "version" : "1.0"
 }

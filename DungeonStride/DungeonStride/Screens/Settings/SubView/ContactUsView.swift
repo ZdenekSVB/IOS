@@ -5,8 +5,6 @@
 //  Created by Zdeněk Svoboda on 26.01.2026.
 //
 
-
-
 import SwiftUI
 
 struct ContactUsView: View {
@@ -15,6 +13,11 @@ struct ContactUsView: View {
     // Kontaktní údaje
     private let supportEmail = "support@dungeonstride.app"
     private let supportPhone = "+420 555 019 283"
+    
+    // Alert stavy
+    @State private var showAlert = false
+    @State private var alertTitle = ""
+    @State private var alertMessage = ""
     
     var body: some View {
         ZStack {
@@ -45,6 +48,7 @@ struct ContactUsView: View {
                 
                 // Tlačítko pro Email
                 Button(action: {
+                    print("📧 Tlačítko Email stisknuto")
                     openMail()
                 }) {
                     HStack {
@@ -62,6 +66,7 @@ struct ContactUsView: View {
                 
                 // Tlačítko pro Telefon
                 Button(action: {
+                    print("📞 Tlačítko Telefon stisknuto")
                     openPhone()
                 }) {
                     HStack {
@@ -83,35 +88,58 @@ struct ContactUsView: View {
         }
         .navigationTitle("Contact Us")
         .navigationBarTitleDisplayMode(.inline)
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        }
     }
     
     // MARK: - Actions
     
     private func openMail() {
-        print("📧 Pokus o otevření emailu...") // Pro debugging v konzoli
+        // Vytvoření URL
+        guard let url = URL(string: "mailto:\(supportEmail)") else {
+            print("❌ Chyba: Neplatná URL pro email")
+            return
+        }
         
-        // Vytvoříme URL mailto:support@...
-        if let url = URL(string: "mailto:\(supportEmail)") {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url)
+        // Pokus o otevření
+        UIApplication.shared.open(url) { success in
+            if success {
+                print("✅ Email aplikace otevřena")
             } else {
-                print("❌ Zařízení nemůže poslat email (např. simulátor nebo chybí Mail app).")
+                print("⚠️ Email aplikaci se nepodařilo otevřít (např. Simulátor)")
+                // Fallback: Zkopírovat do schránky
+                UIPasteboard.general.string = supportEmail
+                alertTitle = "Email zkopírován"
+                alertMessage = "Nemáte nastavenou aplikaci pro email. Adresa byla zkopírována do schránky."
+                showAlert = true
             }
         }
     }
     
     private func openPhone() {
-        print("📞 Pokus o vytáčení čísla...") // Pro debugging v konzoli
+        // 1. Odstraníme mezery a závorky, necháme jen čísla a +
+        let cleanPhone = supportPhone.components(separatedBy: CharacterSet.decimalDigits.union(CharacterSet(charactersIn: "+")).inverted).joined()
         
-        // Odstraníme mezery z čísla, aby to systém pochopil (např. +420123456789)
-        let cleanPhone = supportPhone.replacingOccurrences(of: " ", with: "")
+        print("📞 Volám číslo: \(cleanPhone)")
         
-        // Použijeme schéma "tel:"
-        if let url = URL(string: "tel:\(cleanPhone)") {
-            if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.open(url)
+        // 2. Vytvoříme URL tel://
+        guard let url = URL(string: "tel://\(cleanPhone)") else {
+            print("❌ Chyba: Neplatná URL pro telefon")
+            return
+        }
+        
+        // 3. Otevřeme
+        UIApplication.shared.open(url) { success in
+            if success {
+                print("✅ Telefon otevřen")
             } else {
-                print("❌ Zařízení nemůže volat (např. simulátor nebo iPad bez SIM).")
+                print("⚠️ Nelze volat (Simulátor nebo iPad)")
+                // Fallback: Zkopírovat do schránky
+                UIPasteboard.general.string = supportPhone
+                alertTitle = "Nelze volat"
+                alertMessage = "Toto zařízení neumí volat. Číslo bylo zkopírováno do schránky."
+                showAlert = true
             }
         }
     }

@@ -29,7 +29,7 @@ struct HomeView: View {
                 VStack(spacing: 0) {
 
                     // --- DEV BUTTON (Zakomentováno) ---
-                    
+                    /*
                     Button(action: {
                         print("🚀 Spouštím seedování questů...")
                         DatabaseSeeder().uploadQuestsToFirestore()
@@ -43,7 +43,7 @@ struct HomeView: View {
                             .cornerRadius(8)
                     }
                     .padding(.top, 10)
-                    
+                    */
                     // ----------------------------------
 
                     // Obsah záložek
