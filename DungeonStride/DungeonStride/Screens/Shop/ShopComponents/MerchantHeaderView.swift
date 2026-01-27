@@ -12,39 +12,53 @@ struct MerchantHeaderView: View {
     
     var body: some View {
         ZStack {
-            Color.black.opacity(0.85) // Tmavé pozadí
+            LinearGradient(
+                colors: [Color.black, Color(red: 0.1, green: 0.1, blue: 0.2)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
             
             HStack(spacing: 20) {
-                // Ikona obchodníka
-                Image(systemName: "person.crop.circle.badge.questionmark.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 70, height: 70)
-                    .foregroundColor(.yellow)
-                    .padding(.leading)
-                
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Mysterious Merchant") // Lokalizace
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    Text("Items reset every 24 hours.") // Lokalizace
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                // IKONA OBCHODNÍKA
+                ZStack {
+                    Circle()
+                        .fill(Color.orange.opacity(0.2))
+                        .frame(width: 70, height: 70)
                     
-                    // Timer
-                    HStack {
-                        Image(systemName: "clock")
-                        Text("Reset in: \(timeToNextReset)") // Lokalizace
-                            .monospacedDigit()
+                    Circle()
+                        .stroke(Color.orange, lineWidth: 2)
+                        .frame(width: 70, height: 70)
+                    
+                    if UIImage(named: "Merchant") != nil {
+                        Image("Merchant")
+                            .resizable().scaledToFill().frame(width: 64, height: 64).clipShape(Circle())
+                    } else {
+                        Image(systemName: "person.crop.circle.badge.questionmark.fill")
+                            .resizable().scaledToFit().frame(width: 50, height: 50).foregroundColor(.yellow)
                     }
-                    .font(.caption2)
-                    .bold()
-                    .foregroundColor(.orange)
-                    .padding(.top, 5)
+                }
+                .padding(.leading)
+                
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Mysterious Merchant")
+                        .font(.title3).bold()
+                        .foregroundColor(.white)
+                        .shadow(color: .orange.opacity(0.5), radius: 5)
+                    
+                    Text("New wares every 24h.")
+                        .font(.caption).foregroundColor(.gray)
+                    
+                    HStack(spacing: 6) {
+                        Image(systemName: "hourglass").foregroundColor(.orange)
+                        Text("Reset in: \(timeToNextReset)")
+                            .font(.system(.caption, design: .monospaced)).bold().foregroundColor(.orange)
+                    }
+                    .padding(.top, 2)
                 }
                 Spacer()
             }
         }
-        .frame(height: 120)
+        .frame(height: 130)
+        .overlay(Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.1)), alignment: .bottom)
     }
 }

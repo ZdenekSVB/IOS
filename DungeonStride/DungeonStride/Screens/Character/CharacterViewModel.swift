@@ -13,7 +13,6 @@ class CharacterViewModel: ObservableObject {
     @Published var inventoryItems: [InventoryItem] = []
     @Published var masterItems: [String: AItem] = [:]
     
-    // UI Stavy
     @Published var showInventory: Bool = false
     @Published var selectedItemForCompare: InventoryItem?
     @Published var selectedEquippedSlot: EquipSlot?
@@ -24,34 +23,22 @@ class CharacterViewModel: ObservableObject {
     private var userListener: ListenerRegistration?
     private var inventoryListener: ListenerRegistration?
     
-    deinit {
-        stopListening()
-    }
+    deinit { stopListening() }
     
     func fetchData(for userId: String) {
         if currentUserId == userId && user != nil { return }
-
         stopListening()
-        
         self.currentUserId = userId
         
-        // 1. Načíst definice itemů (Master Items)
         db.collection("items").getDocuments { [weak self] snapshot, _ in
             guard let self = self, let docs = snapshot?.documents else { return }
-            
             var itemsDict: [String: AItem] = [:]
-            
             for doc in docs {
                 if var item = try? doc.data(as: AItem.self) {
-                    // Pojistka: Pokud ID chybí, vezmeme ho z dokumentu
                     if item.id == nil { item.id = doc.documentID }
-                    
-                    if let id = item.id {
-                        itemsDict[id] = item
-                    }
+                    if let id = item.id { itemsDict[id] = item }
                 }
             }
-            
             DispatchQueue.main.async {
                 self.masterItems = itemsDict
                 self.startListeningToUser(userId: userId)
@@ -68,15 +55,12 @@ class CharacterViewModel: ObservableObject {
     }
     
     private func startListeningToUser(userId: String) {
-        userListener = db.collection("users").document(userId).addSnapshotListener { [weak self] snapshot, error in
-            guard let self = self, let snapshot = snapshot, snapshot.exists else { return }
-            
-            if let updatedUser = try? snapshot.data(as: User.self) {
+        userListener = db.collection("users").document(userId).addSnapshotListener { [weak self] snapshot, _ in
+            if let updatedUser = try? snapshot?.data(as: User.self) {
                 DispatchQueue.main.async {
-                    self.user = updatedUser
-                    // Listener na inventář spustíme jen jednou, pokud ještě neběží
-                    if self.inventoryListener == nil {
-                        self.startListeningToInventory(userId: userId)
+                    self?.user = updatedUser
+                    if self?.inventoryListener == nil {
+                        self?.startListeningToInventory(userId: userId)
                     }
                 }
             }
@@ -84,37 +68,16 @@ class CharacterViewModel: ObservableObject {
     }
     
     private func startListeningToInventory(userId: String) {
-        // print("🔍 Začínám naslouchat inventáři pro user: \(userId)")
-        
-        inventoryListener = db.collection("users").document(userId).collection("inventory").addSnapshotListener { [weak self] invSnapshot, error in
-            guard let self = self else { return }
-            
-            if let error = error {
-                print("❌ Chyba při načítání inventáře: \(error)")
-                return
-            }
-            
-            guard let invDocs = invSnapshot?.documents else {
-                // print("⚠️ Žádné dokumenty v inventáři.")
-                return
-            }
+        inventoryListener = db.collection("users").document(userId).collection("inventory").addSnapshotListener { [weak self] invSnapshot, _ in
+            guard let self = self, let invDocs = invSnapshot?.documents else { return }
             
             var loadedInv: [InventoryItem] = []
-            
             for doc in invDocs {
-                // Zkusíme dekódovat slot
-                if let slot = try? doc.data(as: UserInventorySlot.self) {
-                    // Hledáme definici
-                    if let masterItem = self.masterItems[slot.itemId] {
-                        loadedInv.append(InventoryItem(
-                            id: doc.documentID,
-                            item: masterItem,
-                            quantity: slot.quantity
-                        ))
-                    }
+                if let slot = try? doc.data(as: UserInventorySlot.self),
+                   let masterItem = self.masterItems[slot.itemId] {
+                    loadedInv.append(InventoryItem(id: doc.documentID, item: masterItem, quantity: slot.quantity))
                 }
             }
-            
             DispatchQueue.main.async {
                 self.inventoryItems = loadedInv.sorted { $0.rarityRank > $1.rarityRank }
             }
@@ -122,114 +85,103 @@ class CharacterViewModel: ObservableObject {
     }
     
     func getEquippedItem(for slot: EquipSlot) -> AItem? {
-        guard let user = user else { return nil }
-        
-        if let itemId = user.equippedIds[slot.id] {
-            return masterItems[itemId]
-        }
-        return nil
+        guard let user = user, let itemId = user.equippedIds[slot.id] else { return nil }
+        return masterItems[itemId]
     }
     
-    // --- Equip s přepočtem statů ---
+    // --- LOGIKA EQUIP ---
     func equipItem(_ newItem: InventoryItem) {
         guard let userId = currentUserId, var user = user, let slot = newItem.item.computedSlot else { return }
-        
         let slotId = slot.id
         guard let itemID = newItem.item.id else { return }
         
-        // 1. Zjistíme starý item a odečteme jeho staty
+        let batch = db.batch()
+        let userRef = db.collection("users").document(userId)
+        let inventoryRef = userRef.collection("inventory")
+        
         if let oldItemId = user.equippedIds[slotId], let oldItem = masterItems[oldItemId] {
             applyItemStats(user: &user, item: oldItem, isEquipping: false)
+            let newInvDoc = inventoryRef.document()
+            batch.setData(["itemId": oldItemId, "quantity": 1], forDocument: newInvDoc)
         }
         
-        // 2. Nasadíme nový item
         user.equippedIds[slotId] = itemID
-        
-        // 3. Přičteme staty nového itemu
         applyItemStats(user: &user, item: newItem.item, isEquipping: true)
         
-        // Update lokálně
-        self.user = user
-        
-        // Update Firestore (uložíme vybavené ID i nové staty)
-        db.collection("users").document(userId).updateData([
-            "equippedIds": user.equippedIds,
-            "stats": user.stats.toDictionary()
-        ])
-        
-        // print("Equipping \(newItem.item.name) to \(slot.id)")
-    }
-    
-    // --- Unequip s přepočtem statů ---
-    func unequipItem(slot: EquipSlot) {
-        guard let userId = currentUserId, var user = user else { return }
-        
-        // 1. Odečteme staty
-        if let oldItemId = user.equippedIds[slot.id], let oldItem = masterItems[oldItemId] {
-            applyItemStats(user: &user, item: oldItem, isEquipping: false)
+        let itemRef = inventoryRef.document(newItem.id)
+        if newItem.quantity > 1 {
+            batch.updateData(["quantity": newItem.quantity - 1], forDocument: itemRef)
+        } else {
+            batch.deleteDocument(itemRef)
         }
         
-        // 2. Sundáme item
+        batch.updateData(["equippedIds": user.equippedIds, "stats": user.stats.toDictionary()], forDocument: userRef)
+        batch.commit()
+        self.user = user
+    }
+    
+    // --- LOGIKA UNEQUIP ---
+    func unequipItem(slot: EquipSlot) {
+        guard let userId = currentUserId, var user = user,
+              let oldItemId = user.equippedIds[slot.id],
+              let oldItem = masterItems[oldItemId] else { return }
+        
+        let batch = db.batch()
+        let userRef = db.collection("users").document(userId)
+        
+        applyItemStats(user: &user, item: oldItem, isEquipping: false)
         user.equippedIds.removeValue(forKey: slot.id)
         
-        // Update lokálně
-        self.user = user
+        let newInvDoc = userRef.collection("inventory").document()
+        batch.setData(["itemId": oldItemId, "quantity": 1], forDocument: newInvDoc)
         
-        // Update Firestore
-        db.collection("users").document(userId).updateData([
-            "equippedIds": user.equippedIds,
-            "stats": user.stats.toDictionary()
-        ])
+        batch.updateData(["equippedIds": user.equippedIds, "stats": user.stats.toDictionary()], forDocument: userRef)
+        batch.commit()
+        self.user = user
     }
     
-    // --- OPRAVENO: Mapování nových názvů statů (physicalDamage, magicDamage, ...) ---
+    // --- LOGIKA PRODEJE ---
+    func sellItem(item: InventoryItem) {
+        guard let userId = currentUserId else { return }
+        let sellPrice = item.item.finalSellPrice ?? 10
+        
+        let batch = db.batch()
+        let userRef = db.collection("users").document(userId)
+        let itemRef = userRef.collection("inventory").document(item.id)
+        
+        // Přičíst peníze
+        batch.updateData(["coins": FieldValue.increment(Int64(sellPrice))], forDocument: userRef)
+        
+        // Odebrat z inventáře
+        if item.quantity > 1 {
+            batch.updateData(["quantity": item.quantity - 1], forDocument: itemRef)
+        } else {
+            batch.deleteDocument(itemRef)
+        }
+        
+        batch.commit()
+        print("💰 Prodal jsi \(item.item.name) za \(sellPrice)")
+    }
+    
     private func applyItemStats(user: inout User, item: AItem, isEquipping: Bool) {
         let multiplier = isEquipping ? 1 : -1
+        if let pAtk = item.baseStats.physicalDamage { user.stats.physicalDamage += (pAtk * multiplier) }
+        if let mAtk = item.baseStats.magicDamage { user.stats.magicDamage += (mAtk * multiplier) }
+        if let pDef = item.baseStats.physicalDefense { user.stats.defense += (pDef * multiplier) }
+        if let hp = item.baseStats.healthBonus { user.stats.maxHP += (hp * multiplier) }
         
-        // Fyzický útok
-        if let pAtk = item.baseStats.physicalDamage {
-            user.stats.physicalDamage += (pAtk * multiplier)
-        }
-        
-        // Magický útok
-        if let mAtk = item.baseStats.magicDamage {
-            user.stats.magicDamage += (mAtk * multiplier)
-        }
-        
-        // Fyzická obrana (použijeme pro 'defense' ve statsu hráče)
-        // Poznámka: Pokud má hráč rozdělenou obranu, namapuj to přesněji.
-        // Zde sčítám physical + magic defense do jednoho 'defense', pokud hráč nemá separate staty.
-        // Nebo pokud má 'defense', použijeme physicalDefense.
-        if let pDef = item.baseStats.physicalDefense {
-            user.stats.defense += (pDef * multiplier)
-        }
-        
-        // Pokud bys měl v User.stats i 'magicDefense', přidej to sem:
-        // if let mDef = item.baseStats.magicDefense { user.stats.magicDefense += ... }
-        
-        // Zdraví
-        if let hp = item.baseStats.healthBonus {
-            user.stats.maxHP += (hp * multiplier)
-        }
-        
-        // Pojistka proti záporným/nulovým hodnotám
         user.stats.physicalDamage = max(1, user.stats.physicalDamage)
         user.stats.magicDamage = max(0, user.stats.magicDamage)
         user.stats.defense = max(0, user.stats.defense)
         user.stats.maxHP = max(10, user.stats.maxHP)
     }
     
-    // --- Upgrade za Body ---
     func upgradeStat(_ stat: String, cost: Int = 1) {
         guard let userId = currentUserId, let user = user, user.statPoints >= cost else { return }
-        
-        let ref = db.collection("users").document(userId)
-        
-        ref.updateData([
+        db.collection("users").document(userId).updateData([
             "stats.\(stat)": FieldValue.increment(Int64(1)),
-            "statPoints": FieldValue.increment(Int64(-cost)) // Odečteme body
+            "statPoints": FieldValue.increment(Int64(-cost))
         ])
-        
         HapticManager.shared.success()
     }
 }

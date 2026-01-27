@@ -69,21 +69,16 @@ class ShopViewModel: ObservableObject {
         }
     }
     
-    // --- NOVÉ: Reroll ---
     func rerollShop() {
         guard let user = user, let uid = userId else { return }
         let rerollCost = 50
         
-        if user.coins < rerollCost { return } // Nedostatek peněz
+        if user.coins < rerollCost { return }
         
         self.isLoading = true
-        
-        // 1. Odečíst peníze
         db.collection("users").document(uid).updateData([
             "coins": FieldValue.increment(Int64(-rerollCost))
         ])
-        
-        // 2. Vygenerovat nový shop (force = true)
         generateNewShop(user: user, force: true)
     }
     
@@ -99,9 +94,11 @@ class ShopViewModel: ObservableObject {
         
         var newSlots: [ShopSlot] = []
         for item in randomSelection {
-            let basePrice = (item.baseStats.sellPrice ?? 0) > 0 ? item.baseStats.sellPrice! : 25
+            let basePrice = (item.baseStats.sellPrice ?? 0) > 0 ? item.baseStats.sellPrice! : 10
             let buyPrice = basePrice * 4
-            newSlots.append(ShopSlot(itemId: item.id ?? "unknown", price: buyPrice, isPurchased: false))
+            if let iId = item.id {
+                newSlots.append(ShopSlot(itemId: iId, price: buyPrice, isPurchased: false))
+            }
         }
         
         let slotsData = newSlots.map { [
@@ -109,8 +106,6 @@ class ShopViewModel: ObservableObject {
         ] }
         
         var updateData: [String: Any] = ["shopData.slots": slotsData]
-        
-        // Pokud to NENÍ reroll (je to denní reset), resetujeme čas. U rerollu čas běží dál.
         if !force {
             updateData["shopData.lastResetDate"] = Timestamp(date: Date())
         }
@@ -127,6 +122,7 @@ class ShopViewModel: ObservableObject {
         let batch = db.batch()
         let userRef = db.collection("users").document(uid)
         
+        // 1. Update Shop
         var updatedSlots = user.shopData.slots
         if let index = updatedSlots.firstIndex(where: { $0.id == slot.id }) {
             updatedSlots[index].isPurchased = true
@@ -135,10 +131,31 @@ class ShopViewModel: ObservableObject {
         
         batch.updateData(["coins": user.coins - slot.price, "shopData.slots": slotsData], forDocument: userRef)
         
-        let newInventoryRef = userRef.collection("inventory").document()
-        batch.setData(["itemId": slot.itemId, "quantity": 1], forDocument: newInventoryRef)
+        // 2. Add to Inventory (kontrola existence by byla lepší, ale v batchi to nejde číst - pro zjednodušení děláme blind write nebo předpokládáme že backend logika to pořeší, tady vytváříme nový)
+        // V předchozím kroku jsme dělali čtení, ale tady to zjednodušíme aby to nepadalo na async chybách
+        let inventoryRef = userRef.collection("inventory")
         
-        batch.commit()
+        // Zkusíme najít dokument se stejným itemId (toto vyžaduje čtení před zápisem, což v batchi nejde přímo)
+        // Takže uděláme čtení mimo batch:
+        inventoryRef.whereField("itemId", isEqualTo: slot.itemId).getDocuments { [weak self] snapshot, _ in
+            guard let self = self else { return }
+            
+            // Teď vytvoříme batch (protože jsme uvnitř callbacku)
+            let innerBatch = self.db.batch()
+            
+            // Update peněz a slotů (znovu, protože jsme v novém scope)
+            innerBatch.updateData(["coins": user.coins - slot.price, "shopData.slots": slotsData], forDocument: userRef)
+            
+            if let existingDoc = snapshot?.documents.first {
+                let currentQty = existingDoc.data()["quantity"] as? Int ?? 1
+                innerBatch.updateData(["quantity": currentQty + 1], forDocument: existingDoc.reference)
+            } else {
+                let newDoc = inventoryRef.document()
+                innerBatch.setData(["itemId": slot.itemId, "quantity": 1], forDocument: newDoc)
+            }
+            
+            innerBatch.commit()
+        }
     }
     
     private func startTimer(lastReset: Date) {
