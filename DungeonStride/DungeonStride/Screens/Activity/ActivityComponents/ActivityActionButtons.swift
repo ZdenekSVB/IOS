@@ -54,7 +54,8 @@ struct ActivityActionButtons: View {
                     activityManager.finishActivity(
                         userId: authViewModel.currentUserUID,
                         userService: userService,
-                        questService: questService
+                        questService: questService,
+                        currentUser: userService.currentUser
                     )
                 } label: {
                     Image(systemName: "stop.fill")

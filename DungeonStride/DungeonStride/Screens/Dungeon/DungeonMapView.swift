@@ -15,6 +15,8 @@ struct DungeonMapView: View {
 
     @State private var showCharacterView = false
 
+    @State private var showActivityTracker = false
+
     var body: some View {
         NavigationView {
             ZStack(alignment: .topLeading) {
@@ -66,39 +68,68 @@ struct DungeonMapView: View {
                     HStack(alignment: .top) {
 
                         if let user = viewModel.user {
-                            Button(action: {
-                                showCharacterView = true
-                            }) {
-                                HStack(spacing: 6) {
-                                    Image(user.selectedAvatar)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 44, height: 44)
-                                        .clipShape(Circle())
-                                        .overlay(
-                                            Circle().stroke(
-                                                Color.white,
-                                                lineWidth: 2
+                            VStack(alignment: .leading, spacing: 8) {
+
+                                Button(action: { showCharacterView = true }) {
+                                    HStack(spacing: 6) {
+                                        Image(user.selectedAvatar)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 44, height: 44)
+                                            .clipShape(Circle())
+                                            .overlay(
+                                                Circle().stroke(
+                                                    Color.white,
+                                                    lineWidth: 2
+                                                )
                                             )
-                                        )
-                                        .shadow(radius: 4)
+                                            .shadow(radius: 4)
+
+                                        VStack(alignment: .leading, spacing: 0)
+                                        {
+                                            Text(user.username)
+                                                .font(.caption).bold()
+                                                .foregroundColor(.black)
+                                                .shadow(
+                                                    color: .white,
+                                                    radius: 2
+                                                )
+
+                                            Text("Lvl \(user.level)")
+                                                .font(.caption2).bold()
+                                                .foregroundColor(.blue)
+                                                .shadow(
+                                                    color: .white,
+                                                    radius: 2
+                                                )
+                                        }
+                                    }
+                                    .padding(8)
+                                    .background(Color.white.opacity(0.85))
+                                    .cornerRadius(30)
+                                    .shadow(radius: 3)
+                                }
+
+                                HStack(spacing: 6) {
+                                    Image(systemName: "shoeprints.fill")
+                                        .font(.caption)
+                                        .foregroundColor(.green)
 
                                     VStack(alignment: .leading, spacing: 0) {
-                                        Text(user.username)
+                                        Text("Energie")
+                                            .font(.system(size: 8))
+                                            .foregroundColor(.secondary)
+                                        Text(formatDistance(user.distanceBank))
                                             .font(.caption).bold()
-                                            .foregroundColor(.black)
-                                            .shadow(color: .white, radius: 2)
-
-                                        Text("Lvl \(user.level)")
-                                            .font(.caption2).bold()
-                                            .foregroundColor(.blue)
-                                            .shadow(color: .white, radius: 2)
+                                            .foregroundColor(.primary)
                                     }
                                 }
-                                .padding(8)
-                                .background(Color.white.opacity(0.85))
-                                .cornerRadius(30)
-                                .shadow(radius: 3)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(Color.white.opacity(0.9))
+                                .cornerRadius(15)
+                                .shadow(radius: 2)
+                                .padding(.leading, 4)
                             }
                         }
 
@@ -119,6 +150,20 @@ struct DungeonMapView: View {
 
                     Spacer()
                 }
+
+                if let user = viewModel.user, user.isDead {
+                    RevivalView(
+                        user: Binding(
+                            get: { viewModel.user! },
+                            set: { viewModel.user = $0 }
+                        ),
+                        onRevive: {
+                            viewModel.respawnUser()
+                        }
+                    )
+                    .zIndex(100)  // Musí být nad mapou
+                    .transition(.opacity)
+                }
             }
             .ignoresSafeArea()
             .navigationBarHidden(true)
@@ -128,6 +173,12 @@ struct DungeonMapView: View {
             await viewModel.loadUser()
             try? await Task.sleep(nanoseconds: 500_000_000)
             centerOnUser()
+        }
+        .onAppear {
+            print("👁️ DungeonMap onAppear - reloading user data")
+            Task {
+                await viewModel.loadUser()
+            }
         }
         .sheet(item: $selectedLocation) { location in
             LocationDetailSheet(location: location, viewModel: viewModel)
@@ -145,8 +196,6 @@ struct DungeonMapView: View {
         }
         .fullScreenCover(isPresented: $viewModel.showCombat) {
             if let user = viewModel.user, let enemy = viewModel.currentEnemy {
-
-                // ZDE BÝVALA CHYBA. Teď vytváříme VM a rovnou předáváme onWin v initu.
                 CombatView(
                     viewModel: CombatViewModel(
                         player: user,
@@ -159,12 +208,19 @@ struct DungeonMapView: View {
                         }
                     )
                 )
-
             } else {
-                // Fallback pro chybu
                 VStack {
                     Text("Chyba při načítání souboje")
                     Button("Zavřít") { viewModel.showCombat = false }
+                }
+            }
+        }
+        .onChange(of: viewModel.showCombat) { wasShown, isNowShown in
+            if !isNowShown {
+                print("🏁 Souboj skončil. Aktualizuji stav hráče...")
+                Task {
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                    await viewModel.loadUser()
                 }
             }
         }
@@ -177,5 +233,13 @@ struct DungeonMapView: View {
         let target = viewModel.userPosition
 
         self.cameraTarget = target
+    }
+
+    func formatDistance(_ meters: Double) -> String {
+        if meters >= 1000 {
+            return String(format: "%.1f km", meters / 1000)
+        } else {
+            return String(format: "%.0f m", meters)
+        }
     }
 }

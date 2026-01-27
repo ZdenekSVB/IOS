@@ -74,6 +74,34 @@ class DungeonMapViewModel: ObservableObject {
         }
     }
 
+    func respawnUser() {
+        guard let user = user else { return }
+
+        db.collection("users").document(user.uid).updateData([
+            "isDead": false,
+            "deathStats": FieldValue.delete(),
+            "stats.hp": user.stats.maxHP,
+        ]) { err in
+            if let err = err {
+                print("❌ Chyba respawnu: \(err)")
+            } else {
+                print("✨ Hráč úspěšně oživen!")
+
+                // 2. Lokální update UI
+                self.user?.isDead = false
+                self.user?.deathStats = nil
+                self.user?.stats.hp = self.user?.stats.maxHP ?? 100
+
+                // Volitelně: Přesunout do města (safety)
+                if let city = self.locations.first(where: {
+                    $0.locationType == "city"
+                }) {
+                    self.travel(to: city)
+                }
+            }
+        }
+    }
+
     func restoreUserPosition() {
         // Musíme mít načtenou mapu i uživatele
         guard let user = user, !locations.isEmpty else { return }
@@ -107,6 +135,18 @@ class DungeonMapViewModel: ObservableObject {
     func travel(to destination: GameMapLocation) {
         guard !isTraveling, currentUserLocation != destination else { return }
 
+        guard let user = user else { return }
+        let cost = calculateTravelCost(to: destination)
+
+        if user.distanceBank < cost {
+            print(
+                "❌ Nemáš dostatek energie! (Potřebuješ \(Int(cost))m, máš \(Int(user.distanceBank))m)"
+            )
+            return  // Tady by to chtělo vyhodit alert v UI (řešíme níže)
+        }
+
+        payForTravel(cost: cost)
+
         isTraveling = true
 
         let distance = hypot(
@@ -126,6 +166,27 @@ class DungeonMapViewModel: ObservableObject {
 
             self.saveUserLocation(locationName: destination.name)
         }
+    }
+
+    func calculateTravelCost(to destination: GameMapLocation) -> Double {
+        let distanceInPoints = hypot(
+            destination.x - userPosition.x,
+            destination.y - userPosition.y
+        )
+
+        let conversionFactor: Double = 1.5
+        return distanceInPoints * conversionFactor
+    }
+
+    private func payForTravel(cost: Double) {
+        guard let uid = user?.id else { return }
+
+        self.user?.distanceBank -= cost
+        if (self.user?.distanceBank ?? 0) < 0 { self.user?.distanceBank = 0 }
+
+        db.collection("users").document(uid).updateData([
+            "distanceBank": self.user?.distanceBank ?? 0
+        ])
     }
 
     private func saveUserLocation(locationName: String) {

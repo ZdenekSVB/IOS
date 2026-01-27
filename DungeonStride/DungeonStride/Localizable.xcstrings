@@ -221,6 +221,9 @@
         }
       }
     },
+    "Cena: %@" : {
+
+    },
     "Cestovat sem" : {
       "localizations" : {
         "cs" : {
@@ -308,6 +311,12 @@
           }
         }
       }
+    },
+    "Chybí ti %@ energie." : {
+
+    },
+    "Cíl splněn!" : {
+
     },
     "Compare Equipment" : {
       "localizations" : {
@@ -501,6 +510,9 @@
         }
       }
     },
+    "DUŠE JE PŘIPRAVENA" : {
+
+    },
     "Edit Profile" : {
       "localizations" : {
         "cs" : {
@@ -540,6 +552,9 @@
           }
         }
       }
+    },
+    "Energie" : {
+
     },
     "Energy" : {
       "localizations" : {
@@ -711,6 +726,9 @@
           }
         }
       }
+    },
+    "JSI MRTVÝ" : {
+
     },
     "Kniha kouzel" : {
       "localizations" : {
@@ -1186,6 +1204,9 @@
         }
       }
     },
+    "Přepni se do záložky Aktivita\na splň úkol pro návrat." : {
+
+    },
     "Privacy Policy" : {
       "localizations" : {
         "cs" : {
@@ -1195,6 +1216,9 @@
           }
         }
       }
+    },
+    "Pro oživení musíš v reálu uběhnout:" : {
+
     },
     "Profile" : {
       "localizations" : {
@@ -1302,6 +1326,9 @@
           }
         }
       }
+    },
+    "RESPAWN (OŽIVIT)" : {
+
     },
     "Ruiny - Brzy přístupné!" : {
       "localizations" : {

@@ -27,7 +27,7 @@ struct User: Identifiable, Codable {
 
     var coins: Int = 0
     var totalXP: Int = 0
-    
+
     // --- NOVÉ (Obnoveno po merge konfliktu) ---
     var statPoints: Int = 0
 
@@ -49,6 +49,12 @@ struct User: Identifiable, Codable {
 
     var dungeonProgress: [String: Int] = [:]
     var currentLocationId: String?
+
+    var isDead: Bool = false
+    var deathStats: DeathStats?
+
+    var distanceBank: Double = 0.0
+    var maxDistanceBank: Double = 20000.0
 
     var level: Int {
         (totalXP / 100) + 1
@@ -86,13 +92,13 @@ struct User: Identifiable, Codable {
         let oldLevel = level
         totalXP += amount
         let newLevel = level
-        
+
         // Level Up logika: Za každý level dostaneš 1 stat point
         if newLevel > oldLevel {
             let levelsGained = newLevel - oldLevel
             statPoints += levelsGained
         }
-        
+
         updatedAt = Date()
     }
 
@@ -137,7 +143,7 @@ struct User: Identifiable, Codable {
     // MARK: - Firestore Mapping
 
     func toFirestore() -> [String: Any] {
-        [
+        var data: [String: Any] = [
             "email": email,
             "username": username,
             "selectedAvatar": selectedAvatar,
@@ -147,7 +153,7 @@ struct User: Identifiable, Codable {
             "settings": settings.toFirestore(),
             "coins": coins,
             "totalXP": totalXP,
-            "statPoints": statPoints, // Uložení bodů
+            "statPoints": statPoints,  // Uložení bodů
             "totalQuestsCompleted": totalQuestsCompleted,
             "equippedIds": equippedIds,
             "shopData": shopData.toFirestore(),
@@ -156,7 +162,16 @@ struct User: Identifiable, Codable {
             "lastActiveAt": Timestamp(date: lastActiveAt),
             "dungeonProgress": dungeonProgress,
             "currentLocationId": currentLocationId ?? "",
+            "isDead": isDead,
+            "distanceBank": distanceBank,
+            "maxDistanceBank": maxDistanceBank,
         ]
+
+        if let death = deathStats {
+            data["deathStats"] = death.toFirestore()
+        }
+
+        return data
     }
 
     static func fromFirestore(
@@ -181,10 +196,17 @@ struct User: Identifiable, Codable {
         user.selectedAvatar = data["selectedAvatar"] as? String ?? "default"
         user.coins = data["coins"] as? Int ?? 0
         user.totalXP = data["totalXP"] as? Int ?? 0
-        user.statPoints = data["statPoints"] as? Int ?? 0 // Načtení bodů
+        user.statPoints = data["statPoints"] as? Int ?? 0  // Načtení bodů
         user.totalQuestsCompleted = data["totalQuestsCompleted"] as? Int ?? 0
         user.equippedIds = data["equippedIds"] as? [String: String] ?? [:]
         user.dungeonProgress = data["dungeonProgress"] as? [String: Int] ?? [:]
+        user.distanceBank = data["distanceBank"] as? Double ?? 0.0
+        user.maxDistanceBank = data["maxDistanceBank"] as? Double ?? 20000.0
+
+        user.isDead = data["isDead"] as? Bool ?? false
+        if let deathDict = data["deathStats"] as? [String: Any] {
+            user.deathStats = DeathStats.fromFirestore(deathDict)
+        }
 
         if let locId = data["currentLocationId"] as? String, !locId.isEmpty {
             user.currentLocationId = locId
@@ -258,7 +280,7 @@ struct PlayerStats: Codable {
             evasion: data["evasion"] as? Double ?? 0.0
         )
     }
-    
+
     // Pomocná metoda pro update user.stats v CharacterViewModel
     func toDictionary() -> [String: Any] {
         return toFirestore()

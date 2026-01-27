@@ -45,7 +45,7 @@ struct LocationDetailSheet: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 50, height: 50)
-                            .foregroundColor(iconColor)  // Funguje, pokud je obrázek "Render As: Template"
+                            .foregroundColor(iconColor)
                             .padding()
                             .background(iconColor.opacity(0.1))
                             .clipShape(Circle())
@@ -76,7 +76,7 @@ struct LocationDetailSheet: View {
                                     Image("skull_icon")
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 14, height: 14)  
+                                        .frame(width: 14, height: 14)
                                         .foregroundColor(.red)
                                 }
                             }
@@ -132,9 +132,8 @@ struct LocationDetailSheet: View {
                         }
                     }
 
-                    Spacer()  // Tlačí tlačítka dolů
+                    Spacer()
 
-                    // Tlačítka akcí
                     VStack {
                         if isCurrentLocation {
                             Button(action: {}) {
@@ -161,17 +160,43 @@ struct LocationDetailSheet: View {
                             .disabled(true)
 
                         } else {
+                            let travelCost = viewModel.calculateTravelCost(
+                                to: location
+                            )
+                            let userBank = viewModel.user?.distanceBank ?? 0.0
+                            let canAfford = userBank >= travelCost
+
                             Button(action: {
-                                dismiss()
-                                viewModel.travel(to: location)
+                                if canAfford {
+                                    dismiss()
+                                    viewModel.travel(to: location)
+                                }
                             }) {
                                 HStack {
                                     Image(systemName: "figure.walk")
-                                    Text("Cestovat sem")
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Cestovat sem")
+                                            .fontWeight(.bold)
+
+                                        Text(
+                                            "Cena: \(formatDistance(travelCost))"
+                                        )
+                                        .font(.caption2)
+                                        .opacity(0.9)
+                                    }
                                 }
                                 .frame(maxWidth: .infinity).padding()
-                                .background(Color.blue)
+                                .background(canAfford ? Color.blue : Color.gray)
                                 .foregroundColor(.white).cornerRadius(15)
+                            }
+                            .disabled(!canAfford)
+
+                            if !canAfford {
+                                Text(
+                                    "Chybí ti \(formatDistance(travelCost - userBank)) energie."
+                                )
+                                .font(.caption)
+                                .foregroundColor(.red)
                             }
                         }
                     }
@@ -179,7 +204,7 @@ struct LocationDetailSheet: View {
                     .padding(.bottom, 10)
                 }
             }
-            // Křížek
+            
             Button(action: { dismiss() }) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 30))
@@ -188,5 +213,13 @@ struct LocationDetailSheet: View {
             }
         }
         .background(Color(UIColor.systemBackground))
+    }
+
+    func formatDistance(_ meters: Double) -> String {
+        if meters >= 1000 {
+            return String(format: "%.1f km", meters / 1000)
+        } else {
+            return String(format: "%.0f m", meters)
+        }
     }
 }

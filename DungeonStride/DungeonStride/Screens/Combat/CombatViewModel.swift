@@ -391,8 +391,7 @@ class CombatViewModel: ObservableObject {
             combatState = .playerTurn
         }
     }
-    
-    
+
     func resetTurnFlags() {
         isBlocking = false
         isDodging = false
@@ -412,5 +411,31 @@ class CombatViewModel: ObservableObject {
     func loseBattle() {
         combatState = .defeat
         addToLog("💀 Byl jsi poražen.")
+        handlePlayerDeath()
+    }
+
+    private func handlePlayerDeath() {
+        guard let uid = player.id else { return }
+
+        let targetDistance = 2000.0
+
+        let deathInfo = DeathStats(
+            diedAt: Date(),
+            requiredDistance: targetDistance,
+            distanceRunSoFar: 0.0,
+            causeOfDeath: "Zabil tě \(enemy.name)"
+        )
+
+        self.player.isDead = true
+        self.player.deathStats = deathInfo
+        self.player.stats.hp = 0
+
+        let deathData = deathInfo.toFirestore()
+
+        db.collection("users").document(uid).updateData([
+            "isDead": true,
+            "stats.hp": 0,
+            "deathStats": deathData,
+        ])
     }
 }
