@@ -343,6 +343,9 @@
     "Cíl splněn!" : {
 
     },
+    "CLAIM REWARD" : {
+
+    },
     "Close" : {
       "localizations" : {
         "cs" : {
@@ -591,6 +594,9 @@
         }
       }
     },
+    "Enemy Turn..." : {
+
+    },
     "Energie" : {
 
     },
@@ -683,6 +689,9 @@
           }
         }
       }
+    },
+    "FINISH" : {
+
     },
     "From:" : {
       "localizations" : {
@@ -789,6 +798,7 @@
       }
     },
     "KONEC" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1189,6 +1199,9 @@
     "No special effects." : {
 
     },
+    "No Spells" : {
+
+    },
     "Not logged in." : {
       "localizations" : {
         "cs" : {
@@ -1452,6 +1465,9 @@
         }
       }
     },
+    "Select Attack" : {
+
+    },
     "SELL FOR %lld" : {
 
     },
@@ -1542,6 +1558,7 @@
       }
     },
     "Soupeř hraje..." : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1796,6 +1813,7 @@
 
     },
     "VYBRAT ODMĚNU" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -1897,6 +1915,7 @@
       }
     },
     "Zvol typ útoku" : {
+      "extractionState" : "stale",
       "localizations" : {
         "cs" : {
           "stringUnit" : {

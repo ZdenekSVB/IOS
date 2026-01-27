@@ -10,251 +10,180 @@ import SwiftUI
 struct CombatView: View {
     @StateObject var viewModel: CombatViewModel
     @Environment(\.dismiss) var dismiss
+    
+    // Pro shake efekt
+    @State private var playerShake: CGFloat = 0
+    @State private var enemyShake: CGFloat = 0
 
     var body: some View {
         ZStack {
-            // --- 1. POZADÍ ---
-            Image("dungeon_bg")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-                .overlay(Color.black.opacity(0.5))
+            // --- 1. POZADÍ (Dungeon atmosféra) ---
+            ZStack {
+                Color.black.ignoresSafeArea()
+                Image("dungeon_bg") // Ujisti se, že máš tento asset, jinak dej jen barvu
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+                    .opacity(0.4)
+            }
 
             VStack(spacing: 0) {
-
-                // --- 2. SOUBOJOVÁ ARÉNA (Hráč vs Enemy) ---
+                
+                // --- 2. SOUBOJOVÁ ARÉNA ---
                 HStack(alignment: .top, spacing: 0) {
-
+                    
                     // LEVÁ STRANA: HRÁČ
                     VStack(spacing: 8) {
                         ZStack {
-                            Circle().fill(Color.black.opacity(0.5)).frame(
-                                width: 85,
-                                height: 85
-                            )
-
-                            Image(viewModel.player.selectedAvatar)
-                                .resizable().scaledToFill()
-                                .frame(width: 80, height: 80).clipShape(
-                                    Circle()
-                                )
-                                .overlay(
-                                    Circle().stroke(Color.green, lineWidth: 3)
-                                )
+                            Circle().fill(Color.black.opacity(0.6)).frame(width: 90, height: 90)
+                            
+                            if let avatar = UIImage(named: viewModel.player.selectedAvatar) {
+                                Image(uiImage: avatar).resizable().scaledToFill().frame(width: 85, height: 85).clipShape(Circle())
+                            } else {
+                                Image(systemName: "person.fill").resizable().padding(20).frame(width: 85, height: 85).foregroundColor(.gray)
+                            }
                         }
-                        .overlay(
-                            Color.red.opacity(viewModel.playerIsHit ? 0.7 : 0)
-                                .clipShape(Circle())
-                        )
-                        .scaleEffect(viewModel.playerIsHit ? 0.9 : 1.0)
-
+                        .overlay(Circle().stroke(Color.green, lineWidth: 3))
+                        .overlay(Color.red.opacity(viewModel.playerIsHit ? 0.6 : 0).clipShape(Circle()))
+                        .offset(x: playerShake) // Shake efekt
+                        
                         Text(viewModel.player.username)
-                            .font(.caption).bold().foregroundColor(.white)
-                            .shadow(radius: 2)
-                            .lineLimit(1)
-
-                        HealthBarView(
-                            current: viewModel.player.stats.hp,
-                            max: viewModel.player.stats.maxHP,
-                            color: .green
-                        )
-
-                        VStack(spacing: 2) {
-                            // Fyzické (Bílá)
-                            HStack(spacing: 8) {
-                                Label(
-                                    "\(viewModel.totalPhysicalAttack)",
-                                    systemImage: "sword.fill"
-                                )
-                                Label(
-                                    "\(viewModel.totalPhysicalDefense)",
-                                    systemImage: "shield.fill"
-                                )
-                            }
-                            .foregroundColor(.white.opacity(0.9))
-
-                            // Magické (Cyan)
-                            HStack(spacing: 8) {
-                                Label(
-                                    "\(viewModel.totalMagicAttack)",
-                                    systemImage: "flame.fill"
-                                )
-                                Label(
-                                    "\(viewModel.totalMagicDefense)",
-                                    systemImage: "sparkles"
-                                )
-                            }
-                            .foregroundColor(.cyan.opacity(0.9))
+                            .font(.caption).bold().foregroundColor(.white).shadow(radius: 2)
+                        
+                        HealthBarView(current: viewModel.player.stats.hp, max: viewModel.player.stats.maxHP, color: .green)
+                        
+                        // Staty (zjednodušené pro boj)
+                        HStack(spacing: 12) {
+                            statIcon(icon: "sword.fill", val: viewModel.totalPhysicalAttack, color: .white)
+                            statIcon(icon: "shield.fill", val: viewModel.totalPhysicalDefense, color: .blue)
                         }
-                        .font(.system(size: 10, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
-
+                    
                     // STŘED: VS
-                    VStack {
-                        Text("VS")
-                            .font(
-                                .system(
-                                    size: 30,
-                                    weight: .black,
-                                    design: .serif
-                                )
-                            )
-                            .italic()
-                            .foregroundColor(.white.opacity(0.2))
-                            .padding(.top, 25)
-                    }
-                    .frame(width: 50)
-
+                    Text("VS")
+                        .font(.system(size: 40, weight: .black, design: .serif))
+                        .italic()
+                        .foregroundColor(.white.opacity(0.1))
+                        .padding(.top, 40)
+                        .frame(width: 60)
+                    
                     // PRAVÁ STRANA: NEPŘÍTEL
                     VStack(spacing: 8) {
-                        // Avatar + Hit efekt
                         ZStack {
-                            Circle().fill(Color.black.opacity(0.5))
-                                .frame(width: 85, height: 85)
-
-                            // Používáme iconName z modelu Enemy (Assets)
-                            Image(viewModel.enemy.iconName)
-                                .resizable().scaledToFit()
-                                .frame(width: 80, height: 80)
+                            Circle().fill(Color.black.opacity(0.6)).frame(width: 90, height: 90)
+                            
+                            Image(viewModel.enemy.iconName) // Asset enemy
+                                .resizable().scaledToFit().padding(10).frame(width: 85, height: 85)
                         }
-                        .offset(x: viewModel.enemyIsHit ? 10 : 0)
-                        .overlay(
-                            Color.red.opacity(viewModel.enemyIsHit ? 0.7 : 0)
-                                .clipShape(Circle())
-                        )
-
-                        // Jméno
+                        .overlay(Circle().stroke(Color.red, lineWidth: 3))
+                        .overlay(Color.red.opacity(viewModel.enemyIsHit ? 0.6 : 0).clipShape(Circle()))
+                        .offset(x: enemyShake) // Shake efekt
+                        
                         Text(viewModel.enemy.name)
-                            .font(.caption).bold().foregroundColor(.red)
-                            .shadow(radius: 2)
-                            .lineLimit(1)
-
-                        // Health Bar
-                        HealthBarView(
-                            current: viewModel.enemy.currentHP,
-                            max: viewModel.enemy.combatStats.hp,
-                            color: .red
-                        )
-
-                        // --- STATY NEPŘÍTELE (Fyzické vs Magické) ---
-                        VStack(spacing: 2) {
-                            // Fyzické
-                            HStack(spacing: 8) {
-                                Label(
-                                    "\(viewModel.enemy.combatStats.physicalDamage)",
-                                    systemImage: "sword.fill"
-                                )
-                                Label(
-                                    "\(viewModel.enemy.combatStats.physicalDefense)",
-                                    systemImage: "shield.fill"
-                                )
-                            }
-                            .foregroundColor(.white.opacity(0.9))
-
-                            // Magické
-                            HStack(spacing: 8) {
-                                Label(
-                                    "\(viewModel.enemy.combatStats.magicDamage)",
-                                    systemImage: "flame.fill"
-                                )
-                                Label(
-                                    "\(viewModel.enemy.combatStats.magicDefense)",
-                                    systemImage: "sparkles"
-                                )
-                            }
-                            .foregroundColor(.cyan.opacity(0.9))
+                            .font(.caption).bold().foregroundColor(.red).shadow(radius: 2)
+                        
+                        HealthBarView(current: viewModel.enemy.currentHP, max: viewModel.enemy.combatStats.hp, color: .red)
+                        
+                        HStack(spacing: 12) {
+                            statIcon(icon: "sword.fill", val: viewModel.enemy.combatStats.physicalDamage, color: .white)
+                            statIcon(icon: "shield.fill", val: viewModel.enemy.combatStats.physicalDefense, color: .orange)
                         }
-                        .font(.system(size: 10, weight: .bold))
                     }
                     .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 10)
-                .padding(.top, 60)  // Odsazení odshora (Dynamic Island)
-
-                // MEZERA (Tlačí Log doprostřed)
+                .padding(.top, 60)
+                .padding(.horizontal)
+                
                 Spacer()
-
-                // --- 3. BATTLE LOG (UPROSTŘED) ---
-                VStack {
-                    ScrollViewReader { proxy in
-                        ScrollView {
-                            VStack(spacing: 4) {
-                                ForEach(viewModel.battleLog, id: \.self) {
-                                    log in
-                                    Text(log)
-                                        .font(.caption).bold()
-                                        .foregroundColor(.white)
-                                        .padding(.vertical, 6)
-                                        .padding(.horizontal, 12)
-                                        .background(Color.black.opacity(0.6))
-                                        .cornerRadius(15)
-                                        .shadow(radius: 2)
-                                    // Otočíme log, aby nové zprávy byly dole (volitelné),
-                                    // ale tvůj systém vkládá na index 0, takže to necháme takto.
-                                }
+                
+                // --- 3. BATTLE LOG ---
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        VStack(spacing: 4) {
+                            ForEach(viewModel.battleLog, id: \.self) { log in
+                                Text(log)
+                                    .font(.caption).bold()
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 6)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.black.opacity(0.7))
+                                    .cornerRadius(15)
+                                    .transition(.opacity)
                             }
-                            .frame(maxWidth: .infinity)  // Log přes celou šířku (centrovaný)
-                            .padding(.horizontal)
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal)
                     }
+                    .frame(height: 120) // Fixní výška logu
                 }
-                .frame(maxHeight: 150)  // Omezíme výšku logu, aby nezabral celou obrazovku
-
-                // MEZERA (Tlačí Menu dolů)
+                
                 Spacer()
-
-                // --- 4. AKČNÍ MENU (Gridy) ---
+                
+                // --- 4. OVLÁDACÍ PANEL ---
                 ZStack {
-                    Color(UIColor.secondarySystemBackground).opacity(0.95)
+                    // Pozadí panelu
+                    VisualEffectBlur(blurStyle: .systemUltraThinMaterialDark)
                         .ignoresSafeArea()
-
+                    
                     if viewModel.combatState == .playerTurn {
-
                         switch viewModel.actionMenuState {
-                        case .main:
-                            MainMenuGrid(viewModel: viewModel)
-                        case .attacks:
-                            AttacksMenuGrid(viewModel: viewModel)
-                        case .spells:
-                            SpellsMenuGrid(viewModel: viewModel)
-                        case .items:
-                            ItemsMenuGrid(viewModel: viewModel)
+                        case .main: MainMenuGrid(viewModel: viewModel)
+                        case .attacks: AttacksMenuGrid(viewModel: viewModel)
+                        case .spells: SpellsMenuGrid(viewModel: viewModel)
+                        case .items: ItemsMenuGrid(viewModel: viewModel)
                         }
-
                     } else if viewModel.combatState == .enemyTurn {
-                        VStack {
-                            ProgressView()
-                            Text("Soupeř hraje...").font(.headline).padding(
-                                .top,
-                                5
-                            )
+                        VStack(spacing: 10) {
+                            ProgressView().tint(.white)
+                            Text("Enemy Turn...")
+                                .font(.headline).foregroundColor(.white.opacity(0.8))
                         }
-                        .foregroundColor(.black)
-
                     } else {
                         // Konec boje
-                        Button(action: { dismiss() }) {
-                            Text(
-                                viewModel.combatState == .victory
-                                    ? "VYBRAT ODMĚNU" : "KONEC"
-                            )
-                            .font(.headline).bold()
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                viewModel.combatState == .victory
-                                    ? Color.yellow : Color.gray
-                            )
-                            .foregroundColor(.black)
-                            .cornerRadius(12)
+                        Button(action: {
+                            HapticManager.shared.success()
+                            dismiss()
+                        }) {
+                            Text(viewModel.combatState == .victory ? "CLAIM REWARD" : "FINISH")
+                                .font(.headline).bold()
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(viewModel.combatState == .victory ? Color.yellow : Color.gray)
+                                .foregroundColor(.black)
+                                .cornerRadius(12)
                         }
-                        .padding(.horizontal, 30)  // Odsazení tlačítka konec
-                        .padding(.vertical, 20)
+                        .padding(40)
                     }
                 }
-                .frame(height: 180)  // Trochu vyšší pro menu
+                .frame(height: 220) // Výška spodního panelu
+            }
+        }
+        // Reakce na zásahy (Shake animace)
+        .onChange(of: viewModel.playerIsHit) { _, hit in
+            if hit { withAnimation(.default) { playerShake = 10 }; withAnimation(.default.delay(0.1)) { playerShake = -10 }; withAnimation(.default.delay(0.2)) { playerShake = 0 }
+                HapticManager.shared.heavyImpact()
+            }
+        }
+        .onChange(of: viewModel.enemyIsHit) { _, hit in
+            if hit { withAnimation(.default) { enemyShake = 10 }; withAnimation(.default.delay(0.1)) { enemyShake = -10 }; withAnimation(.default.delay(0.2)) { enemyShake = 0 }
+                HapticManager.shared.mediumImpact()
             }
         }
     }
+    
+    func statIcon(icon: String, val: Int, color: Color) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon).font(.caption2)
+            Text("\(val)").font(.caption2).bold()
+        }
+        .foregroundColor(color.opacity(0.9))
+    }
+}
+
+// Pomocná struktura pro Blur efekt (jako sklo)
+struct VisualEffectBlur: UIViewRepresentable {
+    var blurStyle: UIBlurEffect.Style
+    func makeUIView(context: Context) -> UIVisualEffectView { UIVisualEffectView(effect: UIBlurEffect(style: blurStyle)) }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) { uiView.effect = UIBlurEffect(style: blurStyle) }
 }

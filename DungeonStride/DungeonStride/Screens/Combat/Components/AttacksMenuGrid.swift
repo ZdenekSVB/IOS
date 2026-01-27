@@ -11,57 +11,59 @@ struct AttacksMenuGrid: View {
     @ObservedObject var viewModel: CombatViewModel
 
     var body: some View {
-        VStack {
-            // Hlavička
+        VStack(spacing: 12) {
+            // Hlavička s tlačítkem Zpět
             HStack {
-                Button("Zpět") {
-                    withAnimation { viewModel.actionMenuState = .main }
+                Button(action: { withAnimation { viewModel.actionMenuState = .main } }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.caption).bold()
+                    .foregroundColor(.white.opacity(0.8))
                 }
-                .font(.caption).bold()
                 Spacer()
-                Text("Zvol typ útoku").font(.caption).foregroundColor(.gray)
+                Text("Select Attack").font(.caption).foregroundColor(.gray)
                 Spacer()
+                // Placeholder pro zarovnání
+                Spacer().frame(width: 40)
             }
-            .padding(.horizontal, 60)  // <--- Odsazení hlavičky
-            .padding(.top, 10)
+            .padding(.horizontal, 24)
+            .padding(.top, 5)
 
-            LazyVGrid(
-                columns: [GridItem(.flexible()), GridItem(.flexible())],
-                spacing: 12  // Menší mezera
-            ) {
-
-                CombatButton(
-                    title: "Rychlý",
-                    icon: "figure.run",
-                    color: .yellow
-                ) {
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                
+                CombatButton(title: "Quick", icon: "figure.run", color: .yellow) {
                     viewModel.performQuickAttack()
                 }
 
-                CombatButton(title: "Silný", icon: "hammer.fill", color: .red) {
+                CombatButton(title: "Heavy", icon: "hammer.fill", color: .red) {
                     viewModel.performHeavyAttack()
                 }
 
                 // Magie
                 if !viewModel.availableSpells.isEmpty {
-                    CombatButton(
-                        title: "Magie",
-                        icon: "flame.fill",
-                        color: .purple
-                    ) {
+                    CombatButton(title: "Spells", icon: "flame.fill", color: .purple) {
                         withAnimation { viewModel.actionMenuState = .spells }
                     }
                 } else {
-                    CombatButton(
-                        title: "Magie",
-                        icon: "flame",
-                        color: .gray.opacity(0.5)
-                    ) {}
+                    // Disabled tlačítko
+                    Button(action: {}) {
+                        VStack(spacing: 6) {
+                            Image(systemName: "lock.fill").font(.title2)
+                            Text("No Spells").font(.caption).bold()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.black.opacity(0.3))
+                        .foregroundColor(.gray)
+                        .cornerRadius(16)
+                    }
+                    .frame(height: 75)
                     .disabled(true)
                 }
             }
-            .padding(.horizontal, 60)  // <--- Odsazení tlačítek (stejné jako MainMenu)
-            .padding(.bottom, 15)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 10)
         }
     }
 }

@@ -14,19 +14,41 @@ struct CombatButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {  // Menší mezera mezi ikonou a textem
+        Button(action: {
+            HapticManager.shared.lightImpact() // Haptika
+            SoundManager.shared.playSystemClick() // Zvuk
+            action()
+        }) {
+            VStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 20, weight: .bold))  // Menší ikona (byla .title2)
-
+                    .font(.system(size: 24, weight: .bold))
+                
                 Text(title)
-                    .font(.caption).bold()  // Menší písmo (bylo .callout)
+                    .font(.system(size: 14, weight: .bold))
             }
-            .frame(maxWidth: .infinity, minHeight: 55)  // ZMENŠENO ze 70 na 55
-            .background(color.opacity(0.9))  // Trochu sytější barva
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.vertical, 12)
+            .background(
+                ZStack {
+                    color.opacity(0.8) // Základní barva
+                    
+                    // Gradient pro "skleněný" efekt
+                    LinearGradient(
+                        colors: [.white.opacity(0.15), .clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
+            )
             .foregroundColor(.white)
-            .cornerRadius(12)
-            .shadow(radius: 2)
+            .cornerRadius(16)
+            // Jemný okraj
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+            )
+            .shadow(color: color.opacity(0.3), radius: 5, x: 0, y: 3)
         }
+        .frame(height: 75) // Fixní výška
     }
 }
